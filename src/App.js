@@ -632,7 +632,7 @@ const App = () => {
               <span>חוסרים</span>
             </CardTitle>
             <CardDescription className={`text-center text-lg ${courseType === 'cs' ? 'text-blue-800' : 'text-purple-800'}`}>
-              יש לך מבחנים שאינם נמצאים במאגר? נשמח שתשלח לנו אותם
+              יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
             </CardDescription>
           </CardHeader>
             <CardContent className="flex flex-col items-center gap-2 px-4 sm:px-6">
