@@ -190,7 +190,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                 </div>
               </div>
               <a
-                href={`https://wa.me/972${tutor.phone.substring(1)}`}
+                href={``}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`w-10 h-10 flex items-center justify-center rounded-md ${
