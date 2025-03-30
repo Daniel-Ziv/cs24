@@ -81,22 +81,28 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
 
   const handleWhatsAppClick = async (e) => {
     try {
-      // Insert click record into tutor_clicks table
+      // Insert click record into tutor_clicks
       const { error } = await supabase
         .from('tutor_clicks')
         .insert([{
           tutor_id: tutor.id,
           clicked_at: new Date().toISOString()
         }]);
-
+  
+      // If there's a Supabase error, prevent navigation
       if (error) {
+        e.preventDefault();
         console.error('Error tracking click:', error);
+        // Optionally show a toast or do something else
       }
-    } catch (error) {
-      // Silently fail - don't block the user from contacting the tutor
-      console.error('Error tracking click:', error);
+  
+    } catch (err) {
+      // On any unexpected error, also prevent the link from opening
+      e.preventDefault();
+      console.error('Error tracking click:', err);
     }
   };
+  
 
   const handleDeleteFeedback = async (feedbackId) => {
     try {
@@ -174,6 +180,8 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
     setCommentError('');
     setComment(newComment);
   };
+//check it because in the original code it was phone but in the data it was contact
+  const phoneWithoutZero = tutor.contact?.substring(1) || ""; 
 
   return (
     <>
@@ -190,7 +198,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                 </div>
               </div>
               <a
-                href={`https://wa.me/972${tutor.phone.substring(1)}`}
+                href={`https://wa.me/972${phoneWithoutZero}`}//https://wa.me/972${tutor.phone.substring(1)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`w-10 h-10 flex items-center justify-center rounded-md ${
