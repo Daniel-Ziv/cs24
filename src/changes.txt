@@ -1,0 +1,61 @@
+
+# Created mock .env
+# Created LocalData.js - save locally tutors
+
+*** Changes in app.js ***
+
+# Created new mock data (csTutors, eeTutors) with deedback data, Waiting for approval to remove old data
+
+# Added in app.js 2 new function
+  1. use the wilson filter - 'calculateWilsonScore'
+  2. sort the tutors (mock , supabase) - 'scoreAndSortTutors'
+
+# Changed the 'loadTutorsWithFeedback' function in app.js to interface with the new functions
+
+# Changed the html part of uploading filterd data - Waiting for approval to remove old data
+  old - sortTutorsByRating(filteredTutors)
+  new - filteredTutors
+
+# Removed sortTutorsByRating - wating 
+/*
+  const sortTutorsByRating = (tutors) => {
+    return [...tutors].sort((a, b) => {
+      const ratingA = a.average_rating || 0;
+      const ratingB = b.average_rating || 0;
+      return ratingB - ratingA;
+    });
+  };
+*/ 
+
+
+
+*** Changes in TutorCard.jsx ***
+
+# Changed url - src\components\TutorCard.jsx --
+
+  added this var - const phoneWithoutZero = tutor.contact?.substring(1) || ""; 
+  chenged this line - href={`https://wa.me/972${phoneWithoutZero}`}//https://wa.me/972${tutor.phone.substring(1)}
+  * check about the difference between contact/phone*
+
+# Changed the function handleWhatsAppClick - 
+  this is the old one-
+  /*
+  const handleWhatsAppClick = async (e) => {
+      try {
+        // Insert click record into tutor_clicks table
+        const { error } = await supabase
+          .from('tutor_clicks')
+          .insert([{
+            tutor_id: tutor.id,
+            clicked_at: new Date().toISOString()
+          }]);
+
+        if (error) {
+          console.error('Error tracking click:', error);
+        }
+      } catch (error) {
+        // Silently fail - don't block the user from contacting the tutor
+        console.error('Error tracking click:', error);
+      }
+    };
+*/
