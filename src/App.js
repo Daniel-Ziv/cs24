@@ -30,6 +30,7 @@ const App = () => {
   const [tutorSpecialization, setTutorSpecialization] = useState('');
   const [showFixedButton, setShowFixedButton] = useState(false);
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
+  const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
   
           const theme = courseType === 'cs' ? 'blue' : 'dark-purple';
@@ -146,52 +147,57 @@ const App = () => {
     return sorted;
   };
   
-
   // Tutor data loading
   const loadTutorsWithFeedback = async () => {
     setIsLoadingTutors(true);
-    try {
-      // Fetch tutors with their feedback using a single query
-      const { data: tutors, error } = await supabase
-        .from('tutors')
-        .select(`
-          *,
-          feedback (
-            id,
-            user_id,
-            email,
-            rating,
-            comment,
-            created_at
-          )
-        `)
-        .eq('degree', courseType);
-
-      if (error) {
-        // Removed console.error
-        // Fallback to local data if there's an error
-        const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
-        setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
-        return;
-      }
-      
-      if (tutors && tutors.length > 0) {
-        setTutorsWithFeedback(scoreAndSortTutors(tutors));
-      }
-       else {
-        // Fallback to local data if no tutors in Supabase
-        const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
-        setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
-      }
-    } catch (error) {
-      // Removed console.error
-      // Fallback to local data on any error
+    setTutorsError(null); // Clear any previous error
+    const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
+  
+    // Helper for fallback tutors
+    const fallback = () => {
       const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
       setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
+    };
+  
+    // Helper for handling errors
+    const handleError = (message) => {
+      if (isDevMode) {
+        fallback();
+      } else {
+        setTutorsError(message);
+        setTutorsWithFeedback([]); // Clear tutors list if needed
+      }
+    };
+  
+    try {
+      const { data: tutors, error } = await supabase
+        .from('tutors')
+        .select(
+          `*, feedback (
+             id,
+             user_id,
+             email,
+             rating,
+             comment,
+             created_at
+           )`
+        )
+        .eq('degree', courseType);
+  
+      if (error) return handleError("אין חיבור לשרת. נסה שוב מאוחר יותר.");
+      if (!tutors || tutors.length === 0) {
+        return handleError("אין מורים להצגה כרגע.");
+      }
+      setTutorsWithFeedback(scoreAndSortTutors(tutors));
+    } catch {
+      handleError("שגיאה בטעינת נתונים מהשרת.");
     } finally {
       setIsLoadingTutors(false);
     }
   };
+  
+
+
 
   // Handle feedback submission
   const handleSubmitFeedback = async (tutorId, rating, comment) => {
@@ -526,9 +532,15 @@ const App = () => {
                   <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${courseType === 'cs' ? 'text-sky-600' : 'text-purple-600'}`} />
                   מורים פרטיים
           </CardTitle>
-                <div className="flex-shrink-0">
-                  <AuthButton user={user} courseType={courseType} />
-                </div>
+          <div className="flex-shrink-0">
+            {tutorsError ? (
+              <div className="opacity-50 cursor-not-allowed pointer-events-none">
+                <AuthButton user={user} courseType={courseType} disabled />
+              </div>
+            ) : (
+              <AuthButton user={user} courseType={courseType} />
+            )}
+          </div>
               </div>
               
               {/* Specialization dropdown for EE years ג and ד */}
@@ -555,6 +567,7 @@ const App = () => {
               )}
 
               {/* Year filter buttons */}
+              {!tutorsError && (
               <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
                 {(courseType === 'cs' ? ['שנה א', 'שנה ב', 'שנה ג'] : ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד']).map((year) => (
                   <Button
@@ -574,7 +587,7 @@ const App = () => {
                   </Button>
                 ))}
               </div>
-
+            )}
               {/* Course list */}
               {selectedYear && (
                 <div className="flex flex-wrap gap-2 mt-3">
@@ -599,7 +612,19 @@ const App = () => {
               )}
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          {tutorsError ? (
+            <div
+              className={`p-4 rounded-md text-center ${
+                courseType === 'cs'
+                  ? 'bg-blue-50 border border-blue-200 text-blue-800'
+                  : 'bg-purple-50 border border-purple-200 text-purple-800'
+              }`}
+            >
+              {tutorsError}
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 {isLoadingTutors ? (
                   // Loading skeleton
                   <>
@@ -620,25 +645,26 @@ const App = () => {
                         user={user}
                         onSubmitFeedback={handleSubmitFeedback}
                       />
-                ))
-              )}
-          </div>
-
-                {filteredTutors.length > TUTORS_PER_PAGE && !showAllTutors && (
-                  <div className="flex justify-center mt-4">
-                    <Button
-                      onClick={() => setShowAllTutors(true)}
-                      variant="outline"
-                      className={`${
-                        courseType === 'cs'
-                          ? 'text-sky-600 hover:bg-sky-100'
-                          : 'text-purple-600 hover:bg-purple-100'
-                      }`}
-                    >
-                      הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
-                    </Button>
-              </div>
+                    ))
                 )}
+              </div>
+              {filteredTutors.length > TUTORS_PER_PAGE && !showAllTutors && (
+                <div className="flex justify-center mt-4">
+                  <Button
+                    onClick={() => setShowAllTutors(true)}
+                    variant="outline"
+                    className={
+                      courseType === 'cs'
+                        ? 'text-sky-600 hover:bg-sky-100'
+                        : 'text-purple-600 hover:bg-purple-100'
+                    }
+                  >
+                    הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
           </CardContent>
       </Card>
 

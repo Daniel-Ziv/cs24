@@ -181,7 +181,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
     setComment(newComment);
   };
 //check it because in the original code it was phone but in the data it was contact
-  const phoneWithoutZero = tutor.contact?.substring(1) || ""; 
+  const phoneWithoutZero = tutor.phone?.substring(1) || ""; 
 
   return (
     <>
