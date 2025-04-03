@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { supabase } from '../lib/supabase';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 // Import course data from CoursesList
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesList';
+import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesListLinks';
 import { showNotification } from './ui/notification';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";

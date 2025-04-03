@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesList';
+import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesListLinks';
 import { showNotification } from './ui/notification';
 
 const YEARS = ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד'];

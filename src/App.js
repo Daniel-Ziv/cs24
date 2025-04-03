@@ -9,7 +9,7 @@ import { supabase } from './lib/supabase'
 import AuthButton from './components/AuthButton'
 import TutorCard from './components/TutorCard'
 import AdminPanel from './components/AdminPanel'
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './components/CoursesList'
+import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './components/CoursesListLinks'
 import { NotificationProvider, showNotification } from './components/ui/notification'
 import localData from './LocalData.json';
 
@@ -39,6 +39,79 @@ const App = () => {
           const buttonBg = courseType === 'cs' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-purple-800 hover:bg-purple-900';
           const buttonBorder = courseType === 'cs' ? 'border-blue-700' : 'border-purple-800';
   
+          
+          // const courseStyles = {
+          //   cs: {
+          //     theme: 'blue',
+          //     bgGradient: 'from-blue-50 to-white',
+          //     textColor: 'text-blue-950',
+          //     buttonBg: 'bg-blue-700 hover:bg-blue-800',
+          //     buttonBorder: 'border-blue-700',
+          //     bgColor: 'bg-blue-800',
+          //     hoverBgColor: 'hover:bg-blue-700',
+          //     borderColor: 'border-blue-200',
+          //     hoverBgLight: 'hover:bg-blue-50',
+          //     bgLight: 'bg-blue-100',
+          //     iconColor: 'text-blue-800',
+          //   },
+          //   ee: {
+          //     theme: 'green',
+          //     bgGradient: 'from-green-50 to-white',
+          //     textColor: 'text-green-950',
+          //     buttonBg: 'bg-green-700 hover:bg-green-800',
+          //     buttonBorder: 'border-green-700',
+          //     bgColor: 'bg-green-800',
+          //     hoverBgColor: 'hover:bg-green-700',
+          //     borderColor: 'border-green-200',
+          //     hoverBgLight: 'hover:bg-green-50',
+          //     bgLight: 'bg-green-100',
+          //     iconColor: 'text-green-800',
+          //   },
+          //   ie: {
+          //     theme: 'orange',
+          //     bgGradient: 'from-orange-50 to-white',
+          //     textColor: 'text-orange-950',
+          //     buttonBg: 'bg-orange-700 hover:bg-orange-800',
+          //     buttonBorder: 'border-orange-700',
+          //     bgColor: 'bg-orange-800',
+          //     hoverBgColor: 'hover:bg-orange-700',
+          //     borderColor: 'border-orange-200',
+          //     hoverBgLight: 'hover:bg-orange-50',
+          //     bgLight: 'bg-orange-100',
+          //     iconColor: 'text-orange-800',
+          //   },
+          //   // הוסף כאן אפשרויות נוספות...
+          //   default: { // ברירת מחדל
+          //     theme: 'dark-purple',
+          //     bgGradient: 'from-purple-50 to-white',
+          //     textColor: 'text-purple-950',
+          //     buttonBg: 'bg-purple-800 hover:bg-purple-900',
+          //     buttonBorder: 'border-purple-800',
+          //     bgColor: 'bg-purple-800',
+          //     hoverBgColor: 'hover:bg-purple-700',
+          //     borderColor: 'border-purple-200',
+          //     hoverBgLight: 'hover:bg-purple-50',
+          //     bgLight: 'bg-purple-100',
+          //     iconColor: 'text-purple-800',
+          //   },
+          // };
+          
+          // const styles = courseStyles[courseType] || courseStyles.default;
+          
+          // const {
+          //   theme,
+          //   bgGradient,
+          //   textColor,
+          //   buttonBg,
+          //   buttonBorder,
+          //   bgColor,
+          //   hoverBgColor,
+          //   borderColor,
+          //   hoverBgLight,
+          //   bgLight,
+          //   iconColor,
+          // } = styles;
+
           // EE specialization options
           const EE_SPECIALIZATIONS = [
             'בקרה',
