@@ -12,13 +12,20 @@ import AdminPanel from './components/AdminPanel'
 import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './components/CoursesList'
 import { NotificationProvider, showNotification } from './components/ui/notification'
 import localData from './LocalData.json';
+import { COURSE_CONFIG } from './config/courses';
+import { DEGREES, COLORS } from './config/theme';
 
 const csTutors = localData.csTutors;
-const eeTutors = localData.eeTutors
-
+const eeTutors = localData.eeTutors;
+// Fallback tutors for Industrial Engineering
+const ieTutors = [
+  { name: "יוסי לוי", subjects: ["סימולציה", "ניהול פרויקטים"], phone: "0501234567" },
+  { name: "רונית כהן", subjects: ["חקר עבודה", "מערכות ייצור"], phone: "0529876543" },
+  { name: "דני שמעוני", subjects: ["מבוא להנדסת תעשייה", "סטטיסטיקה"], phone: "0587654321" }
+];
 
 const App = () => {
-          const [courseType, setCourseType] = useState('cs'); // 'cs' for Computer Science, 'ee' for Electrical Engineering
+          const [courseType, setCourseType] = useState(DEGREES.CS); // Use the DEGREES constant
           const [selectedTag, setSelectedTag] = useState('אין');
   const [isVisible, setIsVisible] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -33,11 +40,15 @@ const App = () => {
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
   
-          const theme = courseType === 'cs' ? 'blue' : 'dark-purple';
-          const bgGradient = courseType === 'cs' ? 'from-blue-50 to-white' : 'from-purple-50 to-white';
-          const textColor = courseType === 'cs' ? 'text-blue-950' : 'text-purple-950';
-          const buttonBg = courseType === 'cs' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-purple-800 hover:bg-purple-900';
-          const buttonBorder = courseType === 'cs' ? 'border-blue-700' : 'border-purple-800';
+  // Get current theme colors based on courseType
+  const currentColors = COLORS[courseType];
+  
+  // Theme variables derived from color constants
+  const theme = currentColors.primary;
+  const bgGradient = currentColors.bgGradient;
+  const textColor = currentColors.text;
+  const buttonBg = currentColors.buttonBg;
+  const buttonBorder = currentColors.buttonBorder;
   
           // EE specialization options
           const EE_SPECIALIZATIONS = [
@@ -50,15 +61,33 @@ const App = () => {
             'מערכות משובצות מחשב'
           ];
 
+  // IE specialization options
+  const IE_SPECIALIZATIONS = [
+    'ניהול פרויקטים',
+    'הנדסת איכות',
+    'אבטחת איכות',
+    'הנדסת גורמי אנוש',
+    'ניהול התפעול',
+    'ניהול משאבי אנוש'
+  ];
 
-          const handleCourseSwitch = (type) => {
-            setCourseType(type);
-            if (type === 'cs') {
+          const handleCourseSwitch = (degreeType) => {
+            setCourseType(degreeType);
+            if (degreeType === DEGREES.CS) {
               setSelectedTag(null); // Reset selected tag when switching to CS
             }
-            else {
-              setSelectedTag('אין'); // Reset selected tag when switching to EE
+            else if (degreeType === DEGREES.EE) {
+              setSelectedTag('אין'); // Reset selected tag for EE
             }
+            else if (degreeType === DEGREES.IE) {
+              setSelectedTag(null); // Reset selected tag for IE
+            }
+            
+            // Reset other filters when switching degree
+            setSelectedYear(null);
+            setSelectedCourse(null);
+            setShowAllTutors(false);
+            setTutorSpecialization('');
           };
 
   // Supabase authentication
@@ -155,7 +184,14 @@ const App = () => {
   
     // Helper for fallback tutors
     const fallback = () => {
-      const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
+      let fallbackTutors;
+      if (courseType === DEGREES.CS) {
+        fallbackTutors = csTutors;
+      } else if (courseType === DEGREES.EE) {
+        fallbackTutors = eeTutors;
+      } else if (courseType === DEGREES.IE) {
+        fallbackTutors = ieTutors;
+      }
       setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
     };
   
@@ -305,37 +341,20 @@ const App = () => {
   }, [courseType]);
 
   const getCoursesForYear = (year) => {
-    if (courseType === 'cs') {
-      switch(year) {
-        case 'שנה א': return yearOneCourses;
-        case 'שנה ב': return yearTwoCourses;
-        case 'שנה ג': return yearThreeCourses;
-        default: return [];
-      }
-    } else {
-      let courses = [];
-      switch(year) {
-        case 'שנה א': courses = eeYearOneCourses; break;
-        case 'שנה ב': courses = eeYearTwoCourses; break;
-        case 'שנה ג': courses = eeYearThreeCourses; break;
-        case 'שנה ד': courses = eeYearFourCourses; break;
-        default: courses = [];
-      }
-      
-      // Filter courses based on specialization for years ג and ד
-      if ((year === 'שנה ג' || year === 'שנה ד') && tutorSpecialization) {
-        return courses.filter(course => 
-          !course.tag || // Include general courses
-          (Array.isArray(course.tag) && course.tag.includes(tutorSpecialization)) || // Handle array of tags
-          course.tag === tutorSpecialization // Handle single tag
-        );
-      } else if ((year === 'שנה ג' || year === 'שנה ד')) {
-        // If no specialization is selected, only show general courses
-        return courses.filter(course => !course.tag);
-      }
-      
-      return courses;
+    const degreeConfig = COURSE_CONFIG[courseType];
+    if (!degreeConfig) return [];
+
+    const yearCourses = degreeConfig.courses[year] || [];
+    
+    // If specialization is selected and it's year 3 or 4, filter by specialization
+    if (tutorSpecialization && (year === 'שנה ג' || year === 'שנה ד')) {
+      return yearCourses.filter(course => 
+        !course.specializations || // Include general courses
+        course.specializations.includes(tutorSpecialization)
+      );
     }
+    
+    return yearCourses;
   };
 
   const handleYearClick = (year) => {
@@ -348,7 +367,7 @@ const App = () => {
       setSelectedCourse(null);
       
       // Reset specialization if not year ג or ד
-      if (courseType === 'ee' && year !== 'שנה ג' && year !== 'שנה ד') {
+      if (courseType === DEGREES.EE && year !== 'שנה ג' && year !== 'שנה ד') {
         setTutorSpecialization('');
       }
     }
@@ -403,25 +422,32 @@ const App = () => {
 
                 {/* Course Type Selection Buttons */}
                 <div className="flex flex-row gap-3 mt-4 justify-center mb-5">
+                    {Object.entries(COLORS).map(([degree, colors]) => (
+                      <Button 
+                        key={degree}
+                        className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                          courseType === degree
+                            ? `${buttonBg} text-white`
+                            : `bg-white hover:bg-${theme}-50 text-${theme}-700 ${buttonBorder}`
+                        }`}
+                        onClick={() => handleCourseSwitch(degree)}
+                      >
+                        {colors.displayName}
+                      </Button>
+                    ))}
+                </div>
+                
+                {/* Demonstration of adding a new degree type */}
+                <div className="flex flex-row gap-3 mt-2 justify-center mb-5">
                     <Button 
                       className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                        courseType === 'cs' 
+                        courseType === DEGREES.CS 
                           ? `${buttonBg} text-white`
                           : `bg-white hover:bg-${theme}-50 text-${theme}-700 ${buttonBorder}`
                       }`}
-                      onClick={() => handleCourseSwitch('cs')}
+                      onClick={() => handleCourseSwitch(DEGREES.CS)}
                     >
-                      מדעי המחשב
-                    </Button>
-                    <Button 
-                      className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                        courseType === 'ee' 
-                          ? `${buttonBg} text-white`
-                          : `bg-white hover:bg-${theme}-50 text-${theme}-700 ${buttonBorder}`
-                      }`}
-                      onClick={() => handleCourseSwitch('ee')}
-                    >
-                      הנדסת חשמל
+                      כפתור עם משתנה DEGREES.CS
                     </Button>
                 </div>
               
@@ -433,7 +459,7 @@ const App = () => {
             </div>
             
             {/* Laptop Section */}
-            <Card className={`bg-gradient-to-r ${courseType === 'cs' ? 'from-blue-700 via-blue-800 to-blue-700' : 'from-purple-800 via-purple-950 to-purple-800'} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder}`}>
+            <Card className={`bg-gradient-to-r ${COLORS[courseType].gradientBg} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder}`}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full sm:block">
@@ -463,10 +489,10 @@ const App = () => {
             {/* Right Column Content (2/3 width on desktop) */}
                   <div className="lg:col-span-2">
                     {/* Laptop Section */}
-                    <Card className={`bg-gradient-to-r ${courseType === 'cs' ? 'from-blue-700 via-blue-800 to-blue-700' : 'from-purple-800 via-purple-950 to-purple-800'} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder} mb-4`}> 
+                    <Card className={`bg-gradient-to-r ${COLORS[courseType].gradientBg} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder}`}>
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                         <div className="flex items-center gap-3">
-                          <div className="bg-white/20 p-2 rounded-full hidden sm:block">
+                          <div className="bg-white/20 p-2 rounded-full sm:block">
                             <Laptop className="h-7 w-7 text-white animate-pulse" />
                           </div>
                           <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">
@@ -488,14 +514,14 @@ const App = () => {
                 </div>
 
           {/* Choose EE Specialty if chose EE */}
-          {courseType === 'ee' && (
+          {courseType === DEGREES.EE && (
             <div className="flex flex-col items-center mb-4">
-              <h2 className="text-xl font-bold text-purple-950 mb-2">התמחות</h2>
+              <h2 className={`text-xl font-bold ${currentColors.text} mb-2`}>התמחות</h2>
               <div className="relative inline-block text-left">
                 <select
                   value={selectedTag}
                   onChange={(e) => setSelectedTag(e.target.value)}
-                  className="appearance-none bg-white border border-purple-700 text-purple-700 px-4 py-2 pr-10 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`appearance-none bg-white border border-purple-700 text-purple-700 px-4 py-2 pr-10 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500`}
                 >
                   <option value="אין">עדיין אין</option>
                   <option value="בקרה">בקרה</option>
@@ -512,12 +538,35 @@ const App = () => {
             </div>
           )}
 
+          {/* Specialization dropdown for IE years ג and ד */}
+          {courseType === DEGREES.IE && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
+            <div className="mt-4 mb-3">
+              <label htmlFor="ie-specialization" className="block text-sm font-medium text-orange-700 mb-2">בחירת התמחות:</label>
+              <div className="relative">
+                <select
+                  id="ie-specialization"
+                  value={tutorSpecialization}
+                  onChange={(e) => setTutorSpecialization(e.target.value)}
+                  className="appearance-none w-full md:w-64 bg-white border border-orange-500 text-orange-800 py-2 px-4 pr-10 rounded-md shadow-md text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors hover:border-orange-600"
+                >
+                  <option value="">ללא התמחות</option>
+                  {IE_SPECIALIZATIONS.map(spec => (
+                    <option key={spec} value={spec}>{spec}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-orange-600">
+                  <ChevronDown className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Course List */}
-        {courseType === 'cs' ? (
-          <CourseList />
-        ) : (
-          <CourseList electricalEngineering={true} selectedTag={selectedTag} /> 
-        )}
+          <CourseList 
+            electricalEngineering={courseType === DEGREES.EE}
+            industrialEngineering={courseType === DEGREES.IE}
+            selectedTag={selectedTag} 
+          />
 
           {/* Links Section - Mobile (appears after course list) */}
           <div className="block lg:hidden mt-4">
@@ -525,26 +574,26 @@ const App = () => {
                   </div>
 
           {/* New Tutors Section with Supabase Integration */}
-      <Card className={`mb-8 bg-white ${courseType === 'cs' ? 'border-sky-200' : 'border-purple-200'}`}>
+      <Card className={`mb-8 bg-white ${COLORS[courseType].cardBorder}`}>
           <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${courseType === 'cs' ? 'text-sky-950' : 'text-purple-950'}`}>
-                  <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${courseType === 'cs' ? 'text-sky-600' : 'text-purple-600'}`} />
+                <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${COLORS[courseType].text}`}>
+                  <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${COLORS[courseType].icon}`} />
                   מורים פרטיים
-          </CardTitle>
-          <div className="flex-shrink-0">
-            {tutorsError ? (
-              <div className="opacity-50 cursor-not-allowed pointer-events-none">
-                <AuthButton user={user} courseType={courseType} disabled />
-              </div>
-            ) : (
-              <AuthButton user={user} courseType={courseType} />
-            )}
-          </div>
+                </CardTitle>
+                <div className="flex-shrink-0">
+                  {tutorsError ? (
+                    <div className="opacity-50 cursor-not-allowed pointer-events-none">
+                      <AuthButton user={user} courseType={courseType} disabled />
+                    </div>
+                  ) : (
+                    <AuthButton user={user} courseType={courseType} />
+                  )}
+                </div>
               </div>
               
               {/* Specialization dropdown for EE years ג and ד */}
-              {courseType === 'ee' && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
+              {courseType === DEGREES.EE && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
                 <div className="mt-4 mb-3">
                   <label htmlFor="ee-specialization" className="block text-sm font-medium text-purple-700 mb-2">בחירת התמחות:</label>
                   <div className="relative">
@@ -569,18 +618,14 @@ const App = () => {
               {/* Year filter buttons */}
               {!tutorsError && (
               <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                {(courseType === 'cs' ? ['שנה א', 'שנה ב', 'שנה ג'] : ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד']).map((year) => (
+                {COURSE_CONFIG[courseType]?.years.map((year) => (
                   <Button
                     key={year}
                     onClick={() => handleYearClick(year)}
                     className={`text-sm sm:text-base px-3 py-2 font-medium ${
                       selectedYear === year 
-                        ? courseType === 'cs'
-                          ? 'bg-sky-600 text-white hover:bg-sky-700'
-                          : 'bg-purple-600 text-white hover:bg-purple-700'
-                        : courseType === 'cs'
-                          ? 'bg-white text-sky-600 border border-sky-600 hover:bg-sky-50'
-                          : 'bg-white text-purple-600 border border-purple-600 hover:bg-purple-50'
+                        ? currentColors.activeButton
+                        : currentColors.inactiveButton
                     }`}
                   >
                     {year}
@@ -597,12 +642,8 @@ const App = () => {
                       onClick={() => handleCourseClick(course.name)}
                       className={`text-sm px-3 py-1.5 ${
                         selectedCourse === course.name 
-                          ? courseType === 'cs'
-                            ? 'bg-sky-600 text-white hover:bg-sky-700'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                          : courseType === 'cs'
-                            ? 'bg-white text-sky-600 border border-sky-600 hover:bg-sky-50'
-                            : 'bg-white text-purple-600 border border-purple-600 hover:bg-purple-50'
+                          ? currentColors.activeButton
+                          : currentColors.inactiveButton
                       }`}
                     >
                       {course.name}
@@ -610,15 +651,36 @@ const App = () => {
                   ))}
                 </div>
               )}
+
+              {/* Specialization dropdown */}
+              {courseType !== DEGREES.CS && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
+                <div className="mt-4 mb-3">
+                  <label htmlFor="specialization" className={`block text-sm font-medium ${currentColors.text} mb-2`}>
+                    בחירת התמחות:
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="specialization"
+                      value={tutorSpecialization}
+                      onChange={(e) => setTutorSpecialization(e.target.value)}
+                      className={`appearance-none w-full md:w-64 bg-white border ${currentColors.buttonBorder} ${currentColors.textSecondary} py-2 px-4 pr-10 rounded-md shadow-md text-base focus:outline-none focus:ring-2 focus:ring-${currentColors.primary}-500 focus:border-${currentColors.primary}-500 transition-colors hover:border-${currentColors.primary}-600`}
+                    >
+                      <option value="">ללא התמחות</option>
+                      {COURSE_CONFIG[courseType]?.specializations?.map(spec => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
+                    </select>
+                    <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${currentColors.icon}`}>
+                      <ChevronDown className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              )}
         </CardHeader>
         <CardContent>
           {tutorsError ? (
             <div
-              className={`p-4 rounded-md text-center ${
-                courseType === 'cs'
-                  ? 'bg-blue-50 border border-blue-200 text-blue-800'
-                  : 'bg-purple-50 border border-purple-200 text-purple-800'
-              }`}
+              className={`p-4 rounded-md text-center ${currentColors.bannerBg} border ${currentColors.bannerBorder} ${currentColors.errorText}`}
             >
               {tutorsError}
             </div>
@@ -653,11 +715,7 @@ const App = () => {
                   <Button
                     onClick={() => setShowAllTutors(true)}
                     variant="outline"
-                    className={
-                      courseType === 'cs'
-                        ? 'text-sky-600 hover:bg-sky-100'
-                        : 'text-purple-600 hover:bg-purple-100'
-                    }
+                    className={`${currentColors.linkColor} ${currentColors.linkHoverBg}`}
                   >
                     הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
                   </Button>
@@ -671,29 +729,25 @@ const App = () => {
         {/* Missing Tests Banner */}
           <Card 
             id="missing-tests-section"
-            className={`mb-8 bg-${courseType === 'cs' ? 'blue-50' : 'purple-50'} border-${courseType === 'cs' ? 'blue-200' : 'purple-200'} ${
+            className={`mb-8 ${currentColors.bannerBg} ${currentColors.bannerBorder} ${
               isVisible ? 'animate-bounce-gentle shadow-glow' : ''
             }`}
           >
           <CardHeader>
-            <CardTitle className={`text-3xl flex items-center gap-2 justify-center ${courseType === 'cs' ? 'text-blue-950' : 'text-purple-950'}`}>
-              <FileText className={`h-8 w-8 ${courseType === 'cs' ? 'text-blue-600' : 'text-purple-600'}`} aria-hidden="true" />
+            <CardTitle className={`text-3xl flex items-center gap-2 justify-center ${currentColors.text}`}>
+              <FileText className={`h-8 w-8 ${currentColors.icon}`} aria-hidden="true" />
               <span>חוסרים</span>
             </CardTitle>
-            <CardDescription className={`text-center text-lg ${courseType === 'cs' ? 'text-blue-800' : 'text-purple-800'}`}>
+            <CardDescription className={`text-center text-lg ${currentColors.textSecondary}`}>
               יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
             </CardDescription>
           </CardHeader>
             <CardContent className="flex flex-col items-center gap-2 px-4 sm:px-6">
-              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${courseType === 'cs' ? 'bg-blue-800' : 'bg-purple-800'}`}>
+              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${currentColors.headerBg}`}>
                 <span className="text-base sm:text-lg text-white select-all">cs24.hit@gmail.com</span>
                 <button
                   onClick={copyToClipboard}
-                  className={`p-1.5 rounded-md transition-colors ${
-                    courseType === 'cs' 
-                      ? 'hover:bg-blue-700 active:bg-blue-600' 
-                      : 'hover:bg-purple-700 active:bg-purple-600'
-                  }`}
+                  className={`p-1.5 rounded-md transition-colors ${currentColors.headerHover} ${currentColors.headerActive}`}
                   aria-label="העתק לזכרון"
                 >
                   {copySuccess ? (
@@ -708,7 +762,7 @@ const App = () => {
                   copySuccess ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
                 } transition-all duration-200`}
               >
-                <span className={`text-sm ${courseType === 'cs' ? 'text-blue-800' : 'text-purple-800'}`}>
+                <span className={`text-sm ${currentColors.textSecondary}`}>
                   הכתובת הועתקה בהצלחה!
                 </span>
               </div>
@@ -726,12 +780,12 @@ const App = () => {
             }
             
             .shadow-glow {
-              box-shadow: 0 0 15px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.3)' : 'rgba(147, 51, 234, 0.3)'};
+              box-shadow: 0 0 15px ${COLORS[courseType].shadowGlow};
               transition: box-shadow 0.3s ease-in-out;
             }
             
             .shadow-glow:hover {
-              box-shadow: 0 0 25px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.5)' : 'rgba(147, 51, 234, 0.5)'};
+              box-shadow: 0 0 25px ${COLORS[courseType].shadowGlowHover};
             }
           `}</style>
       </main>
