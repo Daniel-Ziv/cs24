@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 
 export const yearOneCourses = [
     { id: 1, name: "תכנות מונחה עצמים", driveLink: "https://drive.google.com/drive/folders/1DfI4EwDUx4pNjWIeQz0SU_TITPy4PBMn?usp=drive_link" },
@@ -32,44 +30,45 @@ export const yearThreeCourses = [
   { id: 21, name: "אוטומטים ושפות פורמליות", driveLink: "https://drive.google.com/drive/folders/1HHv_5NGFKITUMbLM8INccG3jzz2cCmFS?usp=sharing" },
   { id: 22, name: "חישוביות וסיבוכיות", driveLink: "https://drive.google.com/drive/folders/1wPppIA0y7hFRf3CxEs0YBsEo5a_qCwdI?usp=share_link" },
   //cs choosing courses
-  { id: 50, name: "בלוקצ'יין", driveLink: "https://drive.google.com/drive/folders/1rrR0a1k89Yu9jBdo08WMwiHLlJrui9Vn?usp=sharing"},
-  { id: 51, name: "מבוא למערכות מידע גיאוגרפי GIS", driveLink: "https://drive.google.com/drive/folders/1tyinoo_MKNvX0n3sryv3dpFHDMNmSWRa?usp=drive_link"},
-  { id: 52, name: "הנדסת פתרונות תוכנה מתקדמים (חלק א')", driveLink: "https://drive.google.com/drive/folders/1viWDkv9AJVOh3XO_oTSKjhVbA-sUX6v5?usp=sharing"},
-  { id: 53, name: "מבוא לתורת ההצפנה", driveLink: "https://drive.google.com/drive/folders/1xVpuxzJz2U9WJN2VZyUY4cyNAy8U_qsN?usp=sharing"},
-  { id: 54, name: "פיתוח צד לקוח בסביבת אנדרואיד 1", driveLink: "https://drive.google.com/drive/folders/1pKsN9bGYcHsBojg3cgzWpEIQpRhrI6nQ?usp=sharing"},
-  { id: 55, name: "אבטחת מחשבים", driveLink: "https://drive.google.com/drive/folders/1_F79AnxBh9z-MMGNlqqO5xoiAUzx6Z3_?usp=sharing"},
-  { id: 56, name: "אבטחת רשתות ומרשתת", driveLink: "https://drive.google.com/drive/folders/1KDn2p44y6x2fXWM5GHSn3-8ZM-uNCEkD?usp=sharing"},
-  { id: 57, name: "פיתוח צד לקוח בסביבת אנדרואיד 2", driveLink: "https://drive.google.com/drive/folders/1srTFfiJqb-YJz1JYqxFYfttcnG_pSqKF?usp=sharing"},
-  { id: 58, name: "fuzzy logic and soft computing", driveLink: "https://drive.google.com/drive/folders/1TQvNttFuySm6PJxv6XifAgm16lfGGV2f?usp=sharing"},
-  { id: 59, name: "עיבוד שפה טבעית (דיבור וטקסט) בעזרת מחשב", driveLink: "https://drive.google.com/drive/folders/1K37wNz9cQhCM-CZQR7Dw_0Q9cN8_zLEl?usp=sharing"}
+  { id: 23, name: "בלוקצ'יין", driveLink: "https://drive.google.com/drive/folders/1rrR0a1k89Yu9jBdo08WMwiHLlJrui9Vn?usp=sharing"},
+  { id: 24, name: "מבוא למערכות מידע גיאוגרפי GIS", driveLink: "https://drive.google.com/drive/folders/1tyinoo_MKNvX0n3sryv3dpFHDMNmSWRa?usp=drive_link"},
+  { id: 25, name: "הנדסת פתרונות תוכנה מתקדמים (חלק א')", driveLink: "https://drive.google.com/drive/folders/1viWDkv9AJVOh3XO_oTSKjhVbA-sUX6v5?usp=sharing"},
+  { id: 26, name: "מבוא לתורת ההצפנה", driveLink: "https://drive.google.com/drive/folders/1xVpuxzJz2U9WJN2VZyUY4cyNAy8U_qsN?usp=sharing"},
+  { id: 27, name: "פיתוח צד לקוח בסביבת אנדרואיד 1", driveLink: "https://drive.google.com/drive/folders/1pKsN9bGYcHsBojg3cgzWpEIQpRhrI6nQ?usp=sharing"},
+  { id: 28, name: "אבטחת מחשבים", driveLink: "https://drive.google.com/drive/folders/1_F79AnxBh9z-MMGNlqqO5xoiAUzx6Z3_?usp=sharing"},
+  { id: 29, name: "אבטחת רשתות ומרשתת", driveLink: "https://drive.google.com/drive/folders/1KDn2p44y6x2fXWM5GHSn3-8ZM-uNCEkD?usp=sharing"},
+  { id: 30, name: "פיתוח צד לקוח בסביבת אנדרואיד 2", driveLink: "https://drive.google.com/drive/folders/1srTFfiJqb-YJz1JYqxFYfttcnG_pSqKF?usp=sharing"},
+  { id: 31, name: "fuzzy logic and soft computing", driveLink: "https://drive.google.com/drive/folders/1TQvNttFuySm6PJxv6XifAgm16lfGGV2f?usp=sharing"},
+  { id: 32, name: "עיבוד שפה טבעית (דיבור וטקסט) בעזרת מחשב", driveLink: "https://drive.google.com/drive/folders/1K37wNz9cQhCM-CZQR7Dw_0Q9cN8_zLEl?usp=sharing"}
 
 ];
 
 export const choosingCourses = [
-  { id: 25, name: "אנטומיה ופיזיולוגיה של גוף האדם", driveLink: "https://drive.google.com/drive/folders/17T1jKhcm_yycBjGbeKti8MjQvAIB56Zn?usp=sharing" },
-  { id: 26, name: "אתגרי מחשבה בפילוסופיה", driveLink: "https://drive.google.com/drive/folders/1SE45fWekHTb2SOlvVMa2c4IVd3ZXcMTw?usp=sharing" },
-  { id: 27, name: "אתגר הגלובליזציה", driveLink: "https://drive.google.com/drive/folders/1TaWsX8OuzZts59Nwj0ZsI5EjwZAszImj?usp=sharing" },
-  { id: 28, name: "אתיקה בעסקים", driveLink: "https://drive.google.com/drive/folders/1hLAOUwcVppKWIFG9irej6tHiqEv4Rb5K?usp=sharing" },
+  { id: 50, name: "אנטומיה ופיזיולוגיה של גוף האדם", driveLink: "https://drive.google.com/drive/folders/17T1jKhcm_yycBjGbeKti8MjQvAIB56Zn?usp=sharing" },
+  { id: 51, name: "אתגרי מחשבה בפילוסופיה", driveLink: "https://drive.google.com/drive/folders/1SE45fWekHTb2SOlvVMa2c4IVd3ZXcMTw?usp=sharing" },
+  { id: 52, name: "אתגר הגלובליזציה", driveLink: "https://drive.google.com/drive/folders/1TaWsX8OuzZts59Nwj0ZsI5EjwZAszImj?usp=sharing" },
+  { id: 53, name: "אתיקה בעסקים", driveLink: "https://drive.google.com/drive/folders/1hLAOUwcVppKWIFG9irej6tHiqEv4Rb5K?usp=sharing" },
   { id: 29, name: "אתיקה של איכות הסביבה", driveLink: "https://drive.google.com/drive/folders/1nv4tUMPGawF6o_P7Ly7K-2b1fiuiDv0O?usp=sharing" },
-  { id: 30, name: "בסמטאותיה של צפת", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
-  { id: 31, name: "האדם בין מימוש לאחריות חברתית", driveLink: "https://drive.google.com/drive/folders/1ea491Pj-snePUemXfv1EQcUMKsiKBvBy?usp=sharing" },
-  { id: 32, name: "הבעות פנים מדארווין ועד היום", driveLink: "https://drive.google.com/drive/folders/12xsN-9Y6-1HuU8jCtPUXZHqcBD2nU0A4?usp=sharing" },
-  { id: 33, name: "הגירה בעולם משתנה", driveLink: "https://drive.google.com/drive/folders/19ymZDw28JZB5iHI54kJ3wyMI9A_3W_9p?usp=sharing" },
-  { id: 34, name: "היסטוריה של אפריקה בשחור ולבן", driveLink: "https://drive.google.com/drive/folders/1w6rTIOua5Zmb-4FlQ3ahdz0EsQ440UWB?usp=sharing" },
-  { id: 35, name: "העולם הנוצרי בעבר ובהווה", driveLink: "https://drive.google.com/drive/folders/10Nbhb2MSJ_4AFtaBjItln3HkSl9lTtjx?usp=sharing" },
-  { id: 36, name: "יצירתיות מרוח לחומר", driveLink: "https://drive.google.com/drive/folders/1O34QuuqddCIpbj1svYN7yLnOzG9ibGok?usp=sharing" },
-  { id: 37, name: "מבוא לפיתוח בר-קיימא", driveLink: "https://drive.google.com/drive/folders/1dsoU-HIpEDt9fwOWJN-3jOPTHTnQ6TAM?usp=sharing" },
-  { id: 38, name: "מדע ומחשבה מדעית", driveLink: "https://drive.google.com/drive/folders/1XPo70GbJPfNNSlwEZ-UQ3FURVO10Y4xo?usp=sharing" },
-  { id: 39, name: "נשים בחברה הישראלית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
-  { id: 40, name: "נשים במקרא בראייה פמיניסטית סוציולוגית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
-  { id: 41, name: "סייבר - הצד האפל של הטכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 42, name: "ציונות, פוסט ציונות וזהות ישראלית חדשה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 43, name: "קהילות, פוליטיקה, עסקים באינטרנט", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 44, name: "קמפיינים פוליטיים", driveLink: "https://drive.google.com/drive/folders/1U7vX78wXYMqBPnl89wdDvlPg_3KpF1En?usp=sharing" },
-  { id: 45, name: "שואת יהודי אירופה", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 46, name: "תהליכי שינוי בתקשורת בישראל", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 47, name: "תחנות בחיי האדם מבט אנתרופולוגי בין תרבותי", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 48, name: "תקשורת בעולם טכנולוגי", driveLink: "https://drive.google.com/drive/folders/1df61V_FAFbyiTkHj-4Io_Ds7h9l60c_2?usp=sharing" },
+  { id: 54, name: "בסמטאותיה של צפת", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
+  { id: 55, name: "האדם בין מימוש לאחריות חברתית", driveLink: "https://drive.google.com/drive/folders/1ea491Pj-snePUemXfv1EQcUMKsiKBvBy?usp=sharing" },
+  { id: 56, name: "הבעות פנים מדארווין ועד היום", driveLink: "https://drive.google.com/drive/folders/12xsN-9Y6-1HuU8jCtPUXZHqcBD2nU0A4?usp=sharing" },
+  { id: 57, name: "הגירה בעולם משתנה", driveLink: "https://drive.google.com/drive/folders/19ymZDw28JZB5iHI54kJ3wyMI9A_3W_9p?usp=sharing" },
+  { id: 58, name: "היסטוריה של אפריקה בשחור ולבן", driveLink: "https://drive.google.com/drive/folders/1w6rTIOua5Zmb-4FlQ3ahdz0EsQ440UWB?usp=sharing" },
+  { id: 59, name: "העולם הנוצרי בעבר ובהווה", driveLink: "https://drive.google.com/drive/folders/10Nbhb2MSJ_4AFtaBjItln3HkSl9lTtjx?usp=sharing" },
+  { id: 60, name: "יצירתיות מרוח לחומר", driveLink: "https://drive.google.com/drive/folders/1O34QuuqddCIpbj1svYN7yLnOzG9ibGok?usp=sharing" },
+  { id: 61, name: "מבוא לפיתוח בר-קיימא", driveLink: "https://drive.google.com/drive/folders/1dsoU-HIpEDt9fwOWJN-3jOPTHTnQ6TAM?usp=sharing" },
+  { id: 62, name: "מדע ומחשבה מדעית", driveLink: "https://drive.google.com/drive/folders/1XPo70GbJPfNNSlwEZ-UQ3FURVO10Y4xo?usp=sharing" },
+  { id: 63, name: "נשים בחברה הישראלית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
+  { id: 64, name: "נשים במקרא בראייה פמיניסטית סוציולוגית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
+  { id: 65, name: "סייבר - הצד האפל של הטכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 66, name: "ציונות, פוסט ציונות וזהות ישראלית חדשה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 67, name: "קהילות, פוליטיקה, עסקים באינטרנט", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 68, name: "קמפיינים פוליטיים", driveLink: "https://drive.google.com/drive/folders/1U7vX78wXYMqBPnl89wdDvlPg_3KpF1En?usp=sharing" },
+  { id: 69, name: "שואת יהודי אירופה", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 70, name: "תהליכי שינוי בתקשורת בישראל", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 71, name: "תחנות בחיי האדם מבט אנתרופולוגי בין תרבותי", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 72, name: "תקשורת בעולם טכנולוגי", driveLink: "https://drive.google.com/drive/folders/1df61V_FAFbyiTkHj-4Io_Ds7h9l60c_2?usp=sharing" },
+  { id: 74, name: "שואה וזכרון בישראל", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
   ];
 
 export const eeYearOneCourses = [
@@ -186,121 +185,5 @@ export const eeYearFourCourses = [
 
 
 
-
-
-
-
-
-
-
-
 ];
 
-const YearSection = ({ title, courses, selectedTag, courseType = 'cs' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Theme based on courseType
-  const bgColor = courseType === 'cs' ? 'bg-blue-800' : 'bg-purple-800';
-  const hoverBgColor = courseType === 'cs' ? 'hover:bg-blue-700' : 'hover:bg-purple-700';
-  const borderColor = courseType === 'cs' ? 'border-blue-200' : 'border-purple-200';
-  const hoverBgLight = courseType === 'cs' ? 'hover:bg-blue-50' : 'hover:bg-purple-50';
-  const bgLight = courseType === 'cs' ? 'bg-blue-100' : 'bg-purple-100';
-  const textColor = courseType === 'cs' ? 'text-blue-900' : 'text-purple-900';
-  const iconColor = courseType === 'cs' ? 'text-blue-800' : 'text-purple-800';
-  
-  return (
-    <div className="mb-4">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full ${bgColor} text-white p-4 rounded-lg flex justify-between items-center ${hoverBgColor} transition-colors`}
-      >
-        <span className="text-xl font-bold">{title}</span>
-        {isOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
-      </button>
-      {isOpen && (
-        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 mt-2">
-          {courses
-              .filter(course => !selectedTag || !course.tag || (Array.isArray(course.tag) ? course.tag.includes(selectedTag) : course.tag === selectedTag))
-              .map(course => (
-              course.driveLink === "#" ? (
-                <div
-                  key={course.id}
-                  className={`block bg-gray-50 transition-all duration-300 border ${borderColor} rounded-lg shadow-md`}
-                >
-                  <div className="p-4 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2 min-h-[2rem]">
-                      <div className={`bg-gray-200 p-1.5 rounded-md mt-0.5`}>
-                        <BookOpen className={`h-5 w-5 text-gray-600 shrink-0`} />
-                      </div>
-                      <h3 className={`text-lg font-medium text-gray-700`}>
-                        {course.name} <span className="text-red-500">(חסר)</span>
-                      </h3>
-                    </div>
-                    <button 
-                      className={`px-4 py-1.5 ${courseType === 'cs' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded-md transition-colors text-sm font-medium whitespace-nowrap shrink-0 mt-0.5`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.scrollTo({
-                          top: document.documentElement.scrollHeight,
-                          behavior: 'smooth'
-                        });
-                      }}
-                    >
-                      יש לי
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <a
-                  key={course.id}
-                  href={course.driveLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`block bg-white ${hoverBgLight} transition-all duration-300 border ${borderColor} rounded-lg shadow-md hover:shadow-lg`}
-                >
-                  <div className="p-4 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2 min-h-[2rem]">
-                      <div className={`${bgLight} p-1.5 rounded-md mt-0.5`}>
-                        <BookOpen className={`h-5 w-5 ${iconColor} shrink-0`} />
-                      </div>
-                      <h3 className={`text-lg font-medium ${textColor}`}>{course.name}</h3>
-                    </div>
-                  </div>
-                </a>
-              )
-            ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const CoursesList = ({ electricalEngineering = false, selectedTag }) => {
-  // Determine course type based on electricalEngineering prop
-  const courseType = electricalEngineering ? 'ee' : 'cs';
-  
-  return (
-    <div className="mb-4">
-      {electricalEngineering ? (
-        // Electrical Engineering courses
-        <>
-          <YearSection title="שנה א׳" courses={eeYearOneCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ב׳" courses={eeYearTwoCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ג׳" courses={eeYearThreeCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ד׳" courses={eeYearFourCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="רב תחומי" courses={choosingCourses} selectedTag={selectedTag} courseType={courseType} />
-        </>
-      ) : (
-        // Computer Science courses
-        <>
-          <YearSection title="שנה א׳" courses={yearOneCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ב׳" courses={yearTwoCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ג׳" courses={yearThreeCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="רב תחומי" courses={choosingCourses} selectedTag={selectedTag} courseType={courseType} />
-        </>
-      )}
-    </div>
-  );
-};
-
-export default CoursesList;
