@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabase';
 import GoogleLoginButton from './GoogleLoginButton';
 import TutorCard from './TutorCard';
 import { showNotification } from './ui/notification';
-import { courseStyles } from '../App';
 
 const TutorSection = ({ courseType, onSubmitFeedback }) => {
   const [user, setUser] = useState(null);
@@ -125,9 +124,9 @@ const TutorSection = ({ courseType, onSubmitFeedback }) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className={`mb-8 bg-white ${courseStyles.bordeColor}`}>
+      <Card className={`mb-8 bg-white ${courseType === 'cs' ? 'border-blue-200' : 'border-purple-200'}`}>
         <CardHeader>
-          <CardTitle className={`text-3xl ${courseStyles.textColor}`}>
+          <CardTitle className={`text-3xl ${courseType === 'cs' ? 'text-blue-950' : 'text-purple-950'}`}>
             מורים פרטיים מומלצים
           </CardTitle>
         </CardHeader>

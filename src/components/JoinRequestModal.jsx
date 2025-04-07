@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesListLinks';
+import { courseMappings } from '../config/courseMappings.js';
 import { showNotification } from './ui/notification';
 
 const YEARS = ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד'];
@@ -21,44 +21,28 @@ const EE_SPECIALIZATIONS = [
 // Helper function to get courses based on degree and selected years
 const getCoursesByYears = (degree, selectedYears, specialization = null) => {
   let allCourses = [];
-  
+
+  // Loop through selected years to fetch courses dynamically
   selectedYears.forEach(year => {
-    let yearCourses = [];
-    if (degree === 'cs') {
-      switch(year) {
-        case 'שנה א': yearCourses = yearOneCourses; break;
-        case 'שנה ב': yearCourses = yearTwoCourses; break;
-        case 'שנה ג': yearCourses = yearThreeCourses; break;
-        default: yearCourses = [];
-      }
-    } else {
-      switch(year) {
-        case 'שנה א': yearCourses = eeYearOneCourses; break;
-        case 'שנה ב': yearCourses = eeYearTwoCourses; break;
-        case 'שנה ג': yearCourses = eeYearThreeCourses; break;
-        case 'שנה ד': yearCourses = eeYearFourCourses; break;
-        default: yearCourses = [];
-      }
-    }
-    
-    // Filter courses based on specialization
+    let yearCourses = courseMappings[degree]?.[year] || [];
+
+    // For Electrical Engineering (EE), filter courses by specialization if applicable
     if (degree === 'ee' && (year === 'שנה ג' || year === 'שנה ד')) {
       if (specialization) {
-        // If specialization is selected, show courses for that specialization
-        yearCourses = yearCourses.filter(course => 
-          !course.tag || // Include general courses
-          (Array.isArray(course.tag) && course.tag.includes(specialization)) || // Handle array of tags
-          course.tag === specialization // Handle single tag
+        yearCourses = yearCourses.filter(course =>
+          !course.tag ||
+          (Array.isArray(course.tag) && course.tag.includes(specialization)) ||
+          course.tag === specialization
         );
       } else {
-        // If no specialization is selected, only show general courses
         yearCourses = yearCourses.filter(course => !course.tag);
       }
     }
-    
+
+    // Combine all courses into a single array
     allCourses = [...allCourses, ...yearCourses];
   });
-  
+
   return allCourses;
 };
 
@@ -326,4 +310,4 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
   );
 };
 
-export default JoinRequestModal; 
+export default JoinRequestModal;

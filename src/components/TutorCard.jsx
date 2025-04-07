@@ -9,7 +9,8 @@ import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { showNotification } from './ui/notification';
 import { isAdmin } from '../config/admin';
 import GoogleLoginButton from './GoogleLoginButton';
-import { courseStyles } from '../App';
+import { courseStyles } from '../config/courseStyles';
+
 const EE_SPECIALIZATIONS = [
   'בקרה',
   'ביו הנדסה',
@@ -32,6 +33,8 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
   const MAX_COMMENT_LENGTH = 200; // Maximum character limit for comments
   const userIsAdmin = user && isAdmin(user.email);
 
+  const styles = courseStyles[courseType] || courseStyles.cs;
+
   // Find user's own feedback if it exists
   const userOwnFeedback = user ? tutor.feedback?.find(fb => fb.user_id === user.id) : null;
   
@@ -53,8 +56,6 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
   const displayedReviews = showAllReviews 
     ? sortedReviews 
     : sortedReviews.slice(0, 1);
-  
-  
 
   const handleFeedbackClick = async () => {
     if (!user) {
@@ -183,23 +184,23 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
 
   return (
     <>
-      <Card className={`bg-white ${courseStyles.tutorBorderColor}`}>
+      <Card className={`bg-white ${styles.cardBorder}`}>
         <CardHeader className="pb-3">
           <div className="flex flex-col space-y-1.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold">{tutor.name}</h3>
+                <h3 className={`text-lg font-semibold ${styles.textColor}`}>{tutor.name}</h3>
                 <div className="flex items-center gap-1">
-                  <Star className={`h-4 w-4 ${courseStyles.starColor} ${tutor.average_rating ? 'fill-current' : ''}`} />
+                  <Star className={`h-4 w-4 ${styles.starColor} ${tutor.average_rating ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{tutor.average_rating?.toFixed(1) || 'אין'}</span>
                   <span className="text-sm text-gray-500">({tutor.feedback?.length || 0})</span>
                 </div>
               </div>
               <a
-                href={`https://wa.me/972${phoneWithoutZero}`}//https://wa.me/972${tutor.phone.substring(1)}
+                href={`https://wa.me/972${phoneWithoutZero}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`w-10 h-10 flex items-center justify-center rounded-md ${courseStyles.tutorButtonBg} text-white transition-colors`}
+                className={`w-10 h-10 flex items-center justify-center rounded-md shadow-md ${styles.iconColorReverse} transition-colors hover:bg-gray-100`}
                 title="WhatsApp"
                 onClick={handleWhatsAppClick}
               >
@@ -211,10 +212,8 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
               <div className="flex items-center gap-2">
                 <p className="text-sm text-gray-600">{tutor.phone}</p>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  className={styles.textSecondary}
                   onClick={handleFeedbackClick}
-                  className={`text-sm ${courseStyles.tutorButtonBg}`}
                 >
                   הוסף ביקורת
                 </Button>
@@ -230,7 +229,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
               {tutor.subjects?.map((subject, index) => (
                 <span
                   key={index}
-                  className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${courseStyles.tutorCourseTag}`}
+                  className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles.subjectBg}`}
                 >
                   {subject}
                 </span>
@@ -241,10 +240,8 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
             {tutor.feedback?.length > 0 && (
               <div>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  className={styles.textSecondary}
                   onClick={() => setShowReviews(!showReviews)}
-                  className={`text-sm ${courseStyles.tutorComments}`}
                 >
                   {showReviews ? 'הסתר תגובות' : `ראה תגובות (${reviewsWithComments.length})`}
                 </Button>
@@ -258,7 +255,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-3.5 w-3.5 ${i < userOwnFeedback.rating ? `${courseStyles.starColor} fill-current` : 'text-gray-300'}`}
+                              className={`h-3.5 w-3.5 ${i < userOwnFeedback.rating ? `${styles.starColor} fill-current` : 'text-gray-300'}`}
                             />
                           ))}
                           <span className="text-xs text-blue-600 ml-2">(הביקורת שלך)</span>
@@ -298,7 +295,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`h-3.5 w-3.5 ${i < fb.rating ? `${courseStyles.starColor} fill-current` : 'text-gray-300'}`}
+                                className={`h-3.5 w-3.5 ${i < fb.rating ? `${styles.starColor} fill-current` : 'text-gray-300'}`}
                               />
                             ))}
                             {isUserOwnFeedback && (
@@ -333,7 +330,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowAllReviews(!showAllReviews)}
-                        className={`w-full text-sm ${courseStyles.tutorComments}`}
+                        className={`w-full text-sm ${styles.buttonPrimary}`}
                       >
                         {showAllReviews ? (
                           <>
@@ -359,11 +356,11 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                     <button
                       key={value}
                       onClick={() => setRating(value)}
-                      className={`transition-all ${courseStyles.hoverStarColor}`}
+                      className={`transition-all ${styles.hoverStarColor}`}
                     >
                       <Star
                         className={`h-7 w-7 ${
-                          value <= rating ? `${courseStyles.starColor} fill-current` : 'text-gray-300'
+                          value <= rating ? `${styles.starColor} fill-current` : 'text-gray-300'
                         }`}
                       />
                     </button>
@@ -373,7 +370,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                   value={comment}
                   onChange={handleCommentChange}
                   placeholder="הערות (אופציונלי)"
-                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-${courseStyles.theme}-500 focus:border-transparent transition-all resize-none text-sm ${commentError ? 'border-red-500' : ''}`}
+                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-${styles.accentColor}-500 focus:border-transparent transition-all resize-none text-sm ${commentError ? 'border-red-500' : ''}`}
                   rows={2}
                   dir="rtl"
                   maxLength={MAX_COMMENT_LENGTH}
@@ -387,7 +384,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                   </span>
                   <div className="flex gap-2">
                     <Button
-                      className={`flex-1 gap-2 ${courseStyles.tutorComments} text-white`}
+                      className={`flex-1 gap-2 ${styles.buttonPrimary} text-white`}
                       onClick={() => {
                         if (!commentError) {
                           onSubmitFeedback(tutor.id, rating, comment);
@@ -452,4 +449,4 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
   );
 };
 
-export default TutorCard; 
+export default TutorCard;

@@ -9,110 +9,18 @@ import { supabase } from './lib/supabase'
 import AuthButton from './components/AuthButton'
 import TutorCard from './components/TutorCard'
 import AdminPanel from './components/AdminPanel'
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './components/CoursesListLinks'
 import { NotificationProvider, showNotification } from './components/ui/notification'
 import localData from './LocalData.json';
-
-//colors for all the files.
-export const courseStyles = {
-  cs: {
-    theme: 'blue',
-    bgGradient: 'from-blue-50 to-white',
-    textColor: 'text-blue-950',
-    buttonBg: 'bg-blue-700 hover:bg-blue-800',
-    buttonBorder: 'border-blue-700',
-    bgColor: 'bg-blue-800',
-    hoverBgColor: 'hover:bg-blue-700',
-    borderColor: 'border-blue-200',
-    hoverBgLight: 'hover:bg-blue-50',
-    bgLight: 'bg-blue-100',
-    iconColor: 'text-blue-800',
-    starColor: 'text-blue-400',
-    hoverStarColor: 'hover:text-blue-500',
-    tutorButtonBg: 'bg-blue-600 hover:bg-blue-700',
-    tutorBorderColor: 'border-blue-200',
-    tutorCourseTag: 'bg-sky-100 text-sky-800',
-    tutorComments: 'text-sky-600 hover:text-sky-700',
-  },
-
-  // const theme = courseType === 'cs' ? 'blue' : 'dark-purple';
-          // const bgGradient = courseType === 'cs' ? 'from-blue-50 to-white' : 'from-purple-50 to-white';
-          // const textColor = courseType === 'cs' ? 'text-blue-950' : 'text-purple-950';
-          // const buttonBg = courseType === 'cs' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-purple-800 hover:bg-purple-900';
-          // const buttonBorder = courseType === 'cs' ? 'border-blue-700' : 'border-purple-800';
-  ee: {
-    theme: 'dark-purple',
-    bgGradient: 'from-purple-50 to-white',
-    textColor: 'text-purple-950',
-    buttonBg: 'bg-purple-800 hover:bg-purple-900',
-    buttonBorder: 'border-purple-800',
-    bgColor: 'bg-purple-800',
-    hoverBgColor: 'hover:bg-purple-700',
-    borderColor: 'border-purple-200',
-    hoverBgLight: 'hover:bg-purple-50',
-    bgLight: 'bg-purple-100',
-    iconColor: 'text-purple-800',
-    starColor: 'text-purple-400',
-    hoverStarColor: 'hover:text-purple-500',
-    tutorButtonBg: 'bg-purple-600 hover:bg-purple-700',
-    tutorBorderColor: 'border-purple-200',
-    tutorCourseTag: 'bg-purple-100 text-purple-800',
-    tutorComments: 'text-purple-600 hover:text-purple-700',
-  },
-  ie: {
-    theme: 'orange',
-    bgGradient: 'from-orange-50 to-white',
-    textColor: 'text-orange-950',
-    buttonBg: 'bg-orange-700 hover:bg-orange-800',
-    buttonBorder: 'border-orange-700',
-    bgColor: 'bg-orange-800',
-    hoverBgColor: 'hover:bg-orange-700',
-    borderColor: 'border-orange-200',
-    hoverBgLight: 'hover:bg-orange-50',
-    bgLight: 'bg-orange-100',
-    iconColor: 'text-orange-800',
-    starColor: 'text-orange-400',
-    hoverStarColor: 'hover:text-orange-500',
-    tutorButtonBg: 'bg-orange-600 hover:bg-orange-700',
-    tutorBorderColor: 'border-orange-200',
-    tutorCourseTag: 'bg-orange-100 text-orange-800',
-    tutorComments: 'text-orange-600 hover:text-orange-700',
-  },
-  // הוסף כאן אפשרויות נוספות...
-  default: { // ברירת מחדל
-    theme: 'blue',
-    bgGradient: 'from-blue-50 to-white',
-    textColor: 'text-blue-950',
-    buttonBg: 'bg-blue-800 hover:bg-purple-900',
-    buttonBorder: 'border-blue-800',
-    bgColor: 'bg-blue-800',
-    hoverBgColor: 'hover:bg-blue-700',
-    borderColor: 'border-blue-200',
-    hoverBgLight: 'hover:bg-blue-50',
-    bgLight: 'bg-blue-100',
-    iconColor: 'text-blue-800',
-    starColor: 'text-blue-400',
-    hoverStarColor: 'hover:text-blue-500',
-    tutorButtonBg: 'bg-blue-600 hover:bg-blue-700',
-    tutorBorderColor: 'border-blue-200',
-    tutorCourseTag: 'bg-sky-100 text-sky-800',
-    tutorComments: 'text-sky-600 hover:text-sky-700',
-  },
-};
-
-
-//starColor == text-blue-400
-//hoverStarColor == hover:text-blue-500
-//accentColor == blue
-
-
+import { courseStyles, courseTypeOptions } from './config/courseStyles';
+import { courseMappings } from './config/courseMappings';
 
 const csTutors = localData.csTutors;
-const eeTutors = localData.eeTutors
-
+const eeTutors = localData.eeTutors;
 
 const App = () => {
-  const [courseType, setCourseType] = useState('cs'); // 'cs' for Computer Science, 'ee' for Electrical Engineering
+  const [courseType, setCourseType] = useState('cs');
+  const styles = courseStyles[courseType] || courseStyles.cs;
+
   const [selectedTag, setSelectedTag] = useState('אין');
   const [isVisible, setIsVisible] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -126,45 +34,25 @@ const App = () => {
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
-  
-          
-        const styles = courseStyles[courseType] || courseStyles.default;
-        const {
-          theme,
-          bgGradient,
-          textColor,
-          buttonBg,
-          buttonBorder,
-          bgColor,
-          hoverBgColor,
-          borderColor,
-          hoverBgLight,
-          bgLight,
-          iconColor,
-        } = styles;
-          
 
-          // EE specialization options
-          const EE_SPECIALIZATIONS = [
-            'בקרה',
-            'ביו הנדסה',
-            'תקשורת ועיבוד אותות',
-            'אלקטרואופטיקה ומיקרואלקטרוניקה',
-            'אנרגיה ומערכות הספק(זרם חזק)',
-            'אנרגיות חלופיות ומערכות הספק משולב',
-            'מערכות משובצות מחשב'
-          ];
+  const EE_SPECIALIZATIONS = [
+    'בקרה',
+    'ביו הנדסה',
+    'תקשורת ועיבוד אותות',
+    'אלקטרואופטיקה ומיקרואלקטרוניקה',
+    'אנרגיה ומערכות הספק(זרם חזק)',
+    'אנרגיות חלופיות ומערכות הספק משולב',
+    'מערכות משובצות מחשב'
+  ];
 
-
-          const handleCourseSwitch = (type) => {
-            setCourseType(type);
-            if (type === 'cs') {
-              setSelectedTag(null); // Reset selected tag when switching to CS
-            }
-            else {
-              setSelectedTag('אין'); // Reset selected tag when switching to EE
-            }
-          };
+  const handleCourseSwitch = (type) => {
+    setCourseType(type);
+    if (type === 'cs') {
+      setSelectedTag(null); // Reset selected tag when switching to CS
+    } else {
+      setSelectedTag('אין'); // Reset selected tag when switching to EE
+    }
+  };
 
   // Supabase authentication
   useEffect(() => {
@@ -209,24 +97,22 @@ const App = () => {
     };
   }, []);
 
-  const calculateWilsonScore = (avg, count, maxRating = 5, z =1.96) => { // 1.96 for 95% confidence
+  const calculateWilsonScore = (avg, count, maxRating = 5, z = 1.96) => { // 1.96 for 95% confidence
     if (count === 0) return 0;
-  
+
     const phat = avg; // already normalized!
     const n = count;
     // Prevent math errors on exact 0 or 1
     const safePhat = Math.min(Math.max(phat, 0.0001), 0.9999);
-  
+
     const numerator =
       safePhat + (z ** 2) / (2 * n) -
       (z * Math.sqrt((safePhat * (1 - safePhat) + (z ** 2) / (4 * n)) / n));
-  
+
     const denominator = 1 + ((z ** 2) / n);
-  
+
     return numerator / denominator;
-
   };
-
 
   const scoreAndSortTutors = (tutors) => {
     const tutorsWithStats = tutors.map(tutor => {
@@ -237,7 +123,7 @@ const App = () => {
       const wilson_score = count > 0
         ? calculateWilsonScore(average_rating / 5, count)
         : 0;
-  
+
       return {
         ...tutor,
         average_rating,
@@ -245,25 +131,25 @@ const App = () => {
         wilson_score
       };
     });
-  
+
     // Sort by Wilson score descending
     const sorted = tutorsWithStats.sort((a, b) => b.wilson_score - a.wilson_score);
-  
+
     return sorted;
   };
-  
+
   // Tutor data loading
   const loadTutorsWithFeedback = async () => {
     setIsLoadingTutors(true);
     setTutorsError(null); // Clear any previous error
     const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
-  
+
     // Helper for fallback tutors
     const fallback = () => {
       const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
       setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
     };
-  
+
     // Helper for handling errors
     const handleError = (message) => {
       if (isDevMode) {
@@ -273,7 +159,7 @@ const App = () => {
         setTutorsWithFeedback([]); // Clear tutors list if needed
       }
     };
-  
+
     try {
       const { data: tutors, error } = await supabase
         .from('tutors')
@@ -288,7 +174,7 @@ const App = () => {
            )`
         )
         .eq('degree', courseType);
-  
+
       if (error) return handleError("אין חיבור לשרת. נסה שוב מאוחר יותר.");
       if (!tutors || tutors.length === 0) {
         return handleError("אין מורים להצגה כרגע.");
@@ -300,9 +186,6 @@ const App = () => {
       setIsLoadingTutors(false);
     }
   };
-  
-
-
 
   // Handle feedback submission
   const handleSubmitFeedback = async (tutorId, rating, comment) => {
@@ -315,17 +198,17 @@ const App = () => {
       // Validate comment on server side as well
       const MAX_COMMENT_LENGTH = 200;
       const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([^\s]+\.(com|org|net|il|co|io))/gi;
-      
+
       if (comment && comment.length > MAX_COMMENT_LENGTH) {
         showNotification(`הערה ארוכה מדי. מוגבל ל-${MAX_COMMENT_LENGTH} תווים.`, 'error');
         return;
       }
-      
+
       if (comment && urlRegex.test(comment)) {
         showNotification('לא ניתן להכניס קישורים בהערות.', 'error');
         return;
       }
-      
+
       // First, check if user already has feedback for this tutor
       const { data: existingFeedback, error: fetchError } = await supabase
         .from('feedback')
@@ -339,7 +222,7 @@ const App = () => {
       }
 
       let error;
-      
+
       // If rating is null, it means we're deleting the feedback
       if (rating === null) {
         // This is a refresh after deletion, just reload the data
@@ -349,8 +232,8 @@ const App = () => {
         // Update existing feedback
         ({ error } = await supabase
           .from('feedback')
-          .update({ 
-            rating, 
+          .update({
+            rating,
             comment,
             email: user.email // Add email when updating
           })
@@ -372,11 +255,11 @@ const App = () => {
         showNotification('שגיאה בשליחת הביקורת', 'error');
         return;
       }
-      
+
       // Reload tutors with feedback
       loadTutorsWithFeedback();
       showNotification('הביקורת נשלחה בהצלחה', 'success');
-      
+
     } catch (error) {
       showNotification('שגיאה בשליחת הביקורת', 'error');
     }
@@ -410,37 +293,8 @@ const App = () => {
   }, [courseType]);
 
   const getCoursesForYear = (year) => {
-    if (courseType === 'cs') {
-      switch(year) {
-        case 'שנה א': return yearOneCourses;
-        case 'שנה ב': return yearTwoCourses;
-        case 'שנה ג': return yearThreeCourses;
-        default: return [];
-      }
-    } else {
-      let courses = [];
-      switch(year) {
-        case 'שנה א': courses = eeYearOneCourses; break;
-        case 'שנה ב': courses = eeYearTwoCourses; break;
-        case 'שנה ג': courses = eeYearThreeCourses; break;
-        case 'שנה ד': courses = eeYearFourCourses; break;
-        default: courses = [];
-      }
-      
-      // Filter courses based on specialization for years ג and ד
-      if ((year === 'שנה ג' || year === 'שנה ד') && tutorSpecialization) {
-        return courses.filter(course => 
-          !course.tag || // Include general courses
-          (Array.isArray(course.tag) && course.tag.includes(tutorSpecialization)) || // Handle array of tags
-          course.tag === tutorSpecialization // Handle single tag
-        );
-      } else if ((year === 'שנה ג' || year === 'שנה ד')) {
-        // If no specialization is selected, only show general courses
-        return courses.filter(course => !course.tag);
-      }
-      
-      return courses;
-    }
+    const courses = courseMappings[courseType];
+    return courses[year] || [];
   };
 
   const handleYearClick = (year) => {
@@ -451,7 +305,7 @@ const App = () => {
     } else {
       setSelectedYear(year);
       setSelectedCourse(null);
-      
+
       // Reset specialization if not year ג or ד
       if (courseType === 'ee' && year !== 'שנה ג' && year !== 'שנה ד') {
         setTutorSpecialization('');
@@ -470,86 +324,80 @@ const App = () => {
     }
     return true;
   });
-  
 
-/*
-  const sortTutorsByRating = (tutors) => {
-    return [...tutors].sort((a, b) => {
-      const ratingA = a.average_rating || 0;
-      const ratingB = b.average_rating || 0;
-      return ratingB - ratingA;
-    });
-  };
-*/  
-          return (
-            <NotificationProvider>
-            <div className={`min-h-screen bg-gradient-to-b ${courseStyles.bgGradient}`}>
-              <main className="container mx-auto px-4 py-8">
-                  <AdminPanel user={user} />
-                <div className="flex flex-col items-center mb-4">
-                  <h1 className={`text-5xl font-bold mb-4 text-center ${courseStyles.textColor}`}>CS24</h1>
-                  <p className={`text-xl ${courseStyles.textColor} text-center`}>
-                  ברוכים הבאים למאגר המידע המקיף ביותר שהיה במכון הטכנולוגי חולון
-                  </p>
-                  <div className="flex items-center gap-3 group cursor-pointer">
-                    <a 
-                      href="https://www.linkedin.com/in/daniel-ziv/" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center transition-transform duration-300 hover:scale-110"
-                      title="בואו נתחבר"
-                    >
-                    <h2 className={`text-xl ${courseStyles.textColor}`}> פותח ע״י דניאל זיו  </h2>
-                      <p> - </p>
-                      <Linkedin strokeWidth={1} className="h-6 w-6" color="#0077B5"  />
-                    </a>
-                  </div>
-                </div>
+  return (
+    <NotificationProvider>
+      <div className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}>
+        <main className="container mx-auto px-4 py-8">
+          <AdminPanel user={user} />
+          <div className="flex flex-col items-center mb-4">
+            <h1 className={`text-5xl font-bold mb-4 text-center ${styles.textColor}`}>CS24</h1>
+            <p className={`text-xl ${styles.textColor} text-center`}>
+              ברוכים הבאים למאגר המידע המקיף ביותר שהיה במכון הטכנולוגי חולון
+            </p>
+            <div className="flex items-center gap-3 group cursor-pointer">
+              <a
+                href="https://www.linkedin.com/in/daniel-ziv/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center transition-transform duration-300 hover:scale-110"
+                title="בואו נתחבר"
+              >
+                <h2 className={`text-xl ${styles.textColor}`}> פותח ע״י דניאל זיו  </h2>
+                <p> - </p>
+                <Linkedin strokeWidth={1} className="h-6 w-6" color="#0077B5" />
+              </a>
+            </div>
+          </div>
 
-                {/* Course Type Selection Buttons */}
-                <div className="flex flex-row gap-3 mt-4 justify-center mb-5">
-                    <Button 
-                      className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                        courseType === 'cs' 
-                          ? `${buttonBg} text-white`
-                          : `bg-white hover:bg-${theme}-50 text-${theme}-700 ${buttonBorder}`
-                      }`}
-                      onClick={() => handleCourseSwitch('cs')}
-                    >
-                      מדעי המחשב
-                    </Button>
-                    <Button 
-                      className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                        courseType === 'ee' 
-                          ? `${buttonBg} text-white`
-                          : `bg-white hover:bg-${theme}-50 text-${theme}-700 ${buttonBorder}`
-                      }`}
-                      onClick={() => handleCourseSwitch('ee')}
-                    >
-                      הנדסת חשמל
-                    </Button>
-                </div>
-              
+          {/* Course Type Selection Buttons */}
+          <div className="flex flex-row gap-3 mt-4 justify-center mb-5">
+            <Button
+              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                courseType === 'cs' ? styles.buttonPrimary : styles.buttonSecondary
+              }`}
+              onClick={() => handleCourseSwitch('cs')}
+            >
+              מדעי המחשב
+            </Button>
+            <Button
+              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                courseType === 'ee' ? styles.buttonPrimary : styles.buttonSecondary
+              }`}
+              onClick={() => handleCourseSwitch('ee')}
+            >
+              הנדסת חשמל
+            </Button>
+            <Button
+              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                courseType === 'ie' ? styles.buttonPrimary : styles.buttonSecondary
+              }`}
+              onClick={() => handleCourseSwitch('ie')}
+            >
+              תעשייה וניהול
+            </Button>
+          </div>
+
           {/* Top Mobile Section - Jobs and Laptop */}
           <div className="block lg:hidden mb-4">
             {/* Job Postings Card */}
             <div className="mb-4">
               <JobPostingsCard courseType={courseType} />
             </div>
-            
+
             {/* Laptop Section */}
-            <Card className={`bg-gradient-to-r ${courseType === 'cs' ? 'from-blue-700 via-blue-800 to-blue-700' : 'from-purple-800 via-purple-950 to-purple-800'} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder}`}>
+            <Card className={`bg-gradient-to-r ${styles.cardBg}`}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full sm:block">
                     <Laptop className="h-7 w-7 text-white animate-pulse" />
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">
-                      לא יודעים איזה מחשב נייד לקנות?
+                    לא יודעים איזה מחשב נייד לקנות?
                   </h3>
                 </div>
                 <Button
-                  className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
+                  className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${styles.textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
                   onClick={() => window.open('https://toplaptop.net', '_blank')}
                 >
                   לחצו כאן!
@@ -564,33 +412,33 @@ const App = () => {
             <div className="lg:col-span-1">
               <JobPostingsCard courseType={courseType} />
             </div>
-            
+
             {/* Right Column Content (2/3 width on desktop) */}
-                  <div className="lg:col-span-2">
-                    {/* Laptop Section */}
-                    <Card className={`bg-gradient-to-r ${courseType === 'cs' ? 'from-blue-700 via-blue-800 to-blue-700' : 'from-purple-800 via-purple-950 to-purple-800'} shadow-xl hover:shadow-2xl transition-all border-2 ${buttonBorder} mb-4`}> 
-                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-white/20 p-2 rounded-full hidden sm:block">
-                            <Laptop className="h-7 w-7 text-white animate-pulse" />
-                          </div>
-                          <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">
-                              לא יודעים איזה מחשב נייד לקנות?
-                          </h3>
-                        </div>
-                        <Button
-                          className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
-                          onClick={() => window.open('https://toplaptop.net', '_blank')}
-                        >
-                          לחצו כאן!
-                        </Button>
-                      </div>
-                    </Card>
+            <div className="lg:col-span-2">
+              {/* Laptop Section */}
+              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 ${styles.cardBorder} mb-4`}>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white/20 p-2 rounded-full hidden sm:block">
+                      <Laptop className="h-7 w-7 text-white animate-pulse" />
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-md">
+                      לא יודעים איזה מחשב נייד לקנות?
+                    </h3>
+                  </div>
+                  <Button
+                    className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${styles.textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
+                    onClick={() => window.open('https://toplaptop.net', '_blank')}
+                  >
+                    לחצו כאן!
+                  </Button>
+                </div>
+              </Card>
 
               {/* Links Section - Desktop */}
-                    <HelpfulLinksSection courseType={courseType} />
-                  </div>
-                </div>
+              <HelpfulLinksSection courseType={courseType} />
+            </div>
+          </div>
 
           {/* Choose EE Specialty if chose EE */}
           {courseType === 'ee' && (
@@ -618,36 +466,36 @@ const App = () => {
           )}
 
           {/* Course List */}
-        {courseType === 'cs' ? (
-          <CourseList />
-        ) : (
-          <CourseList electricalEngineering={true} selectedTag={selectedTag} /> 
-        )}
+          {courseType === 'cs' ? (
+            <CourseList />
+          ) : (
+            <CourseList electricalEngineering={true} selectedTag={selectedTag} />
+          )}
 
           {/* Links Section - Mobile (appears after course list) */}
           <div className="block lg:hidden mt-4">
             <HelpfulLinksSection courseType={courseType} />
-                  </div>
+          </div>
 
           {/* New Tutors Section with Supabase Integration */}
-      <Card className={`mb-8 bg-white ${courseType === 'cs' ? 'border-sky-200' : 'border-purple-200'}`}>
-          <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+          <Card className={`mb-8 ${styles.cardBg} ${styles.cardBorder}`}>
+            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${courseType === 'cs' ? 'text-sky-950' : 'text-purple-950'}`}>
-                  <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${courseType === 'cs' ? 'text-sky-600' : 'text-purple-600'}`} />
+                <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${styles.textColor}`}>
+                  <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${styles.iconColor}`} />
                   מורים פרטיים
-          </CardTitle>
-          <div className="flex-shrink-0">
-            {tutorsError ? (
-              <div className="opacity-50 cursor-not-allowed pointer-events-none">
-                <AuthButton user={user} courseType={courseType} disabled />
+                </CardTitle>
+                <div className="flex-shrink-0">
+                  {tutorsError ? (
+                    <div className="opacity-50 cursor-not-allowed pointer-events-none">
+                      <AuthButton user={user} courseType={courseType} disabled />
+                    </div>
+                  ) : (
+                    <AuthButton user={user} courseType={courseType} />
+                  )}
+                </div>
               </div>
-            ) : (
-              <AuthButton user={user} courseType={courseType} />
-            )}
-          </div>
-              </div>
-              
+
               {/* Specialization dropdown for EE years ג and ד */}
               {courseType === 'ee' && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
                 <div className="mt-4 mb-3">
@@ -673,26 +521,22 @@ const App = () => {
 
               {/* Year filter buttons */}
               {!tutorsError && (
-              <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                {(courseType === 'cs' ? ['שנה א', 'שנה ב', 'שנה ג'] : ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד']).map((year) => (
-                  <Button
-                    key={year}
-                    onClick={() => handleYearClick(year)}
-                    className={`text-sm sm:text-base px-3 py-2 font-medium ${
-                      selectedYear === year 
-                        ? courseType === 'cs'
-                          ? 'bg-sky-600 text-white hover:bg-sky-700'
-                          : 'bg-purple-600 text-white hover:bg-purple-700'
-                        : courseType === 'cs'
-                          ? 'bg-white text-sky-600 border border-sky-600 hover:bg-sky-50'
-                          : 'bg-white text-purple-600 border border-purple-600 hover:bg-purple-50'
-                    }`}
-                  >
-                    {year}
-                  </Button>
-                ))}
-              </div>
-            )}
+                <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
+                  {(courseType === 'cs' ? ['שנה א', 'שנה ב', 'שנה ג'] : ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד']).map((year) => (
+                    <Button
+                      key={year}
+                      onClick={() => handleYearClick(year)}
+                      className={`text-sm sm:text-base px-3 py-2 font-medium ${
+                        selectedYear === year
+                          ? styles.buttonPrimary
+                          : styles.buttonSecondary
+                      }`}
+                    >
+                      {year}
+                    </Button>
+                  ))}
+                </div>
+              )}
               {/* Course list */}
               {selectedYear && (
                 <div className="flex flex-wrap gap-2 mt-3">
@@ -701,13 +545,9 @@ const App = () => {
                       key={course.id}
                       onClick={() => handleCourseClick(course.name)}
                       className={`text-sm px-3 py-1.5 ${
-                        selectedCourse === course.name 
-                          ? courseType === 'cs'
-                            ? 'bg-sky-600 text-white hover:bg-sky-700'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                          : courseType === 'cs'
-                            ? 'bg-white text-sky-600 border border-sky-600 hover:bg-sky-50'
-                            : 'bg-white text-purple-600 border border-purple-600 hover:bg-purple-50'
+                        selectedCourse === course.name
+                          ? styles.buttonPrimary
+                          : styles.buttonSecondary
                       }`}
                     >
                       {course.name}
@@ -715,90 +555,78 @@ const App = () => {
                   ))}
                 </div>
               )}
-        </CardHeader>
-        <CardContent>
-          {tutorsError ? (
-            <div
-              className={`p-4 rounded-md text-center ${
-                courseType === 'cs'
-                  ? 'bg-blue-50 border border-blue-200 text-blue-800'
-                  : 'bg-purple-50 border border-purple-200 text-purple-800'
-              }`}
-            >
-              {tutorsError}
-            </div>
-          ) : (
-            <>
-              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                {isLoadingTutors ? (
-                  // Loading skeleton
-                  <>
-                    {[...Array(4)].map((_, index) => (
-                      <div key={index} className="animate-pulse">
-                        <div className="bg-gray-200 h-40 rounded-lg mb-4"></div>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  filteredTutors
-                    .slice(0, showAllTutors ? undefined : TUTORS_PER_PAGE)
-                    .map((tutor) => (
-                      <TutorCard
-                        key={tutor.id}
-                        tutor={tutor}
-                        courseType={courseType}
-                        user={user}
-                        onSubmitFeedback={handleSubmitFeedback}
-                      />
-                    ))
-                )}
-              </div>
-              {filteredTutors.length > TUTORS_PER_PAGE && !showAllTutors && (
-                <div className="flex justify-center mt-4">
-                  <Button
-                    onClick={() => setShowAllTutors(true)}
-                    variant="outline"
-                    className={
-                      courseType === 'cs'
-                        ? 'text-sky-600 hover:bg-sky-100'
-                        : 'text-purple-600 hover:bg-purple-100'
-                    }
-                  >
-                    הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
-                  </Button>
+            </CardHeader>
+            <CardContent>
+              {tutorsError ? (
+                <div
+                  className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}
+                >
+                  {tutorsError}
                 </div>
+              ) : (
+                <>
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    {isLoadingTutors ? (
+                      // Loading skeleton
+                      <>
+                        {[...Array(4)].map((_, index) => (
+                          <div key={index} className="animate-pulse">
+                            <div className="bg-gray-200 h-40 rounded-lg mb-4"></div>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      filteredTutors
+                        .slice(0, showAllTutors ? undefined : TUTORS_PER_PAGE)
+                        .map((tutor) => (
+                          <TutorCard
+                            key={tutor.id}
+                            tutor={tutor}
+                            courseType={courseType}
+                            user={user}
+                            onSubmitFeedback={handleSubmitFeedback}
+                          />
+                        ))
+                    )}
+                  </div>
+                  {filteredTutors.length > TUTORS_PER_PAGE && !showAllTutors && (
+                    <div className="flex justify-center mt-4">
+                      <Button
+                        onClick={() => setShowAllTutors(true)}
+                        variant="outline"
+                        className={styles.buttonSecondary}
+                      >
+                        הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
-            </>
-          )}
-          </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-        {/* Missing Tests Banner */}
-          <Card 
+          {/* Missing Tests Banner */}
+          <Card
             id="missing-tests-section"
-            className={`mb-8 bg-${courseType === 'cs' ? 'blue-50' : 'purple-50'} border-${courseType === 'cs' ? 'blue-200' : 'purple-200'} ${
+            className={`mb-8 ${styles.cardBg} ${styles.cardBorder} ${
               isVisible ? 'animate-bounce-gentle shadow-glow' : ''
             }`}
           >
-          <CardHeader>
-            <CardTitle className={`text-3xl flex items-center gap-2 justify-center ${courseType === 'cs' ? 'text-blue-950' : 'text-purple-950'}`}>
-              <FileText className={`h-8 w-8 ${courseType === 'cs' ? 'text-blue-600' : 'text-purple-600'}`} aria-hidden="true" />
-              <span>חוסרים</span>
-            </CardTitle>
-            <CardDescription className={`text-center text-lg ${courseType === 'cs' ? 'text-blue-800' : 'text-purple-800'}`}>
-              יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
-            </CardDescription>
-          </CardHeader>
+            <CardHeader>
+              <CardTitle className={`text-3xl flex items-center gap-2 justify-center ${styles.textColor}`}>
+                <FileText className={`h-8 w-8 ${styles.iconColor}`} aria-hidden="true" />
+                <span>חוסרים</span>
+              </CardTitle>
+              <CardDescription className={`text-center text-lg ${styles.textColor}`}>
+                יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
+              </CardDescription>
+            </CardHeader>
             <CardContent className="flex flex-col items-center gap-2 px-4 sm:px-6">
-              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${courseType === 'cs' ? 'bg-blue-800' : 'bg-purple-800'}`}>
+              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${styles.buttonPrimary}`}>
                 <span className="text-base sm:text-lg text-white select-all">cs24.hit@gmail.com</span>
                 <button
                   onClick={copyToClipboard}
-                  className={`p-1.5 rounded-md transition-colors ${
-                    courseType === 'cs' 
-                      ? 'hover:bg-blue-700 active:bg-blue-600' 
-                      : 'hover:bg-purple-700 active:bg-purple-600'
-                  }`}
+                  className={`p-1.5 rounded-md transition-colors ${styles.buttonPrimary}`}
                   aria-label="העתק לזכרון"
                 >
                   {copySuccess ? (
@@ -808,39 +636,39 @@ const App = () => {
                   )}
                 </button>
               </div>
-              <div 
+              <div
                 className={`flex items-center justify-center ${
                   copySuccess ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
                 } transition-all duration-200`}
               >
-                <span className={`text-sm ${courseType === 'cs' ? 'text-blue-800' : 'text-purple-800'}`}>
+                <span className={`text-sm ${styles.textColor}`}>
                   הכתובת הועתקה בהצלחה!
                 </span>
               </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
           <style jsx global>{`
             @keyframes bounce-gentle {
               0%, 100% { transform: translateY(0); }
               50% { transform: translateY(-5px); }
             }
-            
+
             .animate-bounce-gentle {
               animation: bounce-gentle 2s infinite;
             }
-            
+
             .shadow-glow {
               box-shadow: 0 0 15px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.3)' : 'rgba(147, 51, 234, 0.3)'};
               transition: box-shadow 0.3s ease-in-out;
             }
-            
+
             .shadow-glow:hover {
               box-shadow: 0 0 25px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.5)' : 'rgba(147, 51, 234, 0.5)'};
             }
           `}</style>
-      </main>
-    </div>
+        </main>
+      </div>
     </NotificationProvider>
   );
 };

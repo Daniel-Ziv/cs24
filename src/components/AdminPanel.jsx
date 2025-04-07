@@ -3,8 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { supabase } from '../lib/supabase';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
-// Import course data from CoursesList
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './CoursesListLinks';
+import { courseMappings } from '../config/courseMappings';
 import { showNotification } from './ui/notification';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
@@ -100,25 +99,8 @@ const AdminPanel = ({ user }) => {
   // Get unique years from requests
   const years = [...new Set(requests.map(req => req.year).filter(Boolean))].sort();
   
-  // Use course data from CoursesList.jsx
   const getCoursesByYear = (year, degree) => {
-    if (degree === 'cs') {
-      switch(year) {
-        case 'שנה א': return yearOneCourses.map(course => course.name);
-        case 'שנה ב': return yearTwoCourses.map(course => course.name);
-        case 'שנה ג': return yearThreeCourses.map(course => course.name);
-        // No yearFourCourses for CS
-        default: return [];
-      }
-    } else { // 'ee'
-      switch(year) {
-        case 'שנה א': return eeYearOneCourses.map(course => course.name);
-        case 'שנה ב': return eeYearTwoCourses.map(course => course.name);
-        case 'שנה ג': return eeYearThreeCourses ? eeYearThreeCourses.map(course => course.name) : [];
-        case 'שנה ד': return eeYearFourCourses ? eeYearFourCourses.map(course => course.name) : [];
-        default: return [];
-      }
-    }
+    return courseMappings[degree]?.[year]?.map(course => course.name) || [];
   };
 
   const handleYearClick = (year) => {
@@ -338,4 +320,4 @@ const AdminPanel = ({ user }) => {
   );
 };
 
-export default AdminPanel; 
+export default AdminPanel;
