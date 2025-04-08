@@ -14,7 +14,7 @@ const courseStyles = {
     bgLight: 'bg-blue-50',
     subjectBg: 'bg-blue-100',
     starColor: 'text-blue-400',
-    TLBg: 'from-blue-700 via-blue-800 to-blue-700'
+    TLBg: 'from-blue-800 via-blue-900 to-blue-800'
   },
   ee: {
     buttonPrimary: 'bg-purple-800 text-white hover:bg-purple-700 shadow-md', // Removed border, kept shadow
@@ -31,7 +31,7 @@ const courseStyles = {
     bgLight: 'bg-purple-50',
     subjectBg: 'bg-purple-100',
     starColor: 'text-purple-400',
-    TLBg: 'from-purple-700 via-purple-800 to-purple-700'
+    TLBg: 'from-purple-800 via-purple-950 to-purple-800'
   },
   ie: {
     buttonPrimary: 'bg-orange-600 text-white hover:bg-orange-500 shadow-md', // Removed border, kept shadow

@@ -1,5 +1,7 @@
 const YearSection = ({ title, courses, selectedTag, courseType = 'cs', styles }) => {
   const [isOpen, setIsOpen] = useState(false);
+  // Format the title with quote mark if it's not 'בחירה'
+  const yearKey = title === 'בחירה' ? title : title + "'";
 
   return (
     <div className="mb-4">
@@ -7,7 +9,7 @@ const YearSection = ({ title, courses, selectedTag, courseType = 'cs', styles })
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full ${styles.buttonPrimary} text-white p-4 rounded-lg flex justify-between items-center transition-colors`}
       >
-        <span className="text-xl font-bold">{title}</span>
+        <span className="text-xl font-bold">{yearKey}</span>
         {isOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
       </button>
       {isOpen && (

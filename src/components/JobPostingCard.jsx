@@ -44,9 +44,9 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
   const getJobTitle = () => {
     switch (courseType) {
       case 'cs':
-        return 'משרות למדעי המחשב';
+        return 'משרות למדמ"ח';
       case 'ee':
-        return 'משרות להנדסת חשמל';
+        return 'משרות לחשמל';
       case 'ie':
         return 'משרות לתעשייה וניהול';
       default:
@@ -118,7 +118,7 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
     };
   }, [controls]);
   
-  
+  //talk to daniel what the code for the ie api and fix -ori
   // Fetch jobs from the API
   const fetchJobs = async () => {
     setIsLoading(true);
@@ -232,14 +232,14 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
           ) : (
             <div className="h-96 overflow-y-auto pr-1 space-y-3">
               {jobs.map(job => (
-                <Card className={`rounded-lg ${styles.cardBg} p-4 flex items-center justify-between gap-4`} key={job.id || `job-${job.title}-${job.date}`}>
+                <Card className={`rounded-lg ${styles.bgLight} p-4 flex items-center justify-between gap-4`} key={job.id || `job-${job.title}-${job.date}`}>
                   <div className="flex-1 min-w-0">
                     <h3 className={`font-medium ${styles.textColor} break-words`}>
                       {job.title}
                     </h3>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${styles.bgLight} ${styles.textColor}`}>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${styles.subjectBg} ${styles.textColor}`}>
                       {formatDate(job.date)}
                     </span>
                     <Button

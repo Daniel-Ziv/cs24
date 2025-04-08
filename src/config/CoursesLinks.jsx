@@ -64,11 +64,12 @@ export const choosingCourses = [
   { id: 66, name: "ציונות, פוסט ציונות וזהות ישראלית חדשה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
   { id: 67, name: "קהילות, פוליטיקה, עסקים באינטרנט", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
   { id: 68, name: "קמפיינים פוליטיים", driveLink: "https://drive.google.com/drive/folders/1U7vX78wXYMqBPnl89wdDvlPg_3KpF1En?usp=sharing" },
-  { id: 69, name: "שואת יהודי אירופה", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 70, name: "תהליכי שינוי בתקשורת בישראל", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 71, name: "תחנות בחיי האדם מבט אנתרופולוגי בין תרבותי", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
-  { id: 72, name: "תקשורת בעולם טכנולוגי", driveLink: "https://drive.google.com/drive/folders/1df61V_FAFbyiTkHj-4Io_Ds7h9l60c_2?usp=sharing" },
-  { id: 74, name: "שואה וזכרון בישראל", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
+  { id: 69, name: "שואה וזכרון בישראל", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
+  { id: 70, name: "שואת יהודי אירופה", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 71, name: "תהליכי שינוי בתקשורת בישראל", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 72, name: "תחנות בחיי האדם מבט אנתרופולוגי בין תרבותי", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
+  { id: 73, name: "תקשורת בעולם טכנולוגי", driveLink: "https://drive.google.com/drive/folders/1df61V_FAFbyiTkHj-4Io_Ds7h9l60c_2?usp=sharing" },
+  
   ];
 
 export const eeYearOneCourses = [

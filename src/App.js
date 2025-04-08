@@ -34,7 +34,7 @@ const App = () => {
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
-
+//need to move -ori
   const EE_SPECIALIZATIONS = [
     'בקרה',
     'ביו הנדסה',
@@ -143,7 +143,7 @@ const App = () => {
     setIsLoadingTutors(true);
     setTutorsError(null); // Clear any previous error
     const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
-
+    //need to fix -ori
     // Helper for fallback tutors
     const fallback = () => {
       const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
@@ -294,7 +294,11 @@ const App = () => {
 
   const getCoursesForYear = (year) => {
     const courses = courseMappings[courseType];
-    return courses[year] || [];
+    // Add quote mark to year if it's not 'בחירה'
+    const yearKey = year === 'בחירה' ? year : year + "'";
+    console.log('Looking for courses for year:', yearKey);
+    console.log('Available years:', Object.keys(courses || {}));
+    return courses?.[yearKey] || [];
   };
 
   const handleYearClick = (year) => {
@@ -305,7 +309,7 @@ const App = () => {
     } else {
       setSelectedYear(year);
       setSelectedCourse(null);
-
+      //need to fix -ori
       // Reset specialization if not year ג or ד
       if (courseType === 'ee' && year !== 'שנה ג' && year !== 'שנה ד') {
         setTutorSpecialization('');
@@ -349,7 +353,7 @@ const App = () => {
               </a>
             </div>
           </div>
-
+          {/* need to fix (find inspiration in line 521) -ori  */}
           {/* Course Type Selection Buttons */}
           <div className="flex flex-row flex-wrap gap-3 mt-4 justify-center mb-5">
             <Button
@@ -416,7 +420,7 @@ const App = () => {
             {/* Right Column Content (2/3 width on desktop) */}
             <div className="lg:col-span-2">
               {/* Laptop Section */}
-              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 mb-4`}>
+              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 ${styles.cardBorder} mb-4`}>
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                   <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2 rounded-full hidden sm:block">
@@ -439,7 +443,7 @@ const App = () => {
               <HelpfulLinksSection courseType={courseType} />
             </div>
           </div>
-
+          {/* check if ie has התמחות -ori */}
           {/* Choose EE Specialty if chose EE */}
           {courseType === 'ee' && (
             <div className="flex flex-col items-center mb-4">
@@ -491,7 +495,7 @@ const App = () => {
                   )}
                 </div>
               </div>
-
+              {/* Check if ie has התמחות -ori  */}
               {/* Specialization dropdown for EE years ג and ד */}
               {courseType === 'ee' && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
                 <div className="mt-4 mb-3">
@@ -514,11 +518,11 @@ const App = () => {
                   </div>
                 </div>
               )}
-
+              {/* need to fix -ori */}
               {/* Year filter buttons */}
               {!tutorsError && (
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                  {(courseType === 'cs' ? ['שנה א', 'שנה ב', 'שנה ג'] : ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד']).map((year) => (
+                  {(courseType === 'cs' ? ["שנה א'", "שנה ב'", "שנה ג'"] : ["שנה א'", "שנה ב'", "שנה ג'", "שנה ד'"]).map((year) => (
                     <Button
                       key={year}
                       onClick={() => handleYearClick(year)}
@@ -536,7 +540,7 @@ const App = () => {
               {/* Course list */}
               {selectedYear && (
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {getCoursesForYear(selectedYear).map((course) => (
+                  {getCoursesForYear(selectedYear.replace("'", "")).map((course) => (
                     <Button
                       key={course.id}
                       onClick={() => handleCourseClick(course.name)}
@@ -653,7 +657,7 @@ const App = () => {
             .animate-bounce-gentle {
               animation: bounce-gentle 2s infinite;
             }
-
+            {/* need to check wtf this is -ori  */}
             .shadow-glow {
               box-shadow: 0 0 15px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.3)' : 'rgba(147, 51, 234, 0.3)'};
               transition: box-shadow 0.3s ease-in-out;

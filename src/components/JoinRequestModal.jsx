@@ -25,7 +25,7 @@ const getCoursesByYears = (degree, selectedYears, specialization = null, courseT
   // Loop through selected years to fetch courses dynamically
   selectedYears.forEach(year => {
     let yearCourses = courseMappings[degree]?.[year] || [];
-
+    //need to fix -ori
     // For Electrical Engineering (EE), filter courses by specialization if applicable
     if (courseType === 'ee' && (year === 'שנה ג' || year === 'שנה ד')) {
       if (specialization) {
@@ -91,7 +91,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
         showNotification('כבר קיימת בקשה פעילה עם מספר טלפון זה. אנא המתן לתשובה.', 'warning');
         return;
       }
-
+      //need to fix -ori
       // Insert new request
       const { error: insertError } = await supabase
         .from('tutor_requests')
@@ -214,7 +214,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 <option value="ee">הנדסת חשמל</option>
               </select>
             </div>
-
+            {/* need to fix -ori */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 שנים
@@ -238,7 +238,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 ))}
               </div>
             </div>
-
+            {/* need to fix -ori */}
             {courseType === 'ee' && selectedYears.some(y => y === 'שנה ג' || y === 'שנה ד') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -259,7 +259,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 </select>
               </div>
             )}
-
+            {/* need to fix -ori */}
             {selectedYears.length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,7 +285,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 </div>
               </div>
             )}
-
+            {/* need to fix -ori */}
             <div className="sticky bottom-0 flex justify-end gap-2 pt-4 mt-6 border-t bg-white">
               <Button
                 type="button"
