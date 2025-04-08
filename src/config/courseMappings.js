@@ -1,10 +1,10 @@
-import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses, choosingCourses, ieYearOneCourses, ieYearTwoCourses, ieYearThreeCourses, ieYearFourCourses } from '../components/CoursesListLinks';
+import { csYearOneCourses, csYearTwoCourses, csYearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses, choosingCourses, ieYearOneCourses, ieYearTwoCourses, ieYearThreeCourses, ieYearFourCourses } from './CoursesLinks';
 
 export const courseMappings = {
   cs: {
-    "שנה א'": yearOneCourses,
-    "שנה ב'": yearTwoCourses,
-    "שנה ג'": yearThreeCourses,
+    "שנה א'": csYearOneCourses,
+    "שנה ב'": csYearTwoCourses,
+    "שנה ג'": csYearThreeCourses,
     "בחירה": choosingCourses,
   },
   ee: {

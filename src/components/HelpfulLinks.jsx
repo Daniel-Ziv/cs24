@@ -105,9 +105,12 @@ const HelpfulLinksSection = ({ courseType }) => {
       url: "https://drive.google.com/drive/folders/1k1v7NmfMWPUfA39JKskv0ID6X9udL7xT"
     },
   ]
-  
-
-  const helpfulLinks = courseType === 'cs' ? csHelpfulLinks : eeHelpfulLinks;
+  const linkmaps = {
+    cs: csHelpfulLinks,
+    ee: eeHelpfulLinks
+  };
+  const helpfulLinks = linkmaps[courseType] || csHelpfulLinks;
+  // Define styles based on course type
   const styles = courseStyles[courseType] || courseStyles.cs;
 
   return (
@@ -115,7 +118,7 @@ const HelpfulLinksSection = ({ courseType }) => {
       <div className={`${styles.subjectBg} ${width < 1024 ? 'p-6 pt-7' : 'p-9 pt-10'}`}>
         <button 
           onClick={() => width < 1024 && setIsOpen(!isOpen)}
-          className={`w-full flex items-center justify-between gap-2 ${width < 1024 ? 'cursor-pointer' : ''}`}
+          className={`w-full flex items-center justify-between gap-2  ${width < 1024 ? 'cursor-pointer' : ''}`}
         >
           <div className="flex items-center gap-2">
             <LinkIcon className={`h-6 w-6 ${styles.iconColor}`} />
@@ -141,18 +144,18 @@ const HelpfulLinksSection = ({ courseType }) => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`block bg-white transition-all duration-300 rounded-lg p-4 shadow-md hover:shadow-lg ${styles.linkHoverBg} border ${styles.linkBorder}`}
+                className={`block bg-white transition-all duration-300 rounded-lg p-4 shadow-md hover:shadow-lg ${styles.HoverBg} border ${styles.cardBorder}`}
               >
                 <div className="flex justify-between items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-md ${styles.linkIconBg}`}>
-                      <LinkIcon className={`h-5 w-5 shrink-0 ${styles.linkIconColor}`} />
+                    <div className={`p-1.5 rounded-md ${styles.bgLight}`}>
+                      <LinkIcon className={`h-5 w-5 shrink-0 ${styles.iconColor}`} />
                     </div>
                     <div>
-                      <h3 className={`font-medium ${styles.linkTitleColor}`}>
+                      <h3 className={`font-medium ${styles.textColor}`}>
                         {link.title}
                       </h3>
-                      <p className={`text-sm ${styles.linkDescriptionColor}`} dir="rtl">
+                      <p className={`text-sm ${styles.textColor}`} dir="rtl">
                         {link.description}
                       </p>
                     </div>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
-// Importing course mappings for dynamic course selection based on degree
 import { courseMappings } from '../config/courseMappings';
 import { courseStyles } from '../config/courseStyles';
 
 const YearSection = ({ title, courses, selectedTag, courseType = 'cs', styles }) => {
   const [isOpen, setIsOpen] = useState(false);
+  styles = courseStyles[courseType] || courseStyles.cs;
+
 
   return (
     <div className="mb-4">
@@ -71,16 +72,16 @@ const YearSection = ({ title, courses, selectedTag, courseType = 'cs', styles })
         </div>
       )}
     </div>
+  
   );
 };
 
-const CoursesList = ({ courseType = 'cs', selectedTag }) => {
-  // Dynamically fetch courses and styles based on courseType
+const CoursesDropdown = ({ courseType, selectedTag}) => {
   const styles = courseStyles[courseType] || courseStyles.cs;
   const courses = courseMappings[courseType] || {};
 
   return (
-    <div className="mb-4">
+    <div className={`mb-4 ${styles.bgGradient}`}>
       {Object.entries(courses).map(([year, courseList]) => (
         <YearSection
           key={year}
@@ -98,4 +99,4 @@ const CoursesList = ({ courseType = 'cs', selectedTag }) => {
 // Explanation: The `CoursesList` component dynamically fetches courses based on the selected course type (`cs`, `ee`, or `ie`).
 // It uses the `courseMappings` object to map years to their respective course lists, ensuring scalability and maintainability.
 
-export default CoursesList;
+export default CoursesDropdown;

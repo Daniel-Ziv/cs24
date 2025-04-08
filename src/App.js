@@ -1,7 +1,7 @@
 import {Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check} from 'lucide-react'
 import { Button } from './components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card'
-import CourseList from './components/CoursesList'
+import CoursesDropdown from './components/CoursesDropdown'
 import HelpfulLinksSection from './components/HelpfulLinks'
 import { useState, useEffect } from 'react'
 import JobPostingsCard from './components/JobPostingCard'
@@ -21,7 +21,7 @@ const App = () => {
   const [courseType, setCourseType] = useState('cs');
   const styles = courseStyles[courseType] || courseStyles.cs;
 
-  const [selectedTag, setSelectedTag] = useState('אין');
+  const [selectedTag, setSelectedTag] = useState('בחר');
   const [isVisible, setIsVisible] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [user, setUser] = useState(null);
@@ -50,7 +50,7 @@ const App = () => {
     if (type === 'cs') {
       setSelectedTag(null); // Reset selected tag when switching to CS
     } else {
-      setSelectedTag('אין'); // Reset selected tag when switching to EE
+      setSelectedTag('בחר'); // Reset selected tag when switching to EE
     }
   };
 
@@ -351,7 +351,7 @@ const App = () => {
           </div>
 
           {/* Course Type Selection Buttons */}
-          <div className="flex flex-row gap-3 mt-4 justify-center mb-5">
+          <div className="flex flex-row flex-wrap gap-3 mt-4 justify-center mb-5">
             <Button
               className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
                 courseType === 'cs' ? styles.buttonPrimary : styles.buttonSecondary
@@ -416,7 +416,7 @@ const App = () => {
             {/* Right Column Content (2/3 width on desktop) */}
             <div className="lg:col-span-2">
               {/* Laptop Section */}
-              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 ${styles.cardBorder} mb-4`}>
+              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 mb-4`}>
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                   <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2 rounded-full hidden sm:block">
@@ -450,7 +450,7 @@ const App = () => {
                   onChange={(e) => setSelectedTag(e.target.value)}
                   className="appearance-none bg-white border border-purple-700 text-purple-700 px-4 py-2 pr-10 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  <option value="אין">עדיין אין</option>
+                  <option value="בחר">בחר</option>
                   <option value="בקרה">בקרה</option>
                   <option value="אלקטרואופטיקה ומיקרואלקטרוניקה">אלקטרואופטיקה ומיקרואלקטרוניקה</option>
                   <option value="ביו הנדסה">ביו הנדסה</option>
@@ -466,11 +466,7 @@ const App = () => {
           )}
 
           {/* Course List */}
-          {courseType === 'cs' ? (
-            <CourseList />
-          ) : (
-            <CourseList electricalEngineering={true} selectedTag={selectedTag} />
-          )}
+          <CoursesDropdown courseType={courseType} selectedTag={selectedTag} />
 
           {/* Links Section - Mobile (appears after course list) */}
           <div className="block lg:hidden mt-4">
