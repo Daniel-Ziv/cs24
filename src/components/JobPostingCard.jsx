@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { Briefcase, RefreshCw, Bell, ChevronDown, ChevronUp } from 'lucide-react';
+import { Briefcase, Bell, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
 import { courseStyles } from '../config/courseStyles';
+import { jobChannelMappings } from '../config/courseMappings';
 
 // Add useWindowSize hook at the top of the file
 const useWindowSize = () => {
@@ -120,23 +121,29 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
   
   //talk to daniel what the code for the ie api and fix -ori
   // Fetch jobs from the API
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setIsLoading(true);
     try {
+      const channelId = jobChannelMappings[courseType];
+      if (!channelId) {
+        setJobs([]);
+        return;
+      }
+      
       const response = await fetch(process.env.REACT_APP_JOBS_API_URL);
       const data = await response.json();
-      const jobsData = courseType === 'cs' ? data["secretjuniordevelopers"] : data["-1002263628689"];
+      const jobsData = data[channelId];
       setJobs(jobsData || []);
     } catch (error) {
-      // Removed console.error
+      setJobs([]);
     } finally {
       setIsLoading(false);
     }
-  }
-  
+  }, [courseType]); // Only recreate when courseType changes
+
   useEffect(() => {
     fetchJobs();
-  }, [courseType]);
+  }, [fetchJobs]); // Now fetchJobs only changes when courseType changes
 
   // Update isOpen when screen size changes
   useEffect(() => {
@@ -228,6 +235,10 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
           {isLoading ? (
             <div className="flex justify-center p-8">
               <div className={`animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 ${styles.iconColor}`}></div>
+            </div>
+          ) : !jobChannelMappings[courseType] ? (
+            <div className="text-center p-8 text-gray-500">
+              לא קיימות משרות כרגע
             </div>
           ) : (
             <div className="h-96 overflow-y-auto pr-1 space-y-3">

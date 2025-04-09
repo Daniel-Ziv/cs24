@@ -10,12 +10,10 @@ import AuthButton from './components/AuthButton'
 import TutorCard from './components/TutorCard'
 import AdminPanel from './components/AdminPanel'
 import { NotificationProvider, showNotification } from './components/ui/notification'
-import localData from './LocalData.json';
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
-import { courseMappings } from './config/courseMappings';
+import { courseMappings, specializationsMappings, tutorMappings} from './config/courseMappings';
 
-const csTutors = localData.csTutors;
-const eeTutors = localData.eeTutors;
+
 
 const App = () => {
   const [courseType, setCourseType] = useState('cs');
@@ -34,24 +32,19 @@ const App = () => {
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
-//need to move -ori
-  const EE_SPECIALIZATIONS = [
-    'בקרה',
-    'ביו הנדסה',
-    'תקשורת ועיבוד אותות',
-    'אלקטרואופטיקה ומיקרואלקטרוניקה',
-    'אנרגיה ומערכות הספק(זרם חזק)',
-    'אנרגיות חלופיות ומערכות הספק משולב',
-    'מערכות משובצות מחשב'
-  ];
+  
+  
 
+  // Get specializations for current course type
+  const currentSpecializations = specializationsMappings[courseType] || [];
   const handleCourseSwitch = (type) => {
     setCourseType(type);
-    if (type === 'cs') {
-      setSelectedTag(null); // Reset selected tag when switching to CS
-    } else {
-      setSelectedTag('בחר'); // Reset selected tag when switching to EE
-    }
+    // Reset selected tag based on whether the course type has specializations
+    setSelectedTag(specializationsMappings[type]?.length > 0 ? 'בחר' : null);
+    // Reset other relevant states
+    setSelectedYear(null);
+    setSelectedCourse(null);
+    setTutorSpecialization('');
   };
 
   // Supabase authentication
@@ -137,16 +130,15 @@ const App = () => {
 
     return sorted;
   };
-
   // Tutor data loading
   const loadTutorsWithFeedback = async () => {
     setIsLoadingTutors(true);
     setTutorsError(null); // Clear any previous error
     const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
-    //need to fix -ori
+
     // Helper for fallback tutors
     const fallback = () => {
-      const fallbackTutors = courseType === 'cs' ? csTutors : eeTutors;
+      const fallbackTutors = tutorMappings[courseType] || [];
       setTutorsWithFeedback(scoreAndSortTutors(fallbackTutors));
     };
 
@@ -309,9 +301,8 @@ const App = () => {
     } else {
       setSelectedYear(year);
       setSelectedCourse(null);
-      //need to fix -ori
-      // Reset specialization if not year ג or ד
-      if (courseType === 'ee' && year !== 'שנה ג' && year !== 'שנה ד') {
+      // Reset specialization if not year ג or ד and department has specializations
+      if (specializationsMappings[courseType]?.length > 0 && year !== 'שנה ג' && year !== 'שנה ד') {
         setTutorSpecialization('');
       }
     }
@@ -351,35 +342,21 @@ const App = () => {
                 <p> - </p>
                 <Linkedin strokeWidth={1} className="h-6 w-6" color="#0077B5" />
               </a>
-            </div>
-          </div>
-          {/* need to fix (find inspiration in line 521) -ori  */}
+  </div>
+  </div>
           {/* Course Type Selection Buttons */}
           <div className="flex flex-row flex-wrap gap-3 mt-4 justify-center mb-5">
-            <Button
-              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                courseType === 'cs' ? styles.buttonPrimary : styles.buttonSecondary
-              }`}
-              onClick={() => handleCourseSwitch('cs')}
-            >
-              מדעי המחשב
-            </Button>
-            <Button
-              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                courseType === 'ee' ? styles.buttonPrimary : styles.buttonSecondary
-              }`}
-              onClick={() => handleCourseSwitch('ee')}
-            >
-              הנדסת חשמל
-            </Button>
-            <Button
-              className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                courseType === 'ie' ? styles.buttonPrimary : styles.buttonSecondary
-              }`}
-              onClick={() => handleCourseSwitch('ie')}
-            >
-              תעשייה וניהול
-            </Button>
+            {courseTypeOptions.map((option) => (
+              <Button
+                key={option.type}
+                className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                  courseType === option.type ? styles.buttonPrimary : styles.buttonSecondary
+                }`}
+                onClick={() => handleCourseSwitch(option.type)}
+              >
+                {option.label}
+              </Button>
+            ))}
           </div>
 
           {/* Top Mobile Section - Jobs and Laptop */}
@@ -443,26 +420,25 @@ const App = () => {
               <HelpfulLinksSection courseType={courseType} />
             </div>
           </div>
-          {/* check if ie has התמחות -ori */}
-          {/* Choose EE Specialty if chose EE */}
-          {courseType === 'ee' && (
+
+          {/* Specialization dropdown */}
+          {specializationsMappings[courseType]?.length > 0 && (
             <div className="flex flex-col items-center mb-4">
-              <h2 className="text-xl font-bold text-purple-950 mb-2">התמחות</h2>
+              <h2 className={`text-xl font-bold ${styles.textColor} mb-2`}>התמחות</h2>
               <div className="relative inline-block text-left">
                 <select
                   value={selectedTag}
                   onChange={(e) => setSelectedTag(e.target.value)}
-                  className="appearance-none bg-white border border-purple-700 text-purple-700 px-4 py-2 pr-10 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`appearance-none bg-white border ${styles.textSecondary} px-4 py-2 pr-10 rounded-md shadow-md focus:outline-none focus:ring-2`}
                 >
                   <option value="בחר">בחר</option>
-                  <option value="בקרה">בקרה</option>
-                  <option value="אלקטרואופטיקה ומיקרואלקטרוניקה">אלקטרואופטיקה ומיקרואלקטרוניקה</option>
-                  <option value="ביו הנדסה">ביו הנדסה</option>
-                  <option value="אנרגיה ומערכות הספק(זרם חזק)">אנרגיה ומערכות הספק(זרם חזק)</option>
-                  <option value="אנרגיות חלופיות ומערכות הספק משולב">אנרגיות חלופיות ומערכות הספק משולב</option>
-                  <option value="מערכות משובצות מחשב">מערכות משובצות מחשב</option>
+                  {currentSpecializations.map((specialization) => (
+                    <option key={specialization} value={specialization}>
+                      {specialization}
+                    </option>
+                  ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-700">
+                <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${styles.iconColor}`}>
                   <ChevronDown className="h-5 w-5" />
                 </div>
               </div>
@@ -496,45 +472,46 @@ const App = () => {
                 </div>
               </div>
               {/* Check if ie has התמחות -ori  */}
-              {/* Specialization dropdown for EE years ג and ד */}
-              {courseType === 'ee' && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
+              {/* Specialization dropdown for years ג and ד */}
+              {specializationsMappings[courseType]?.length > 0 && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
                 <div className="mt-4 mb-3">
-                  <label htmlFor="ee-specialization" className="block text-sm font-medium text-purple-700 mb-2">בחירת התמחות:</label>
+                  <label htmlFor="specialization" className={`block text-sm font-medium ${styles.textColor} mb-2`}>בחירת התמחות:</label>
                   <div className="relative">
                     <select
-                      id="ee-specialization"
+                      id="specialization"
                       value={tutorSpecialization}
                       onChange={(e) => setTutorSpecialization(e.target.value)}
-                      className="appearance-none w-full md:w-64 bg-white border border-purple-600 text-purple-800 py-2 px-4 pr-10 rounded-md shadow-md text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors hover:border-purple-700"
+                      className={`appearance-none w-full md:w-64 bg-white border ${styles.textSecondary} py-2 px-4 pr-10 rounded-md shadow-md text-base focus:outline-none focus:ring-2 transition-colors`}
                     >
                       <option value="">ללא התמחות</option>
-                      {EE_SPECIALIZATIONS.map(spec => (
+                      {specializationsMappings[courseType].map(spec => (
                         <option key={spec} value={spec}>{spec}</option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-purple-600">
+                    <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${styles.iconColor}`}>
                       <ChevronDown className="h-5 w-5" />
                     </div>
                   </div>
                 </div>
               )}
-              {/* need to fix -ori */}
               {/* Year filter buttons */}
               {!tutorsError && (
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
-                  {(courseType === 'cs' ? ["שנה א'", "שנה ב'", "שנה ג'"] : ["שנה א'", "שנה ב'", "שנה ג'", "שנה ד'"]).map((year) => (
-                    <Button
-                      key={year}
-                      onClick={() => handleYearClick(year)}
-                      className={`text-sm sm:text-base px-3 py-2 font-medium ${
-                        selectedYear === year
-                          ? styles.buttonPrimary
-                          : styles.buttonSecondary
-                      }`}
-                    >
-                      {year}
-                    </Button>
-                  ))}
+                  {Object.keys(courseMappings[courseType] || {})
+                    .filter(year => year !== 'בחירה')
+                    .map((year) => (
+                      <Button
+                        key={year}
+                        onClick={() => handleYearClick(year)}
+                        className={`text-sm sm:text-base px-3 py-2 font-medium ${
+                          selectedYear === year
+                            ? styles.buttonPrimary
+                            : styles.buttonSecondary
+                        }`}
+                      >
+                        {year}
+                      </Button>
+                    ))}
                 </div>
               )}
               {/* Course list */}
@@ -657,14 +634,13 @@ const App = () => {
             .animate-bounce-gentle {
               animation: bounce-gentle 2s infinite;
             }
-            {/* need to check wtf this is -ori  */}
             .shadow-glow {
-              box-shadow: 0 0 15px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.3)' : 'rgba(147, 51, 234, 0.3)'};
+              box-shadow: 0 0 15px ${styles.shadowGlow};
               transition: box-shadow 0.3s ease-in-out;
             }
 
             .shadow-glow:hover {
-              box-shadow: 0 0 25px ${courseType === 'cs' ? 'rgba(37, 99, 235, 0.5)' : 'rgba(147, 51, 234, 0.5)'};
+              box-shadow: 0 0 25px ${styles.shadowGlowHover};
             }
           `}</style>
         </main>

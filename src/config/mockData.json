@@ -1,3 +1,4 @@
+
 {
   "csTutors": [
     {
@@ -116,6 +117,19 @@
         { "rating": 5, "comment": "הסביר לי הכול מאפס, מושלם", "created_at": "2024-11-27" }
       ],
       "average_rating": 5.0,
+      "feedback_count": 2
+    }
+  ],
+  "ieTutors": [
+    {
+      "name": "אורן לוי",
+      "subjects": ["מבוא להנדסה תעשיה וניהול", "סטטיסטיקה"],
+      "phone": "0541234567",
+      "feedback": [
+        { "rating": 4, "comment": "היה בסדר", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "הסביר טוב", "created_at": "2024-11-05" }
+      ],
+      "average_rating": 4.5,
       "feedback_count": 2
     }
   ],

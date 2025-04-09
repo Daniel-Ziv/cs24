@@ -3,43 +3,28 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { courseMappings } from '../config/courseMappings.js';
+import { courseMappings, specializationsMappings } from '../config/courseMappings.js';
+import { courseStyles } from '../config/courseStyles';
 import { showNotification } from './ui/notification';
 
 const YEARS = ['שנה א', 'שנה ב', 'שנה ג', 'שנה ד'];
 
-const EE_SPECIALIZATIONS = [
-  'בקרה',
-  'ביו הנדסה',
-  'תקשורת ועיבוד אותות',
-  'אלקטרואופטיקה ומיקרואלקטרוניקה',
-  'אנרגיה ומערכות הספק(זרם חזק)',
-  'אנרגיות חלופיות ומערכות הספק משולב',
-  'מערכות משובצות מחשב'
-];
-
 // Helper function to get courses based on degree and selected years
-const getCoursesByYears = (degree, selectedYears, specialization = null, courseType) => {
+const getCoursesByYears = (degree, selectedYears, specialization = null) => {
   let allCourses = [];
 
-  // Loop through selected years to fetch courses dynamically
   selectedYears.forEach(year => {
     let yearCourses = courseMappings[degree]?.[year] || [];
-    //need to fix -ori
-    // For Electrical Engineering (EE), filter courses by specialization if applicable
-    if (courseType === 'ee' && (year === 'שנה ג' || year === 'שנה ד')) {
-      if (specialization) {
-        yearCourses = yearCourses.filter(course =>
-          !course.tag ||
-          (Array.isArray(course.tag) && course.tag.includes(specialization)) ||
-          course.tag === specialization
-        );
-      } else {
-        yearCourses = yearCourses.filter(course => !course.tag);
-      }
+    
+    if (specialization && (year === 'שנה ג' || year === 'שנה ד')) {
+      yearCourses = yearCourses.filter(course =>
+        !course.tag ||
+        (Array.isArray(course.tag) && course.tag.includes(specialization)) ||
+        course.tag === specialization
+      );
+    } else {
+      yearCourses = yearCourses.filter(course => !course.tag);
     }
-
-    // Combine all courses into a single array
     allCourses = [...allCourses, ...yearCourses];
   });
 
@@ -54,6 +39,8 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
   const [phone, setPhone] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const styles = courseStyles[courseType] || courseStyles.cs;
 
   if (!isOpen || !session) return null;
 
@@ -91,7 +78,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
         showNotification('כבר קיימת בקשה פעילה עם מספר טלפון זה. אנא המתן לתשובה.', 'warning');
         return;
       }
-      //need to fix -ori
+
       // Insert new request
       const { error: insertError } = await supabase
         .from('tutor_requests')
@@ -100,7 +87,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
           phone,
           courseType,
           years: selectedYears,
-          specialization: courseType === 'ee' ? specialization : null,
+          specialization: specializationsMappings[courseType]?.length > 0 ? specialization : null,
           subjects: selectedSubjects,
           status: 'pending',
           created_at: new Date().toISOString(),
@@ -214,7 +201,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 <option value="ee">הנדסת חשמל</option>
               </select>
             </div>
-            {/* need to fix -ori */}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 שנים
@@ -227,9 +214,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                     onClick={() => toggleYear(year)}
                     className={`p-2 text-sm rounded-md transition-colors ${
                       selectedYears.includes(year)
-                        ? courseType === 'cs'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-purple-600 text-white'
+                        ? styles.buttonPrimary
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -238,8 +223,9 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 ))}
               </div>
             </div>
-            {/* need to fix -ori */}
-            {courseType === 'ee' && selectedYears.some(y => y === 'שנה ג' || y === 'שנה ד') && (
+
+            {/* Specialization dropdown */}
+            {specializationsMappings[courseType]?.length > 0 && selectedYears.some(y => y === 'שנה ג' || y === 'שנה ד') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   התמחות (אופציונלי - בחר רק אם אתה רוצה ללמד קורסי התמחות)
@@ -253,13 +239,13 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                   className="w-full p-2 border rounded-md"
                 >
                   <option value="">ללא התמחות - קורסי חובה בלבד</option>
-                  {EE_SPECIALIZATIONS.map(spec => (
+                  {specializationsMappings[courseType].map(spec => (
                     <option key={spec} value={spec}>{spec}</option>
                   ))}
                 </select>
               </div>
             )}
-            {/* need to fix -ori */}
+
             {selectedYears.length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -273,9 +259,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                       onClick={() => toggleSubject(course.name)}
                       className={`p-2 text-sm rounded-md transition-colors ${
                         selectedSubjects.includes(course.name)
-                          ? courseType === 'cs'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-purple-600 text-white'
+                          ? styles.buttonPrimary
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -285,7 +269,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
                 </div>
               </div>
             )}
-            {/* need to fix -ori */}
+
             <div className="sticky bottom-0 flex justify-end gap-2 pt-4 mt-6 border-t bg-white">
               <Button
                 type="button"
@@ -298,7 +282,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType, session }) => {
               <Button
                 type="submit"
                 disabled={isSubmitting || !selectedSubjects.length}
-                className={`w-24 text-white ${courseType === 'cs' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                className={`w-24 text-white ${styles.buttonPrimary}`}
               >
                 {isSubmitting ? '...שולח' : 'שליחה'}
               </Button>
