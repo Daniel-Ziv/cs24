@@ -471,7 +471,6 @@ const App = () => {
                   )}
                 </div>
               </div>
-              {/* Check if ie has התמחות -ori  */}
               {/* Specialization dropdown for years ג and ד */}
               {specializationsMappings[courseType]?.length > 0 && selectedYear && (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
                 <div className="mt-4 mb-3">

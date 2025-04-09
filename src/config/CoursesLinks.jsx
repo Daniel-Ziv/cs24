@@ -233,7 +233,6 @@ export const ieYearFourCourses = [
   { id: 804, name: "דיני עסקים וקניין רוחני", driveLink: "#" },
   { id: 805, name: "מערכות מידע ארגוניות", driveLink: "#" },
   { id: 806, name: "פרויקט גמר בהנדסת תעשייה וניהול טכנלוגיה", driveLink: "#" },
-
   { id: 807, tag: 'ניהול פרוייקטים', name: "ניהול סיכונים בפרויקטים", driveLink: "#" },
   { id: 808, tag: 'ניהול פרוייקטים', name: "סמינר מתקדם בניהול פרוייקטים", driveLink: "#" },
   { id: 809, tag: 'ניהול פרוייקטים', name: "ניהול פרוייקטים ברמת הארגון", driveLink: "#"},
@@ -261,6 +260,5 @@ export const ieYearFourCourses = [
   { id: 829, name: "היבטים מימוניים בשיווק טכנולוגיה", driveLink: "#" },
   { id: 830, name: "אופציות וחוזים", driveLink: "#" },
   { id: 831, name: "הערכת שווי חברות", driveLink: "#" },
-
 
 ];

@@ -119,7 +119,6 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
     };
   }, [controls]);
   
-  //talk to daniel what the code for the ie api and fix -ori
   // Fetch jobs from the API
   const fetchJobs = useCallback(async () => {
     setIsLoading(true);

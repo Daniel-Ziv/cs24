@@ -11,15 +11,7 @@ import { isAdmin } from '../config/admin';
 import GoogleLoginButton from './GoogleLoginButton';
 import { courseStyles } from '../config/courseStyles';
 
-// const EE_SPECIALIZATIONS = [
-//   'בקרה',
-//   'ביו הנדסה',
-//   'תקשורת ועיבוד אותות',
-//   'אלקטרואופטיקה ומיקרואלקטרוניקה',
-//   'אנרגיה ומערכות הספק(זרם חזק)',
-//   'אנרגיות חלופיות ומערכות הספק משולב',
-//   'מערכות משובצות מחשב'
-// ];
+
 
 const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
