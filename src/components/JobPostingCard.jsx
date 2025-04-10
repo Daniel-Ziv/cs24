@@ -132,13 +132,34 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
       const response = await fetch(process.env.REACT_APP_JOBS_API_URL);
       const data = await response.json();
       const jobsData = data[channelId];
-      setJobs(jobsData || []);
+
+      // Filter and sort jobs
+      if (Array.isArray(jobsData)) {
+        const uniqueJobs = jobsData.reduce((acc, job) => {
+          // Use title as unique identifier
+          if (!acc.some(existingJob => existingJob.title === job.title)) {
+            acc.push(job);
+          }
+          return acc;
+        }, []);
+
+        // Sort by date (newest first)
+        uniqueJobs.sort((a, b) => {
+          const [aMonth, aDay, aYear] = a.date.split("/");
+          const [bMonth, bDay, bYear] = b.date.split("/");
+          return new Date(bYear, bMonth - 1, bDay) - new Date(aYear, aMonth - 1, aDay);
+        });
+
+        setJobs(uniqueJobs);
+      } else {
+        setJobs([]);
+      }
     } catch (error) {
       setJobs([]);
     } finally {
       setIsLoading(false);
     }
-  }, [courseType]); // Only recreate when courseType changes
+  }, [courseType]);
 
   useEffect(() => {
     fetchJobs();
