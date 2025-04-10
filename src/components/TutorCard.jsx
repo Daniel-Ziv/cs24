@@ -322,7 +322,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowAllReviews(!showAllReviews)}
-                        className={`w-full text-sm ${styles.buttonPrimary}`}
+                        className={`w-full text-sm ${styles.textSecondary}`}
                       >
                         {showAllReviews ? (
                           <>
