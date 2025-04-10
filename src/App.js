@@ -10,6 +10,7 @@ import AuthButton from './components/AuthButton'
 import TutorCard from './components/TutorCard'
 import AdminPanel from './components/AdminPanel'
 import { NotificationProvider, showNotification } from './components/ui/notification'
+import mockData from './config/mockData.json';
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings} from './config/courseMappings';
 
@@ -32,7 +33,8 @@ const App = () => {
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
-  
+  const hideIEButton = 1; // Hardcoded switch to hide ie button
+
   
 
   // Get specializations for current course type
@@ -346,16 +348,18 @@ const App = () => {
   </div>
           {/* Course Type Selection Buttons */}
           <div className="flex flex-row flex-wrap gap-3 mt-4 justify-center mb-5">
-            {courseTypeOptions.map((option) => (
-              <Button
-                key={option.type}
-                className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                  courseType === option.type ? styles.buttonPrimary : styles.buttonSecondary
-                }`}
-                onClick={() => handleCourseSwitch(option.type)}
-              >
-                {option.label}
-              </Button>
+            {courseTypeOptions
+              .filter(option => !hideIEButton || option.type !== 'ie')
+              .map((option) => (
+                <Button
+                  key={option.type}
+                  className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                    courseType === option.type ? styles.buttonPrimary : styles.buttonSecondary
+                  }`}
+                  onClick={() => handleCourseSwitch(option.type)}
+                >
+                  {option.label}
+                </Button>
             ))}
           </div>
 
