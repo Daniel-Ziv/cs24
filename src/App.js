@@ -602,7 +602,7 @@ const App = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-2 px-4 sm:px-6">
-              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${styles.buttonPrimary}`}>
+              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${styles.missmailbutton}`}>
                 <span className="text-base sm:text-lg text-white select-all">cs24.hit@gmail.com</span>
                 <button
                   onClick={copyToClipboard}
