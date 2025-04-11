@@ -133,27 +133,29 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
       const data = await response.json();
       const jobsData = data[channelId];
 
-      // Filter and sort jobs
+      // Create a Set to track unique jobs using a composite key
+      const uniqueJobs = new Map();
+      
       if (Array.isArray(jobsData)) {
-        const uniqueJobs = jobsData.reduce((acc, job) => {
-          // Use title as unique identifier
-          if (!acc.some(existingJob => existingJob.title === job.title)) {
-            acc.push(job);
+        jobsData.forEach(job => {
+          const key = `${job.title}-${job.date}-${job.url}`;
+          if (!uniqueJobs.has(key)) {
+            uniqueJobs.set(key, {
+              ...job,
+              id: key // Using the composite key as the id
+            });
           }
-          return acc;
-        }, []);
-
-        // Sort by date (newest first)
-        uniqueJobs.sort((a, b) => {
-          const [aMonth, aDay, aYear] = a.date.split("/");
-          const [bMonth, bDay, bYear] = b.date.split("/");
-          return new Date(bYear, bMonth - 1, bDay) - new Date(aYear, aMonth - 1, aDay);
         });
-
-        setJobs(uniqueJobs);
-      } else {
-        setJobs([]);
       }
+      
+      // Convert Map values back to array and sort by date (newest first)
+      const uniqueJobsArray = Array.from(uniqueJobs.values()).sort((a, b) => {
+        const [aMonth, aDay, aYear] = a.date.split("/");
+        const [bMonth, bDay, bYear] = b.date.split("/");
+        return new Date(bYear, bMonth - 1, bDay) - new Date(aYear, aMonth - 1, aDay);
+      });
+
+      setJobs(uniqueJobsArray);
     } catch (error) {
       setJobs([]);
     } finally {
@@ -171,7 +173,7 @@ const JobPostingsCard = ({ courseType = 'cs' }) => {
   }, [width]);
 
   return (
-    <Card className={`mb-4 bg-white relative ${styles.cardBorder}`}>
+    <Card className={`mb-4 border bg-white relative ${styles.cardBorder}`}>
       {/* Bell bubble */}
       <motion.div
         initial={{ rotate: 0, y: 0 }}

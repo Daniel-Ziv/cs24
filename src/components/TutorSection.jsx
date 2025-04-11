@@ -126,7 +126,7 @@ const TutorSection = ({ courseType, onSubmitFeedback }) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className={`mb-8 bg-white ${styles.cardBorder}`}>
+      <Card className={`mb-8 bg-white border ${styles.cardBorder}`}>
         <CardHeader>
           <CardTitle className={`text-3xl ${styles.textcolor}`}>
             מורים פרטיים מומלצים

@@ -371,7 +371,7 @@ const App = () => {
             </div>
 
             {/* Laptop Section */}
-            <Card className={`bg-gradient-to-r ${styles.cardBg}`}>
+            <Card className={`border-2 bg-gradient-to-r ${styles.cardBg} ${styles.cardBorder}`}>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full sm:block">
@@ -401,7 +401,7 @@ const App = () => {
             {/* Right Column Content (2/3 width on desktop) */}
             <div className="lg:col-span-2">
               {/* Laptop Section */}
-              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all border-2 ${styles.cardBorder} mb-4`}>
+              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all mb-4`}>
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                   <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2 rounded-full hidden sm:block">
@@ -458,7 +458,7 @@ const App = () => {
           </div>
 
           {/* New Tutors Section with Supabase Integration */}
-          <Card className={`mb-8 ${styles.cardBg} ${styles.cardBorder}`}>
+          <Card className={`mb-8 border bg-white ${styles.cardBorder}`}>
             <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${styles.textColor}`}>

@@ -155,7 +155,7 @@ const HelpfulLinksSection = ({ courseType }) => {
                       <h3 className={`font-medium ${styles.textColor}`}>
                         {link.title}
                       </h3>
-                      <p className={`text-sm ${styles.textColor}`} dir="rtl">
+                      <p className={`text-sm ${styles.iconColor}`} dir="rtl">
                         {link.description}
                       </p>
                     </div>

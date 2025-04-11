@@ -176,7 +176,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
 
   return (
     <>
-      <Card className={`bg-white ${styles.cardBorder}`}>
+      <Card className={`bg-white border ${styles.cardBorder}`}>
         <CardHeader className="pb-3">
           <div className="flex flex-col space-y-1.5">
             <div className="flex items-center justify-between">
