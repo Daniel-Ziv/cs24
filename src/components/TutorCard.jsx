@@ -370,7 +370,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback }) => {
                 {commentError && (
                   <p className="text-red-500 text-xs mt-1">{commentError}</p>
                 )}
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center bg-red-500">
                   <span className="text-xs text-gray-500">
                     {comment.length}/{MAX_COMMENT_LENGTH}
                   </span>

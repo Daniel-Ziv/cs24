@@ -6,6 +6,7 @@ const courseStyles = {
     textColor: 'text-blue-950', // Reverted to the previous color for dynamic text
     textSecondary: 'text-sky-600 hover: text-sky-700',
     cardBorder: 'border-blue-200',
+    cardBorderStrong: 'border-blue-600',
     cardBg: 'from-blue-800 to-blue-700',
     iconColor: 'text-blue-600',
     iconColorReverse:'md bg-sky-600 hover:bg-sky-700 text-white',
@@ -25,6 +26,7 @@ const courseStyles = {
     textColor: 'text-purple-950',
     textSecondary: 'text-purple-600 hover: text-purple-700',
     cardBorder: 'border-purple-200',
+    cardBorderStrong: 'border-purple-600',
     cardBg: 'from-purple-800 to-purple-700',
     iconColor: 'text-purple-700',
     iconColorReverse:'md bg-purple-600 hover:bg-purple-700 text-white',
@@ -44,6 +46,7 @@ const courseStyles = {
     textColor: 'text-orange-900',
     textSecondary: 'text-orange-500 hover: text-orange-600',
     cardBorder: 'border-orange-200',
+    cardBorderStrong: 'border-orange-600',
     cardBg: 'from-orange-600 to-orange-500',
     iconColor: 'text-orange-500',
     iconColorReverse:'md bg-orange-600 hover:bg-orange-700 text-white',

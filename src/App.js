@@ -506,9 +506,9 @@ const App = () => {
                       <Button
                         key={year}
                         onClick={() => handleYearClick(year)}
-                        className={`text-sm sm:text-base px-3 py-2 font-medium ${
+                        className={`text-sm sm:text-base px-3 py-2 border font-medium ${styles.cardBorderStrong} ${
                           selectedYear === year
-                            ? styles.buttonPrimary
+                            ? styles.iconColorReverse
                             : styles.buttonSecondary
                         }`}
                       >
@@ -524,9 +524,9 @@ const App = () => {
                     <Button
                       key={course.id}
                       onClick={() => handleCourseClick(course.name)}
-                      className={`text-sm px-3 py-1.5 ${
+                      className={`text-sm px-3 border py-1.5 ${styles.cardBorderStrong} ${
                         selectedCourse === course.name
-                          ? styles.buttonPrimary
+                          ? styles.iconColorReverse
                           : styles.buttonSecondary
                       }`}
                     >
@@ -588,7 +588,7 @@ const App = () => {
           {/* Missing Tests Banner */}
           <Card
             id="missing-tests-section"
-            className={`mb-8 ${styles.cardBg} ${styles.cardBorder} ${
+            className={`mb-8 ${styles.bgLight} ${styles.cardBorder} ${
               isVisible ? 'animate-bounce-gentle shadow-glow' : ''
             }`}
           >
@@ -597,7 +597,7 @@ const App = () => {
                 <FileText className={`h-8 w-8 ${styles.iconColor}`} aria-hidden="true" />
                 <span>חוסרים</span>
               </CardTitle>
-              <CardDescription className={`text-center text-lg ${styles.textColor}`}>
+              <CardDescription className={`text-center text-lg  ${styles.textColor}`}>
                 יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
               </CardDescription>
             </CardHeader>
