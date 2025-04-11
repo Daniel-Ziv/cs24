@@ -506,7 +506,7 @@ const App = () => {
                       <Button
                         key={year}
                         onClick={() => handleYearClick(year)}
-                        className={`text-sm sm:text-base px-3 py-2 border font-medium ${styles.cardBorderStrong} ${
+                        className={`text-sm sm:text-base px-3 py-2 border font-medium shadow-md ${styles.cardBorderStrong} ${
                           selectedYear === year
                             ? styles.iconColorReverse
                             : styles.buttonSecondary
@@ -524,7 +524,7 @@ const App = () => {
                     <Button
                       key={course.id}
                       onClick={() => handleCourseClick(course.name)}
-                      className={`text-sm px-3 border py-1.5 ${styles.cardBorderStrong} ${
+                      className={`text-sm px-3 border py-1.5 shadow-md ${styles.cardBorderStrong} ${
                         selectedCourse === course.name
                           ? styles.iconColorReverse
                           : styles.buttonSecondary
@@ -574,7 +574,7 @@ const App = () => {
                       <Button
                         onClick={() => setShowAllTutors(true)}
                         variant="outline"
-                        className={styles.buttonSecondary}
+                        className={` ${styles.buttonThird}`}
                       >
                         הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
                       </Button>
@@ -588,7 +588,7 @@ const App = () => {
           {/* Missing Tests Banner */}
           <Card
             id="missing-tests-section"
-            className={`mb-8 ${styles.bgLight} ${styles.cardBorder} ${
+            className={`mb-8 border ${styles.bgLight} ${styles.cardBorder} ${
               isVisible ? 'animate-bounce-gentle shadow-glow' : ''
             }`}
           >

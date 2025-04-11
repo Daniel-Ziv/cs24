@@ -14,6 +14,90 @@
       "feedback_count": 3
     },
     {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
+      "name": "דוד עזרן",
+      "subjects": ["תכנות מונחה עצמים", "סדנה מתקדמת בתכנות", "מבני נתונים", "מבוא למדעי המחשב"],
+      "phone": "0508121999",
+      "feedback": [
+        { "rating": 5, "comment": "מעולה ממש!", "created_at": "2024-11-01" },
+        { "rating": 5, "comment": "ברור מאוד", "created_at": "2024-11-04" },
+        { "rating": 4, "comment": "היה יכול להאט לפעמים", "created_at": "2024-11-10" }
+      ],
+      "average_rating": 4.67,
+      "feedback_count": 3
+    },
+    {
       "name": "עידן מרמור",
       "subjects": ["אלגוריתמים 1", "מבני נתונים", "מבוא למדעי המחשב", "אלגוריתמים 2"],
       "phone": "0537204416",

@@ -66,7 +66,7 @@ const AuthButton = ({ courseType }) => {
           variant="outline"
           onClick={handleLogout}
           disabled={isLoggingOut || loading}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base ${styles.buttonSecondary}`}
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base shadow-md ${styles.buttonSecondary}`}
           size="sm"
         >
           <LogOut className="h-4 w-4" />
