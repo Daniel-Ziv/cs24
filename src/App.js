@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import {Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check} from 'lucide-react'
 import { Button } from './components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card'
@@ -12,12 +13,13 @@ import AdminPanel from './components/AdminPanel'
 import { yearOneCourses, yearTwoCourses, yearThreeCourses, eeYearOneCourses, eeYearTwoCourses, eeYearThreeCourses, eeYearFourCourses } from './components/CoursesList'
 import { NotificationProvider, showNotification } from './components/ui/notification'
 import localData from './LocalData.json';
+import { Calculator } from 'lucide-react';
 
 const csTutors = localData.csTutors;
 const eeTutors = localData.eeTutors
 
-
 const App = () => {
+          const navigate = useNavigate();
           const [courseType, setCourseType] = useState('cs'); // 'cs' for Computer Science, 'ee' for Electrical Engineering
           const [selectedTag, setSelectedTag] = useState('אין');
   const [isVisible, setIsVisible] = useState(false);
@@ -512,6 +514,7 @@ const App = () => {
             </div>
           )}
 
+      
           {/* Course List */}
         {courseType === 'cs' ? (
           <CourseList />
@@ -519,10 +522,30 @@ const App = () => {
           <CourseList electricalEngineering={true} selectedTag={selectedTag} /> 
         )}
 
+        {/* GPA-clac */}
+        <div>
+          <Button
+            className={`w-full sm:w-auto px-6 py-3 font-bold text-base sm:text-lg rounded-md shadow transition-all mb-8 bg-white border ${
+              courseType === 'cs'
+                ? 'text-sky-700 border-sky-200 hover:bg-sky-50'
+                : 'text-purple-700 border-purple-200 hover:bg-purple-50'
+            }`}
+            onClick={() => navigate('/gpa')}
+          >
+            <Calculator className={`h-6 w-6 md:h-6 md:w-6 ${courseType === 'cs' ? 'border-sky-200' : 'border-purple-200'}`} />
+             מחשבון ציונים
+          </Button>
+        </div>
+
+
+
+
           {/* Links Section - Mobile (appears after course list) */}
           <div className="block lg:hidden mt-4">
             <HelpfulLinksSection courseType={courseType} />
                   </div>
+          
+
 
           {/* New Tutors Section with Supabase Integration */}
       <Card className={`mb-8 bg-white ${courseType === 'cs' ? 'border-sky-200' : 'border-purple-200'}`}>
