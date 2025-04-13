@@ -6,12 +6,15 @@ import JoinRequestModal from './JoinRequestModal';
 import { showNotification } from './ui/notification';
 import GoogleLoginButton from './GoogleLoginButton';
 import useAuth from '../hooks/useAuth';
+import { courseStyles } from '../config/courseStyles';
 
 const AuthButton = ({ courseType }) => {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, session, signOut, loading } = useAuth();
+
+  const styles = courseStyles[courseType] || courseStyles.cs;
 
   const handleJoinRequest = async () => {
     if (!session) {
@@ -49,9 +52,7 @@ const AuthButton = ({ courseType }) => {
     <div className="flex gap-1 sm:gap-2">
       <Button
         onClick={handleJoinRequest}
-        className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base ${
-          courseType === 'cs' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'
-        } text-white`}
+        className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base ${styles.buttonPrimary}`}
         size="sm"
       >
         <UserPlus className="h-4 w-4" />
@@ -65,7 +66,7 @@ const AuthButton = ({ courseType }) => {
           variant="outline"
           onClick={handleLogout}
           disabled={isLoggingOut || loading}
-          className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base"
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-2 text-sm sm:text-base shadow-md ${styles.buttonSecondary}`}
           size="sm"
         >
           <LogOut className="h-4 w-4" />
@@ -112,4 +113,4 @@ const AuthButton = ({ courseType }) => {
   );
 };
 
-export default AuthButton; 
+export default AuthButton;

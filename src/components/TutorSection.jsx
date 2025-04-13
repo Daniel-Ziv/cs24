@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import GoogleLoginButton from './GoogleLoginButton';
 import TutorCard from './TutorCard';
 import { showNotification } from './ui/notification';
+import { courseStyles } from '../config/courseStyles';
 
 const TutorSection = ({ courseType, onSubmitFeedback }) => {
   const [user, setUser] = useState(null);
@@ -13,6 +14,7 @@ const TutorSection = ({ courseType, onSubmitFeedback }) => {
   const [feedbackForms, setFeedbackForms] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedTutorForLogin, setSelectedTutorForLogin] = useState(null);
+  const styles = courseStyles[courseType] || courseStyles.cs;
   
   useEffect(() => {
     // Check auth status
@@ -124,13 +126,14 @@ const TutorSection = ({ courseType, onSubmitFeedback }) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className={`mb-8 bg-white ${courseType === 'cs' ? 'border-blue-200' : 'border-purple-200'}`}>
+      <Card className={`mb-8 bg-white border ${styles.cardBorder}`}>
         <CardHeader>
-          <CardTitle className={`text-3xl ${courseType === 'cs' ? 'text-blue-950' : 'text-purple-950'}`}>
+          <CardTitle className={`text-3xl ${styles.textcolor}`}>
             מורים פרטיים מומלצים
           </CardTitle>
         </CardHeader>
 
+        {/*ביקורות */}
         <CardContent className="grid gap-4 grid-cols-1 md:grid-cols-2">
           {tutors.map((tutor) => (
             <Card key={tutor.id} className="p-4">
@@ -180,7 +183,7 @@ const TutorSection = ({ courseType, onSubmitFeedback }) => {
                       document.getElementById(`rating-${tutor.id}`).value,
                       document.getElementById(`comment-${tutor.id}`).value
                     )}
-                    className={`${courseType === 'cs' ? 'bg-blue-600' : 'bg-purple-600'} text-white`}
+                    className={`${styles.buttonPrimary} text-white`}
                   >
                     שלח ביקורת
                   </Button>

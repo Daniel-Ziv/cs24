@@ -1,7 +1,4 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
-
-export const yearOneCourses = [
+export const csYearOneCourses = [
     { id: 1, name: "תכנות מונחה עצמים", driveLink: "https://drive.google.com/drive/folders/1DfI4EwDUx4pNjWIeQz0SU_TITPy4PBMn?usp=drive_link" },
     { id: 2, name: "סדנה מתקדמת בתכנות", driveLink: "https://drive.google.com/drive/folders/1gW2LE8jD_Yhb9BNzdS583aonXdSGpOk_?usp=drive_link" },
     { id: 3, name: "מבני נתונים", driveLink: "https://drive.google.com/drive/folders/17Sv6VSK3HgaofeZ7Tl-FB3SbzLeoeCuU?usp=drive_link" },
@@ -13,7 +10,7 @@ export const yearOneCourses = [
     { id: 9, name: "אינפי 1", driveLink: "https://drive.google.com/drive/folders/1ViNjQEhT571efRNEpvS51xH0FZz8ABJa?usp=drive_link" },
 ]; 
 
-export const yearTwoCourses = [
+export const csYearTwoCourses = [
   { id: 10, name: "רשתות תקשורת מחשבים", driveLink: "https://drive.google.com/drive/folders/1YSnDxrx-nV7U5CodB21-yUpZMvZjyCDP?usp=share_link" },
   { id: 11, name: "מבוא למדעי הנתונים", driveLink: "https://drive.google.com/drive/folders/158eBODzY05k568sBR9dpMLbClGOL9ApT?usp=share_link" },
   { id: 12, name: "הסתברות", driveLink: "https://drive.google.com/drive/folders/1Nnnun-DJtFXBgrmQtLjhAe0ymLMVfE00?usp=sharing" },
@@ -27,11 +24,10 @@ export const yearTwoCourses = [
   { id: 20, name: "אלגוריתמים 2", driveLink: "https://drive.google.com/drive/folders/1ME21TQUflIfQR93COVr0BKGtHHy5hpy2?usp=share_link" },
 ];
 
-export const yearThreeCourses = [
+export const csYearThreeCourses = [
   
   { id: 21, name: "אוטומטים ושפות פורמליות", driveLink: "https://drive.google.com/drive/folders/1HHv_5NGFKITUMbLM8INccG3jzz2cCmFS?usp=sharing" },
   { id: 22, name: "חישוביות וסיבוכיות", driveLink: "https://drive.google.com/drive/folders/1wPppIA0y7hFRf3CxEs0YBsEo5a_qCwdI?usp=share_link" },
-  //cs choosing courses
   { id: 23, name: "בלוקצ'יין", driveLink: "https://drive.google.com/drive/folders/1rrR0a1k89Yu9jBdo08WMwiHLlJrui9Vn?usp=sharing"},
   { id: 24, name: "מבוא למערכות מידע גיאוגרפי GIS", driveLink: "https://drive.google.com/drive/folders/1tyinoo_MKNvX0n3sryv3dpFHDMNmSWRa?usp=drive_link"},
   { id: 25, name: "הנדסת פתרונות תוכנה מתקדמים (חלק א')", driveLink: "https://drive.google.com/drive/folders/1viWDkv9AJVOh3XO_oTSKjhVbA-sUX6v5?usp=sharing"},
@@ -50,27 +46,28 @@ export const choosingCourses = [
   { id: 51, name: "אתגרי מחשבה בפילוסופיה", driveLink: "https://drive.google.com/drive/folders/1SE45fWekHTb2SOlvVMa2c4IVd3ZXcMTw?usp=sharing" },
   { id: 52, name: "אתגר הגלובליזציה", driveLink: "https://drive.google.com/drive/folders/1TaWsX8OuzZts59Nwj0ZsI5EjwZAszImj?usp=sharing" },
   { id: 53, name: "אתיקה בעסקים", driveLink: "https://drive.google.com/drive/folders/1hLAOUwcVppKWIFG9irej6tHiqEv4Rb5K?usp=sharing" },
-  { id: 54, name: "אתיקה של איכות הסביבה", driveLink: "https://drive.google.com/drive/folders/1nv4tUMPGawF6o_P7Ly7K-2b1fiuiDv0O?usp=sharing" },
-  { id: 55, name: "בסמטאותיה של צפת", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
-  { id: 56, name: "האדם בין מימוש לאחריות חברתית", driveLink: "https://drive.google.com/drive/folders/1ea491Pj-snePUemXfv1EQcUMKsiKBvBy?usp=sharing" },
-  { id: 57, name: "הבעות פנים מדארווין ועד היום", driveLink: "https://drive.google.com/drive/folders/12xsN-9Y6-1HuU8jCtPUXZHqcBD2nU0A4?usp=sharing" },
-  { id: 58, name: "הגירה בעולם משתנה", driveLink: "https://drive.google.com/drive/folders/19ymZDw28JZB5iHI54kJ3wyMI9A_3W_9p?usp=sharing" },
-  { id: 59, name: "היסטוריה של אפריקה בשחור ולבן", driveLink: "https://drive.google.com/drive/folders/1w6rTIOua5Zmb-4FlQ3ahdz0EsQ440UWB?usp=sharing" },
-  { id: 60, name: "העולם הנוצרי בעבר ובהווה", driveLink: "https://drive.google.com/drive/folders/10Nbhb2MSJ_4AFtaBjItln3HkSl9lTtjx?usp=sharing" },
-  { id: 61, name: "יצירתיות מרוח לחומר", driveLink: "https://drive.google.com/drive/folders/1O34QuuqddCIpbj1svYN7yLnOzG9ibGok?usp=sharing" },
-  { id: 62, name: "מבוא לפיתוח בר-קיימא", driveLink: "https://drive.google.com/drive/folders/1dsoU-HIpEDt9fwOWJN-3jOPTHTnQ6TAM?usp=sharing" },
-  { id: 63, name: "מדע ומחשבה מדעית", driveLink: "https://drive.google.com/drive/folders/1XPo70GbJPfNNSlwEZ-UQ3FURVO10Y4xo?usp=sharing" },
-  { id: 64, name: "נשים בחברה הישראלית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
-  { id: 65, name: "נשים במקרא בראייה פמיניסטית סוציולוגית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
-  { id: 66, name: "סייבר - הצד האפל של הטכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 67, name: "ציונות, פוסט ציונות וזהות ישראלית חדשה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 68, name: "קהילות, פוליטיקה, עסקים באינטרנט", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
-  { id: 69, name: "קמפיינים פוליטיים", driveLink: "https://drive.google.com/drive/folders/1U7vX78wXYMqBPnl89wdDvlPg_3KpF1En?usp=sharing" },
+  { id: 29, name: "אתיקה של איכות הסביבה", driveLink: "https://drive.google.com/drive/folders/1nv4tUMPGawF6o_P7Ly7K-2b1fiuiDv0O?usp=sharing" },
+  { id: 54, name: "בסמטאותיה של צפת", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
+  { id: 55, name: "האדם בין מימוש לאחריות חברתית", driveLink: "https://drive.google.com/drive/folders/1ea491Pj-snePUemXfv1EQcUMKsiKBvBy?usp=sharing" },
+  { id: 56, name: "הבעות פנים מדארווין ועד היום", driveLink: "https://drive.google.com/drive/folders/12xsN-9Y6-1HuU8jCtPUXZHqcBD2nU0A4?usp=sharing" },
+  { id: 57, name: "הגירה בעולם משתנה", driveLink: "https://drive.google.com/drive/folders/19ymZDw28JZB5iHI54kJ3wyMI9A_3W_9p?usp=sharing" },
+  { id: 58, name: "היסטוריה של אפריקה בשחור ולבן", driveLink: "https://drive.google.com/drive/folders/1w6rTIOua5Zmb-4FlQ3ahdz0EsQ440UWB?usp=sharing" },
+  { id: 59, name: "העולם הנוצרי בעבר ובהווה", driveLink: "https://drive.google.com/drive/folders/10Nbhb2MSJ_4AFtaBjItln3HkSl9lTtjx?usp=sharing" },
+  { id: 60, name: "יצירתיות מרוח לחומר", driveLink: "https://drive.google.com/drive/folders/1O34QuuqddCIpbj1svYN7yLnOzG9ibGok?usp=sharing" },
+  { id: 61, name: "מבוא לפיתוח בר-קיימא", driveLink: "https://drive.google.com/drive/folders/1dsoU-HIpEDt9fwOWJN-3jOPTHTnQ6TAM?usp=sharing" },
+  { id: 62, name: "מדע ומחשבה מדעית", driveLink: "https://drive.google.com/drive/folders/1XPo70GbJPfNNSlwEZ-UQ3FURVO10Y4xo?usp=sharing" },
+  { id: 63, name: "נשים בחברה הישראלית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
+  { id: 64, name: "נשים במקרא בראייה פמיניסטית סוציולוגית", driveLink: "https://drive.google.com/drive/folders/1b-ARBEFs8qtnHUde6g6WVuZCgTIcLW_P?usp=sharing" },
+  { id: 65, name: "סייבר - הצד האפל של הטכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 66, name: "ציונות, פוסט ציונות וזהות ישראלית חדשה", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 67, name: "קהילות, פוליטיקה, עסקים באינטרנט", driveLink: "https://drive.google.com/drive/folders/1TgU96uOYczrIHC80x0DQpxKjF5LsfJbF?usp=sharing" },
+  { id: 68, name: "קמפיינים פוליטיים", driveLink: "https://drive.google.com/drive/folders/1U7vX78wXYMqBPnl89wdDvlPg_3KpF1En?usp=sharing" },
+  { id: 69, name: "שואה וזכרון בישראל", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" },
   { id: 70, name: "שואת יהודי אירופה", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
   { id: 71, name: "תהליכי שינוי בתקשורת בישראל", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
   { id: 72, name: "תחנות בחיי האדם מבט אנתרופולוגי בין תרבותי", driveLink: "https://drive.google.com/drive/folders/1Xv39r2HuOSfh-tC0CTNVzVPed42S4k5T?usp=sharing" },
   { id: 73, name: "תקשורת בעולם טכנולוגי", driveLink: "https://drive.google.com/drive/folders/1df61V_FAFbyiTkHj-4Io_Ds7h9l60c_2?usp=sharing" },
-  { id: 74, name: "שואה וזכרון בישראל", driveLink: "https://drive.google.com/drive/folders/1XgJwfXK991w-RJNecubq0FSPpEzImi4Y?usp=sharing" }
+  
   ];
 
 export const eeYearOneCourses = [
@@ -139,8 +136,6 @@ export const eeYearThreeCourses = [
   { id: 334, tag: 'מערכות משובצות מחשב', name: "מעבדה מתקדמת בתכנות", driveLink: "#" },
   { id: 335, tag: 'מערכות משובצות מחשב', name: "תיכון חומרה באמצעות VHDL", driveLink: "https://drive.google.com/drive/folders/1CRJ9DbtiNCMEawmmLmc2xa92nYeWSC8q?usp=sharing" },
 
-
-
 ];
 export const eeYearFourCourses = [
   { id: 401, tag: 'בקרה', name: "מעבדה מתקדמת לבקרה", driveLink: "https://drive.google.com/drive/folders/12n3Mvp0IWszS7mB1BFFvOeD8ssxNPVIn?usp=sharing" },
@@ -169,7 +164,7 @@ export const eeYearFourCourses = [
   { id: 423, tag: 'אנרגיה ומערכות הספק(זרם חזק)', name: "הינע חשמלי", driveLink: "#" },
   { id: 424, tag: ['אנרגיה ומערכות הספק(זרם חזק)','אנרגיות חלופיות ומערכות הספק משולב'], name: "מעבדה לטכניקות מתח גבוה", driveLink: "#" },
   { id: 425, tag: ['אנרגיה ומערכות הספק(זרם חזק)','אנרגיות חלופיות ומערכות הספק משולב'], name: "מעבדה למערכות הספק אלקטרוניות", driveLink: "#" },
-  { id: 426, tag: 'אנרגיות חלופיות ומערכות הספק משולב', name: "'מערכות הספק ב", driveLink: "https://drive.google.com/drive/folders/1ipwwC5tEGFexknfFU5HRyZqUNxDX-fhA?usp=sharing" },
+  { id: 426, tag: 'אנרגיות חלופיות ומערכות הספק משולב', name: "מערכות הספק ב'", driveLink: "https://drive.google.com/drive/folders/1ipwwC5tEGFexknfFU5HRyZqUNxDX-fhA?usp=sharing" },
   { id: 427, tag: 'אנרגיות חלופיות ומערכות הספק משולב', name: "מעבדה להמרת אנרגיה", driveLink: "https://drive.google.com/drive/folders/1U6tN6lXubrSoEEFwuyZdfX6nIeXkkYOb?usp=sharing" },
   { id: 428, tag: 'אנרגיות חלופיות ומערכות הספק משולב', name: "התקני מתח גבוה ונמוך", driveLink: "#" },
   { id: 429, tag: 'אנרגיות חלופיות ומערכות הספק משולב', name: "מערכות הספק אלקטרוניות", driveLink: "https://drive.google.com/drive/folders/141Sq0YI1wK_FftQMEqWByt6ntV028JJ6?usp=sharing" },
@@ -185,123 +180,85 @@ export const eeYearFourCourses = [
   { id: 439, tag: 'מערכות משובצות מחשב', name: "מעבדה במערכות מחשב משובצות ב-IoT", driveLink: "#" },
   { id: 440, tag: 'מערכות משובצות מחשב', name: "מעבדה למערכות משובצות מיקרופרוססורים", driveLink: "#" },
 
-
-
-
-
-
-
-
-
-
-
 ];
 
-const YearSection = ({ title, courses, selectedTag, courseType = 'cs' }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const ieYearOneCourses = [
+  { id: 501, name: "אינפי 1 לניהול טכנולוגיה", driveLink: "#" },
+  { id: 502, name: "ליניארית לניהול טכנולוגיה", driveLink: "#" },
+  { id: 503, name: "מבוא לכלכלה מיקרו ומאקרו", driveLink: "#" },
+  { id: 504, name: "יסודות החשבונאות", driveLink: "#" },
+  { id: 505, name: "יסודות בניהול והתנהגות ארגונית", driveLink: "#" },
+  { id: 506, name: "מבוא להסתברות א", driveLink: "#" },
+  { id: 507, name: "מבוא להסתברות ב", driveLink: "#" },
+  { id: 508, name: "חשבון אינפיניטסימלי 2 לניהול טכנולוגיה", driveLink: "#" },
+  { id: 509, name: "פיסיקה 1 לניהול טכנולוגיה", driveLink: "#" },
+  { id: 510, name: "סדנה באקסל", driveLink: "#" },
+  { id: 511, name: "יסודות השיווק", driveLink: "#" },
+  { id: 512, name: "מבוא להנדסת תעשייה וניהול", driveLink: "#" },
   
-  // Theme based on courseType
-  const bgColor = courseType === 'cs' ? 'bg-blue-800' : 'bg-purple-800';
-  const hoverBgColor = courseType === 'cs' ? 'hover:bg-blue-700' : 'hover:bg-purple-700';
-  const borderColor = courseType === 'cs' ? 'border-blue-200' : 'border-purple-200';
-  const hoverBgLight = courseType === 'cs' ? 'hover:bg-blue-50' : 'hover:bg-purple-50';
-  const bgLight = courseType === 'cs' ? 'bg-blue-100' : 'bg-purple-100';
-  const textColor = courseType === 'cs' ? 'text-blue-900' : 'text-purple-900';
-  const iconColor = courseType === 'cs' ? 'text-blue-800' : 'text-purple-800';
-  
-  return (
-    <div className="mb-4">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full ${bgColor} text-white p-4 rounded-lg flex justify-between items-center ${hoverBgColor} transition-colors`}
-      >
-        <span className="text-xl font-bold">{title}</span>
-        {isOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
-      </button>
-      {isOpen && (
-        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 mt-2">
-          {courses
-              .filter(course => !selectedTag || !course.tag || (Array.isArray(course.tag) ? course.tag.includes(selectedTag) : course.tag === selectedTag))
-              .map(course => (
-              course.driveLink === "#" ? (
-                <div
-                  key={course.id}
-                  className={`block bg-gray-50 transition-all duration-300 border ${borderColor} rounded-lg shadow-md`}
-                >
-                  <div className="p-4 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2 min-h-[2rem]">
-                      <div className={`bg-gray-200 p-1.5 rounded-md mt-0.5`}>
-                        <BookOpen className={`h-5 w-5 text-gray-600 shrink-0`} />
-                      </div>
-                      <h3 className={`text-lg font-medium text-gray-700`}>
-                        {course.name} <span className="text-red-500">(חסר)</span>
-                      </h3>
-                    </div>
-                    <button 
-                      className={`px-4 py-1.5 ${courseType === 'cs' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded-md transition-colors text-sm font-medium whitespace-nowrap shrink-0 mt-0.5`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.scrollTo({
-                          top: document.documentElement.scrollHeight,
-                          behavior: 'smooth'
-                        });
-                      }}
-                    >
-                      יש לי
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <a
-                  key={course.id}
-                  href={course.driveLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`block bg-white ${hoverBgLight} transition-all duration-300 border ${borderColor} rounded-lg shadow-md hover:shadow-lg`}
-                >
-                  <div className="p-4 flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2 min-h-[2rem]">
-                      <div className={`${bgLight} p-1.5 rounded-md mt-0.5`}>
-                        <BookOpen className={`h-5 w-5 ${iconColor} shrink-0`} />
-                      </div>
-                      <h3 className={`text-lg font-medium ${textColor}`}>{course.name}</h3>
-                    </div>
-                  </div>
-                </a>
-              )
-            ))}
-        </div>
-      )}
-    </div>
-  );
-};
+  ];
 
-const CoursesList = ({ electricalEngineering = false, selectedTag }) => {
-  // Determine course type based on electricalEngineering prop
-  const courseType = electricalEngineering ? 'ee' : 'cs';
-  
-  return (
-    <div className="mb-4">
-      {electricalEngineering ? (
-        // Electrical Engineering courses
-        <>
-          <YearSection title="שנה א׳" courses={eeYearOneCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ב׳" courses={eeYearTwoCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ג׳" courses={eeYearThreeCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ד׳" courses={eeYearFourCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="רב תחומי" courses={choosingCourses} selectedTag={selectedTag} courseType={courseType} />
-        </>
-      ) : (
-        // Computer Science courses
-        <>
-          <YearSection title="שנה א׳" courses={yearOneCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ב׳" courses={yearTwoCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="שנה ג׳" courses={yearThreeCourses} selectedTag={selectedTag} courseType={courseType} />
-          <YearSection title="רב תחומי" courses={choosingCourses} selectedTag={selectedTag} courseType={courseType} />
-        </>
-      )}
-    </div>
-  );
-};
+export const ieYearTwoCourses = [
+  { id: 601, name: "פיסיקה 2 לניהול טכנולוגיה", driveLink: "#" },
+  { id: 602, name: "סטטיסטיקה", driveLink: "#" },
+  { id: 603, name: "מודלים דטרמיניסטיים של חקר ביצועים", driveLink: "#" },
+  { id: 604, name: "בסיסי נתונים ו- SQL", driveLink: "#" },
+  { id: 605, name: "מבוא לתכנות בשפת Python", driveLink: "#" },
+  { id: 606, name: "מודלים סטוכסטיים של חקר ביצועים", driveLink: "#" },
+  { id: 607, name: "יסודות תורת ההחלטות", driveLink: "#" },
+  { id: 608, name: "מבוא להנדסת חומרים", driveLink: "#" },
+  { id: 609, name: "תורת המימון", driveLink: "#" },
+  { id: 610, name: "מתמטיקה בדידה לנה''ט", driveLink: "#" },
+];
 
-export default CoursesList;
+export const ieYearThreeCourses = [
+  { id: 701, name: "כלכלה תעשייתית", driveLink: "#" },
+  { id: 702, name: "ניהול פרויקטים א'", driveLink: "#" },
+  { id: 703, name: "מבוא להנדסת אלקטרוניקה, אוטומציה ורובוטיקה", driveLink: "#" },
+  { id: 704, name: "הנדסת שיטות", driveLink: "#" },
+  { id: 705, name: "ניהול מערכות ייצור", driveLink: "#" },
+  { id: 706, name: "ניהול משאבי אנוש", driveLink: "#" },
+  { id: 707, name: "מעבדה בניהול פרויקטים", driveLink: "#" },
+  { id: 708, name: "סימולציה", driveLink: "#" },
+  { id: 709, name: "שיטות מחקר ורגרסיה", driveLink: "#" },
+  { id: 709, name: "מערכות תפעול ולוגיסטיקה", driveLink: "#" },
+  { id: 709, name: "ניתוח ועיצוב מערכות מידע", driveLink: "#" },
+];
+
+export const ieYearFourCourses = [
+
+  { id: 801, name: "חדשנות ויזמות טכנולוגית", driveLink: "#" },
+  { id: 802, name: "סטטיסטיקה תעשייתית", driveLink: "#" },
+  { id: 803, name: "פרויקט גמר בהנדסת תעשייה וניהול טכנלוגיה", driveLink: "#" },
+  { id: 804, name: "דיני עסקים וקניין רוחני", driveLink: "#" },
+  { id: 805, name: "מערכות מידע ארגוניות", driveLink: "#" },
+  { id: 806, name: "פרויקט גמר בהנדסת תעשייה וניהול טכנלוגיה", driveLink: "#" },
+  { id: 807, tag: 'ניהול פרוייקטים', name: "ניהול סיכונים בפרויקטים", driveLink: "#" },
+  { id: 808, tag: 'ניהול פרוייקטים', name: "סמינר מתקדם בניהול פרוייקטים", driveLink: "#" },
+  { id: 809, tag: 'ניהול פרוייקטים', name: "ניהול פרוייקטים ברמת הארגון", driveLink: "#"},
+  { id: 810, tag: ['ניהול פרויקטים','ניהול טכנולוגיות מידע','אבטחת מידע וסייבר'], name: "ניהול פרוייקטים בטכנולגיות מידע", driveLink: "#"},
+  { id: 811, tag: ['ניתוח נתוני עתק','אבטחת מידע וסייבר'], name: "יישומי בינה מלאכותית בניהול", driveLink: "#" },
+  { id: 812, tag: ['ניהול טכנולוגיות מידע','ניתוח נתוני עתק','אבטחת מידע וסייבר'], name: "תכנות מונחה אובייקטים", driveLink: "#" },
+  { id: 813, tag: ['ניהול טכנולוגיות מידע','ניתוח נתוני עתק'], name: "מודלים של בינה עסקית", driveLink: "#" },
+  { id: 814, tag: 'ניתוח נתוני עתק', name: "ניתוח צברי נתונים גדולים בטכנולוגיית ענן", driveLink: "#" },
+  { id: 815, tag: 'ניהול טכנולוגיות מידע', name: "ניתוח ועיצוב בסיסי נתונים מתקדם", driveLink: "#" },
+  { id: 816, tag: ['ניהול טכנולוגיות מידע','ניתוח נתוני עתק'], name: "כריית מידע", driveLink: "#" },
+  { id: 817, tag: 'ניתוח נתוני עתק', name: "מערכות תומכות החלטה", driveLink: "#" },
+  { id: 818, tag: 'אבטחת מידע וסייבר', name: "מבוא לטכנולוגיית מרשתת הדברים וסנסורים (IOT(", driveLink: "#" },
+  { id: 819, tag: 'אבטחת מידע וסייבר', name: "הגנת סייבר ברמת הפרט בעידן המודרני", driveLink: "#" },
+  { id: 841, tag: ['ניהול פרויקטים','ניהול טכנולוגיות מידע'], name: "מסחר אלקטרוני", driveLink: "#" },
+  { id: 819, tag: ['ניהול טכנולוגיות מידע','אבטחת מידע וסייבר'], name: "הגנת סייבר בארגונים תעשייתיים", driveLink: "#" },
+  { id: 820, tag: ['ניתוח נתוני עתק','אבטחת מידע וסייבר'], name: "מערכת מומחה", driveLink: "#" },
+  { id: 821, tag: 'ניהול פרויקטים', name: "הנדסת אנוש", driveLink: "#" },
+  { id: 822, tag: 'ניהול פרויקטים', name: "ניהול מסע ומתן", driveLink: "#" },
+  { id: 823, name: "נושאים נבחרים באופטימיזציה תעשייתית", driveLink: "#" },
+  { id: 824, name: "מערך ומיקום מפעלים", driveLink: "#" },
+  { id: 825, name: "ניהול שרשרת הספקה", driveLink: "#" },
+  { id: 826, name: "יישומי מחשוב בתפעול ולוגיסטיקה", driveLink: "#" },
+  { id: 827, name: "יסודות מערכות תקשורת לניהול", driveLink: "#" },
+  { id: 828, name: "ניהול מערכות שירות", driveLink: "#" },
+  { id: 829, name: "היבטים מימוניים בשיווק טכנולוגיה", driveLink: "#" },
+  { id: 830, name: "אופציות וחוזים", driveLink: "#" },
+  { id: 831, name: "הערכת שווי חברות", driveLink: "#" },
+
+];
