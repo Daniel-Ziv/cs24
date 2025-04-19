@@ -1,20 +1,22 @@
 import { Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check } from 'lucide-react';
-import { Button } from './components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
-import CoursesDropdown from './components/CoursesDropdown';
-import HelpfulLinksSection from './components/HelpfulLinks';
+import { Button } from '../components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card';
+import CoursesDropdown from '../components/CoursesDropdown';
+import HelpfulLinksSection from '../components/HelpfulLinks';
 import { useState, useEffect } from 'react';
-import JobPostingsCard from './components/JobPostingCard';
-import { supabase } from './lib/supabase';
-import AuthButton from './components/AuthButton';
-import TutorCard from './components/TutorCard';
-import AdminPanel from './components/AdminPanel';
-import { NotificationProvider, showNotification } from './components/ui/notification';
-import mockData from './config/mockData.json';
-import { courseStyles, courseTypeOptions } from './config/courseStyles';
-import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
+import JobPostingsCard from '../components/JobPostingCard';
+import { supabase } from '../lib/supabase';
+import AuthButton from '../components/AuthButton';
+import TutorCard from '../components/TutorCard';
+import AdminPanel from '../components/AdminPanel';
+import { NotificationProvider, showNotification } from '../components/ui/notification';
+import mockData from '../config/mockData.json';
+import { courseStyles, courseTypeOptions } from '../config/courseStyles';
+import { courseMappings, specializationsMappings, tutorMappings } from '../config/courseMappings';
 
-const App = () => {
+
+
+const MainApp = () => {
   const [courseType, setCourseType] = useState('cs');
   const styles = courseStyles[courseType] || courseStyles.cs;
 
@@ -33,7 +35,6 @@ const App = () => {
   const TUTORS_PER_PAGE = 6;
   const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
   const hideIEButton = !isDevMode; // true = hide, false = show
-  
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
   
@@ -622,5 +623,4 @@ const App = () => {
     </NotificationProvider>
   );
 };
-
-export default App;
+  export default MainApp;
