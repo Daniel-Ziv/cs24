@@ -13,8 +13,13 @@ import { NotificationProvider, showNotification } from './components/ui/notifica
 import mockData from './config/mockData.json';
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
+import { useNavigate } from 'react-router-dom';
+import GPAPlanner from './components/GPAPlanner';
+import { Calculator } from 'lucide-react';
+
 
 const App = () => {
+  const navigate = useNavigate();
   const [courseType, setCourseType] = useState('cs');
   const styles = courseStyles[courseType] || courseStyles.cs;
 
@@ -31,7 +36,7 @@ const App = () => {
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const TUTORS_PER_PAGE = 6;
-  const hideIEButton = 1; // Hardcoded switch to hide ie button
+  const hideIEButton = 0; // Hardcoded switch to hide ie button
 
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
@@ -423,6 +428,16 @@ const App = () => {
           <div className="block lg:hidden mt-4">
             <HelpfulLinksSection courseType={courseType} />
           </div>
+          <div>
+                <Button
+                  className={`w-full sm:w-auto px-6 py-3 font-bold text-base sm:text-lg rounded-md shadow transition-all mb-8 bg-white border ${
+                    styles.buttonSecondary
+                  }`}
+                  onClick={() => navigate('/gpa', { state: { courseType } })}                >
+                  <Calculator className={`h-6 w-6 md:h-6 md:w-6 `} />
+                  מחשבון ציונים
+                </Button>
+          </div>
 
           {/* Tutors Section with Supabase Integration */}
           <Card className={`mb-8 border bg-white ${styles.cardBorder}`}>
@@ -442,6 +457,11 @@ const App = () => {
                   )}
                 </div>
               </div>
+
+
+
+
+              
               {/* Specialization dropdown for years ג and ד */}
               {specializationsMappings[courseType]?.length > 0 &&
                 selectedYear &&
@@ -468,6 +488,13 @@ const App = () => {
                     </div>
                   </div>
                 )}
+
+
+
+
+
+
+
               {/* Year filter buttons */}
               {!tutorsError && (
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
@@ -488,6 +515,13 @@ const App = () => {
                     ))}
                 </div>
               )}
+
+
+              
+
+
+
+              
               {/* Course list */}
               {selectedYear && (
                 <div className="flex flex-wrap gap-2 mt-3">
