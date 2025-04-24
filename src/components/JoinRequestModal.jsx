@@ -84,7 +84,7 @@ const JoinRequestModal = ({ isOpen, onClose, courseType: initialCourseType, sess
       const { error: insertError } = await supabase
         .from('tutor_requests')
         .insert([{
-          name,
+          name, 
           phone,
           degree: courseType,
           years: selectedYears,
