@@ -1,4 +1,5 @@
-import { Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check, Calculator } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
 import CoursesDropdown from './components/CoursesDropdown';
@@ -15,9 +16,9 @@ import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
 
 const App = () => {
+  const navigate = useNavigate();
   const [courseType, setCourseType] = useState('cs');
   const styles = courseStyles[courseType] || courseStyles.cs;
-
   const [selectedTag, setSelectedTag] = useState('בחר');
   const [isVisible, setIsVisible] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -34,7 +35,7 @@ const App = () => {
 
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
-  
+
   const handleCourseSwitch = (type) => {
     setCourseType(type);
     // Reset selected tag based on whether the course type has specializations
@@ -254,7 +255,7 @@ const App = () => {
 
   const getCoursesForYear = (year) => {
     const courses = courseMappings[courseType];
-    // Add quote mark to year if it's not 'בחירה'
+    // Add quote mark to year if it's not 'רב-תחומי'
     const yearKey = year === 'רב-תחומי' ? year : year + "'";
     console.log('Looking for courses for year:', yearKey);
     console.log('Available years:', Object.keys(courses || {}));
@@ -417,6 +418,21 @@ const App = () => {
 
           {/* Course List */}
           <CoursesDropdown courseType={courseType} selectedTag={selectedTag} />
+
+          {/* GPA-calculator */}
+          <div>
+            <Button
+              className={`w-full sm:w-auto px-6 py-3 font-bold text-base sm:text-lg rounded-md shadow transition-all mb-8 bg-white border ${
+                courseType === 'cs'
+                  ? 'text-sky-700 border-sky-200 hover:bg-sky-50'
+                  : 'text-purple-700 border-purple-200 hover:bg-purple-50'
+              }`}
+              onClick={() => navigate('/gpa')}
+            >
+              <Calculator className={`h-6 w-6 md:h-6 md:w-6 ${courseType === 'cs' ? 'border-sky-200' : 'border-purple-200'}`} />
+              מחשבון ציונים
+            </Button>
+          </div>
 
           {/* Links Section - Mobile (appears after course list) */}
           <div className="block lg:hidden mt-4">
