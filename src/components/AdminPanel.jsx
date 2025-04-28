@@ -5,8 +5,6 @@ import { supabase } from '../lib/supabase';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { courseMappings } from '../config/courseMappings';
 import { showNotification } from './ui/notification';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 const AdminPanel = ({ user }) => {
   const [requests, setRequests] = useState([]);
@@ -24,7 +22,7 @@ const AdminPanel = ({ user }) => {
       setError(null);
       
       const { data, error } = await supabase
-        .from('tutor_requests')
+        .from('new_tutor_requests')
         .select('*')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
@@ -79,30 +77,19 @@ const AdminPanel = ({ user }) => {
 
   const handleStatusChange = async (requestId, newStatus) => {
     try {
-      const { error } = await supabase
-        .from('tutor_requests')
-        .update({ status: newStatus })
-        .eq('id', requestId);
-
-      if (error) throw error;
-      
-      // If approved, create a new tutor entry
       if (newStatus === 'approved') {
-        const request = requests.find(r => r.id === requestId);
-        if (request) {
-          const { error: tutorError } = await supabase
-            .from('tutors')
-            .insert([{
-              name: request.name,
-              phone: request.phone,
-              subjects: request.subjects,
-              degree: request.degree
-            }]);
+        const { error } = await supabase
+          .rpc('approve_tutor_request', { p_request_id: requestId });
 
-          if (tutorError) {
-            throw tutorError;
-          }
-        }
+        if (error) throw error;
+      } else {
+        // For rejection, just update the status
+        const { error } = await supabase
+          .from('new_tutor_requests')
+          .update({ status: newStatus })
+          .eq('id', requestId);
+
+        if (error) throw error;
       }
 
       loadRequests();
@@ -231,7 +218,10 @@ const AdminPanel = ({ user }) => {
                           </a>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {request.degree === 'cs' ? 'מדעי המחשב' : 'הנדסת חשמל'}
+                        {request.degree === 'cs' ? 'מדעי המחשב'
+                            : request.degree === 'ee' ? 'הנדסת חשמל'
+                            : 'הנדסת תעשייה וניהול'}
+
                         </p>
                         {request.year && (
                           <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mr-1">
