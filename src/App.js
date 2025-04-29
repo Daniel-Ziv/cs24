@@ -13,9 +13,6 @@ import { NotificationProvider, showNotification } from './components/ui/notifica
 import mockData from './config/mockData.json';
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
-import posthog from 'posthog-js';
-
-posthog.capture('test-event', { property: 'value' });
 
 const App = () => {
   const [courseType, setCourseType] = useState('cs');
