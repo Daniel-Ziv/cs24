@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link as LinkIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from './ui/card';
 import { courseStyles } from '../config/courseStyles';
-import { csHelpfulLinks, eeHelpfulLinks } from '../config/courseMappings'; // Import your helpful links
+import { csHelpfulLinks, eeHelpfulLinks, ieHelpfulLinks } from '../config/courseMappings'; // Import your helpful links
 
 // Add useWindowSize hook
 const useWindowSize = () => {
@@ -38,7 +38,8 @@ const HelpfulLinksSection = ({ courseType }) => {
 
   const linkmaps = {
     cs: csHelpfulLinks,
-    ee: eeHelpfulLinks
+    ee: eeHelpfulLinks,
+    ie: ieHelpfulLinks
   };
   const helpfulLinks = linkmaps[courseType] || csHelpfulLinks;
   // Define styles based on course type
