@@ -625,5 +625,4 @@ const App = () => {
     </NotificationProvider>
   );
 };
-
 export default App;
