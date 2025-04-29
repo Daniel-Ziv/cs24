@@ -4,8 +4,9 @@ import './index.css';
 import AppRoutes from './Routes';
 import { PostHogProvider } from 'posthog-js/react';
 
+const apiKey = process.env.REACT_APP_PUBLIC_POSTHOG_KEY;
 const options = {
-  api_host: 'https://eu.i.posthog.com',
+  api_host: process.env.REACT_APP_PUBLIC_POSTHOG_HOST,
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -13,7 +14,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <PostHogProvider
-      apiKey="phc_TIvG0m8qfb14z91GAVd1CCLibMZSCWedNl9lyZh3ODW"
+      apiKey={apiKey}
       options={options}
     >
       <AppRoutes />
