@@ -169,9 +169,6 @@ const App = () => {
       if (!tutors) {
         return handleError("אין מורים להצגה כרגע.");
       }
-      
-      
-      
       setTutorsWithFeedback(scoreAndSortTutors(tutors));
     } catch {
       handleError("שגיאה בטעינת נתונים מהשרת.");
@@ -300,7 +297,6 @@ const App = () => {
   };
 
   const filteredTutors = tutorsWithFeedback.filter((tutor) => {
-    
     if (!selectedYear && !selectedCourse) return true;
     if (selectedCourse) {
       return tutor.subjects?.some(subject => 
