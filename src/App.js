@@ -34,11 +34,9 @@ const App = () => {
 
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
-  const DEGREE_NAMES = {
-    cs: 'מדעי המחשב',
-    ee: 'הנדסת חשמל',
-    ie: 'הנדסת תעשייה וניהול'
-  };
+  const DEGREE_NAMES = Object.fromEntries(
+    courseTypeOptions.map(option => [option.type, option.label])
+  );
   
   const handleCourseSwitch = (type) => {
     setCourseType(type);
@@ -159,9 +157,7 @@ const App = () => {
         }
       );
 
-      console.log('Degree name sent:', DEGREE_NAMES[courseType]);
-      console.log('Degree ID received:', newDegreeId);
-      
+     
       setDegreeId(newDegreeId);
 
       const { data: tutors, error } = await supabase
@@ -174,11 +170,7 @@ const App = () => {
         return handleError("אין מורים להצגה כרגע.");
       }
       
-      console.log('Tutors received:', tutors.map(t => ({
-        name: t.name,
-        degree: t.degree,
-        subjects: t.subjects
-      })));
+      
       
       setTutorsWithFeedback(scoreAndSortTutors(tutors));
     } catch {
@@ -308,14 +300,7 @@ const App = () => {
   };
 
   const filteredTutors = tutorsWithFeedback.filter((tutor) => {
-    console.log(
-      '💡 subjects raw →',
-      tutor.subjects,
-      '| typeof →',
-      typeof tutor.subjects
-    );
     
-    console.log('Tutor:', tutor.name, 'Subjects:', tutor.subjects);
     if (!selectedYear && !selectedCourse) return true;
     if (selectedCourse) {
       return tutor.subjects?.some(subject => 
