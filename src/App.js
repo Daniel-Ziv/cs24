@@ -34,9 +34,11 @@ const App = () => {
 
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
-  const DEGREE_NAMES = Object.fromEntries(
-    courseTypeOptions.map(option => [option.type, option.label])
-  );
+  const DEGREE_NAMES = {
+    cs: 'מדעי המחשב',
+    ee: 'הנדסת חשמל',
+    ie: 'הנדסת תעשייה וניהול'
+  };
   
   const handleCourseSwitch = (type) => {
     setCourseType(type);
@@ -157,7 +159,7 @@ const App = () => {
         }
       );
 
-     
+      
       setDegreeId(newDegreeId);
 
       const { data: tutors, error } = await supabase
@@ -169,6 +171,9 @@ const App = () => {
       if (!tutors) {
         return handleError("אין מורים להצגה כרגע.");
       }
+      
+  
+      
       setTutorsWithFeedback(scoreAndSortTutors(tutors));
     } catch {
       handleError("שגיאה בטעינת נתונים מהשרת.");
@@ -272,8 +277,6 @@ const App = () => {
     const courses = courseMappings[courseType];
     // Add quote mark to year if it's not 'בחירה'
     const yearKey = year === 'רב-תחומי' ? year : year + "'";
-    console.log('Looking for courses for year:', yearKey);
-    console.log('Available years:', Object.keys(courses || {}));
     return courses?.[yearKey] || [];
   };
 
@@ -297,6 +300,7 @@ const App = () => {
   };
 
   const filteredTutors = tutorsWithFeedback.filter((tutor) => {
+    
     if (!selectedYear && !selectedCourse) return true;
     if (selectedCourse) {
       return tutor.subjects?.some(subject => 
