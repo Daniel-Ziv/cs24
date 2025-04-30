@@ -309,7 +309,7 @@ const App = () => {
     }
     return true;
   });
-
+ 
   return (
     <NotificationProvider>
       <div className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}>
