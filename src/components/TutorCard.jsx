@@ -169,7 +169,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                   key={index}
                   className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles.subjectBg} ${styles.textSecondary}`}
                 >
-                  {subject}
+                  {subject.course_name}
                 </span>
               ))}
             </div>

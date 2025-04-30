@@ -8,12 +8,11 @@ import { courseStyles } from '../config/courseStyles';
 import { showNotification } from './ui/notification';
 
 // ————————————————————————————————————————————————
-// 1) Map your text-keys to the numeric IDs in your DB
-// (Degrees come from degrees_rows.csv, academies from academies_rows.csv)
-const DEGREE_ID_MAP = {
-  cs: 4,   // מדעי המחשב
-  ee: 3,   // הנדסת חשמל
-  ie: 2    // הנדסת תעשייה וניהול
+// Hebrew degree names mapping
+const DEGREE_NAMES = {
+  cs: 'מדעי המחשב',
+  ee: 'הנדסת חשמל',
+  ie: 'הנדסת תעשייה וניהול'
 };
 
 const YEAR_ID_MAP = {
@@ -23,7 +22,7 @@ const YEAR_ID_MAP = {
   "שנה ד'": 4
 };
 
-const ACADEMY_ID = 1; // or pull dynamically if you let them choose multiple
+const ACADEMY_ID = 1;
 
 // ————————————————————————————————————————————————
 
@@ -42,7 +41,7 @@ export default function JoinRequestModal({
   const [specialization, setSpecialization] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState([]);   // e.g. [5,13,22]
+  const [selectedCourseNames, setSelectedCourseNames] = useState([]);   // e.g. ["קורס א'", "קורס ג'"]
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const styles = courseStyles[initialCourseType] || courseStyles.cs;
@@ -74,9 +73,9 @@ export default function JoinRequestModal({
         : [...prev, label]
     );
 
-  const toggleSubject = id =>
-    setSelectedSubjectIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+  const toggleSubject = courseName =>
+    setSelectedCourseNames(prev =>
+      prev.includes(courseName) ? prev.filter(x => x !== courseName) : [...prev, courseName]
     );
 
   const availableCourses = getCoursesByYears(courseType, selectedYearLabels, specialization);
@@ -84,7 +83,7 @@ export default function JoinRequestModal({
   const handleSubmit = async e => {
     e.preventDefault();
     // 1) basic validation
-    if (!name || !phone || !selectedYearLabels.length || !selectedSubjectIds.length) {
+    if (!name || !phone || !selectedYearLabels.length || !selectedCourseNames.length) {
       return showNotification('אנא מלא את כל השדות הנדרשים', 'warning');
     }
     if (!/^05\d{8}$/.test(phone)) {
@@ -104,19 +103,84 @@ export default function JoinRequestModal({
         return showNotification('כבר יש בקשה ממתינה עם מספר זה.', 'warning');
       }
 
-      // 4) insert new request — note: all arrays of ints
+      // Get degree ID using the function
+      const { data: degreeId, error: degreeError } = await supabase.rpc(
+        'get_degree_id_by_details',
+        {
+          p_degree_name: DEGREE_NAMES[courseType],
+          p_academy_id: ACADEMY_ID
+        }
+      );
+
+      if (degreeError) {
+        console.error('Failed to get degree:', degreeError);
+        showNotification(`המסלול "${DEGREE_NAMES[courseType]}" לא נמצא`, 'error');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log('Got degree ID:', degreeId);
+
+      // Convert course names to IDs using the Supabase function
+      const courseIds = [];
+
+      for (const courseName of selectedCourseNames) {
+        // Find the year for this course from availableCourses
+        const courseInfo = availableCourses.find(c => c.name === courseName);
+        if (!courseInfo) continue;
+
+        // Get the year number from the Hebrew year label
+        const yearLabel = selectedYearLabels.find(y => 
+          courseMappings[courseType][y].some(c => c.name === courseName)
+        );
+        const yearNumber = YEAR_ID_MAP[yearLabel];
+
+        const { data: courseId, error } = await supabase.rpc(
+          'get_course_id_by_details',
+          { 
+            p_course_name: courseName, 
+            p_degree_id: degreeId, 
+            p_year: yearNumber 
+          }
+        );
+
+        if (error) {
+          showNotification(
+            `לא הצלחתי למצוא את הקורס "${courseName}" (deg=${degreeId}, year=${yearNumber})`,
+            'error'
+          );
+          setIsSubmitting(false);
+          return;
+        } else if (courseId === null) {
+          // you opted for NULL-on-miss
+          showNotification(`הקורס "${courseName}" לא קיים בבסיס הנתונים`, 'warning');
+          setIsSubmitting(false);
+          return;
+        } else {
+          courseIds.push(courseId);
+        }
+      }
+
+      if (courseIds.length === 0) {
+        showNotification('לא נמצאו קורסים תקינים', 'error');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 4) insert new request
       const payload = {
         name,
         phone,
-        degree:       [DEGREE_ID_MAP[courseType]],                     // int4[]
-        years:        selectedYearLabels.map(l => YEAR_ID_MAP[l]),     // int4[]
-        courses:     selectedSubjectIds,                              // int4[]
-        academy:      [ACADEMY_ID],                                   // int4[]
-        status:       'pending',
-        created_at:   new Date().toISOString(),
-        user_id:      session.user.id,
-        email:        session.user.email
+        degree: [degreeId],
+        years: selectedYearLabels.map(l => YEAR_ID_MAP[l]),
+        courses: courseIds,
+        academy: [ACADEMY_ID],
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        user_id: session.user.id,
+        email: session.user.email
       };
+      console.log('RPC payload →', payload);
 
       const { error: insErr } = await supabase
         .from('new_tutor_requests')
@@ -135,7 +199,7 @@ export default function JoinRequestModal({
       setPhone('');
       setSelectedYearLabels([]);
       setSpecialization('');
-      setSelectedSubjectIds([]);
+      setSelectedCourseNames([]);
     }
   };
 
@@ -189,7 +253,7 @@ export default function JoinRequestModal({
                   setCourseType(e.target.value);
                   setSelectedYearLabels([]);
                   setSpecialization('');
-                  setSelectedSubjectIds([]);
+                  setSelectedCourseNames([]);
                 }}
                 className="w-full border p-2 rounded"
                 required
@@ -231,7 +295,7 @@ export default function JoinRequestModal({
                     value={specialization}
                     onChange={e => {
                       setSpecialization(e.target.value);
-                      setSelectedSubjectIds([]);
+                      setSelectedCourseNames([]);
                     }}
                     className="w-full border p-2 rounded"
                   >
@@ -251,11 +315,11 @@ export default function JoinRequestModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {availableCourses.map(c => (
                     <button
-                      key={c.id}
+                      key={c.name}
                       type="button"
-                      onClick={() => toggleSubject(c.id)}
+                      onClick={() => toggleSubject(c.name)}
                       className={`p-2 text-sm rounded transition-colors ${
-                        selectedSubjectIds.includes(c.id)
+                        selectedCourseNames.includes(c.name)
                           ? styles.buttonPrimary
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}

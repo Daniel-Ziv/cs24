@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
 import { Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { courseMappings } from '../config/courseMappings';
 import { showNotification } from './ui/notification';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 const AdminPanel = ({ user }) => {
   const [requests, setRequests] = useState([]);
@@ -208,13 +210,13 @@ const AdminPanel = ({ user }) => {
                         <div className="flex items-center gap-2">
                           <p className="text-sm text-gray-600">{request.phone}</p>
                           <a
-                            href={`https://wa.me/972${request.phone?.substring(1)}`}
+                            href={`https://wa.me/972${request.phone?.substring(1)}?text=${encodeURIComponent('היי, לפני שאני מאשר אותך באתר, אשמח לשמוע עלייך קצת. תודה!')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-8 h-8 flex items-center justify-center rounded-md bg-green-600 hover:bg-green-700 text-white"
+                            className="text-green-500 hover:text-green-600"
                             title="WhatsApp"
                           >
-                            <i className="fab fa-whatsapp"></i>
+                            <FontAwesomeIcon icon={faWhatsapp} size="lg" />
                           </a>
                         </div>
                         <p className="text-sm text-gray-600">
