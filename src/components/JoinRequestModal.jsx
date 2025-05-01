@@ -7,132 +7,200 @@ import { courseMappings, specializationsMappings } from '../config/courseMapping
 import { courseStyles } from '../config/courseStyles';
 import { showNotification } from './ui/notification';
 
-const getYearsForDegree = (degree) => {
-  return Object.keys(courseMappings[degree] || {})
-    .filter(year => year !== 'רב-תחומי'); // Exclude רב-תחומי from the years list
+// ————————————————————————————————————————————————
+// Hebrew degree names mapping
+const DEGREE_NAMES = {
+  cs: 'מדעי המחשב',
+  ee: 'הנדסת חשמל',
+  ie: 'הנדסת תעשייה וניהול'
 };
 
-const JoinRequestModal = ({ isOpen, onClose, courseType: initialCourseType, session }) => {
+const YEAR_ID_MAP = {
+  "שנה א'": 1,
+  "שנה ב'": 2,
+  "שנה ג'": 3,
+  "שנה ד'": 4
+};
+
+const ACADEMY_ID = 1;
+
+// ————————————————————————————————————————————————
+
+const getYearsForDegree = (degree) =>
+  Object.keys(courseMappings[degree] || {})
+    .filter(y => y !== 'רב-תחומי');
+
+export default function JoinRequestModal({
+  isOpen,
+  onClose,
+  courseType: initialCourseType,
+  session
+}) {
   const [courseType, setCourseType] = useState(initialCourseType);
-  const [selectedYears, setSelectedYears] = useState([]);
+  const [selectedYearLabels, setSelectedYearLabels] = useState([]);   // e.g. ["שנה א'", "שנה ג'"]
   const [specialization, setSpecialization] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [selectedCourseNames, setSelectedCourseNames] = useState([]);   // e.g. ["קורס א'", "קורס ג'"]
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const styles = courseStyles[courseType] || courseStyles.cs;
-
+  const styles = courseStyles[initialCourseType] || courseStyles.cs;
   if (!isOpen || !session) return null;
 
-  const getCoursesByYears = (degree, selectedYears, specialization = null) => {
-    let allCourses = [];
-
-    selectedYears.forEach(year => {
-      let yearCourses = courseMappings[degree]?.[year] || [];
-      
-      if (specialization && (year === 'שנה ג\'' || year === 'שנה ד\'')) {
-        yearCourses = yearCourses.filter(course =>
-          !course.tag ||
-          (Array.isArray(course.tag) ? course.tag.includes(specialization) : course.tag === specialization)
-        );
-      } else {
-        yearCourses = yearCourses.filter(course => !course.tag);
-      }
-      allCourses = [...allCourses, ...yearCourses];
+  // gather courses by the Hebrew-label years + optional tag
+  const getCoursesByYears = (deg, years, spec) => {
+    let all = [];
+    years.forEach(label => {
+      const list = courseMappings[deg]?.[label] || [];
+      const filtered = (!spec || !["שנה ג'","שנה ד'"].includes(label))
+        ? list.filter(c => !c.tag)
+        : list.filter(c =>
+            !c.tag ||
+            (Array.isArray(c.tag)
+              ? c.tag.includes(spec)
+              : c.tag === spec
+            )
+          );
+      all.push(...filtered);
     });
-
-    return allCourses;
+    return all;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate form
-    if (!name || !phone || selectedYears.length === 0 || selectedSubjects.length === 0) {
-      showNotification('אנא מלא את כל השדות הנדרשים', 'warning');
-      return;
-    }
+  const toggleYear = label =>
+    setSelectedYearLabels(prev =>
+      prev.includes(label)
+        ? prev.filter(x => x !== label)
+        : [...prev, label]
+    );
 
-    // Validate phone number format
-    const phoneRegex = /^05\d{8}$/;
-    if (!phoneRegex.test(phone)) {
-      showNotification('מספר טלפון לא תקין. אנא הזן מספר בפורמט 05XXXXXXXX', 'warning');
-      return;
+  const toggleSubject = courseName =>
+    setSelectedCourseNames(prev =>
+      prev.includes(courseName) ? prev.filter(x => x !== courseName) : [...prev, courseName]
+    );
+
+  const availableCourses = getCoursesByYears(courseType, selectedYearLabels, specialization);
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    // 1) basic validation
+    if (!name || !phone || !selectedYearLabels.length || !selectedCourseNames.length) {
+      return showNotification('אנא מלא את כל השדות הנדרשים', 'warning');
+    }
+    if (!/^05\d{8}$/.test(phone)) {
+      return showNotification('מספר טלפון לא תקין. אנא הזן 05XXXXXXXX', 'warning');
     }
 
     setIsSubmitting(true);
-
     try {
-      // Check for active (pending) requests with the same phone number
-      const { data: existingRequests, error: checkError } = await supabase
-        .from('tutor_requests')
-        .select('*')
+      // 3) check pending requests
+      const { data: pend, error: chkErr } = await supabase
+        .from('new_tutor_requests')
+        .select('id')
         .eq('phone', phone)
         .eq('status', 'pending');
-
-      if (checkError) {
-        throw checkError;
+      if (chkErr) throw chkErr;
+      if (pend.length) {
+        return showNotification('כבר יש בקשה ממתינה עם מספר זה.', 'warning');
       }
 
-      if (existingRequests && existingRequests.length > 0) {
-        showNotification('כבר קיימת בקשה פעילה עם מספר טלפון זה. אנא המתן לתשובה.', 'warning');
+      // Get degree ID using the function
+      const { data: degreeId, error: degreeError } = await supabase.rpc(
+        'get_degree_id_by_details',
+        {
+          p_degree_name: DEGREE_NAMES[courseType],
+          p_academy_id: ACADEMY_ID
+        }
+      );
+
+      if (degreeError) {
+        console.error('Failed to get degree:', degreeError);
+        showNotification(`המסלול "${DEGREE_NAMES[courseType]}" לא נמצא`, 'error');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log('Got degree ID:', degreeId);
+
+      // Convert course names to IDs using the Supabase function
+      const courseIds = [];
+
+      for (const courseName of selectedCourseNames) {
+        // Find the year for this course from availableCourses
+        const courseInfo = availableCourses.find(c => c.name === courseName);
+        if (!courseInfo) continue;
+
+        // Get the year number from the Hebrew year label
+        const yearLabel = selectedYearLabels.find(y => 
+          courseMappings[courseType][y].some(c => c.name === courseName)
+        );
+        const yearNumber = YEAR_ID_MAP[yearLabel];
+
+        const { data: courseId, error } = await supabase.rpc(
+          'get_course_id_by_details',
+          { 
+            p_course_name: courseName, 
+            p_degree_id: degreeId, 
+            p_year: yearNumber 
+          }
+        );
+
+        if (error) {
+          showNotification(
+            `לא הצלחתי למצוא את הקורס "${courseName}" (deg=${degreeId}, year=${yearNumber})`,
+            'error'
+          );
+          setIsSubmitting(false);
+          return;
+        } else if (courseId === null) {
+          // you opted for NULL-on-miss
+          showNotification(`הקורס "${courseName}" לא קיים בבסיס הנתונים`, 'warning');
+          setIsSubmitting(false);
+          return;
+        } else {
+          courseIds.push(courseId);
+        }
+      }
+
+      if (courseIds.length === 0) {
+        showNotification('לא נמצאו קורסים תקינים', 'error');
+        setIsSubmitting(false);
         return;
       }
 
-      // Insert new request
-      const { error: insertError } = await supabase
-        .from('tutor_requests')
-        .insert([{
-          name,
-          phone,
-          degree: courseType,
-          years: selectedYears,
-          specialization: specializationsMappings[courseType]?.length > 0 ? specialization : null,
-          subjects: selectedSubjects,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          user_id: session.user.id,
-          email: session.user.email
-        }]);
+      // 4) insert new request
+      const payload = {
+        name,
+        phone,
+        degree: [degreeId],
+        years: selectedYearLabels.map(l => YEAR_ID_MAP[l]),
+        courses: courseIds,
+        academy: [ACADEMY_ID],
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        user_id: session.user.id,
+        email: session.user.email
+      };
+      console.log('RPC payload →', payload);
 
-      if (insertError) {
-        throw insertError;
-      }
+      const { error: insErr } = await supabase
+        .from('new_tutor_requests')
+        .insert([payload]);
+      if (insErr) throw insErr;
 
-      showNotification('בקשתך נשלחה בהצלחה! נחזור אליך בקרוב', 'success');
+      showNotification('בקשתך נשלחה בהצלחה! ', 'success');
       onClose();
-      // Reset form
-      setName('');
-      setPhone('');
-      setSelectedYears([]);
-      setSpecialization('');
-      setSelectedSubjects([]);
-    } catch (error) {
-      console.error('Error submitting request:', error);
-      showNotification('אירעה שגיאה בשליחת הבקשה. אנא נסה שוב מאוחר יותר', 'error');
+    } catch (err) {
+      console.error(err);
+      showNotification('שגיאה בשליחת הבקשה. אנא נסה שוב מאוחר יותר.', 'error');
     } finally {
       setIsSubmitting(false);
+      // reset form
+      setName('');
+      setPhone('');
+      setSelectedYearLabels([]);
+      setSpecialization('');
+      setSelectedCourseNames([]);
     }
-  };
-
-  const toggleYear = (year) => {
-    setSelectedYears(prev => 
-      prev.includes(year)
-        ? prev.filter(y => y !== year)
-        : [...prev, year]
-    );
-    setSelectedSubjects([]); // Clear selected subjects when years change
-  };
-
-  const availableCourses = getCoursesByYears(courseType, selectedYears, specialization);
-
-  const toggleSubject = (subject) => {
-    setSelectedSubjects(prev => 
-      prev.includes(subject)
-        ? prev.filter(s => s !== subject)
-        : [...prev, subject]
-    );
   };
 
   return (
@@ -141,151 +209,133 @@ const JoinRequestModal = ({ isOpen, onClose, courseType: initialCourseType, sess
         <CardHeader className="relative border-b">
           <Button
             variant="outline"
-            className="absolute left-2 sm:left-4 top-2 sm:top-4 p-1 sm:p-2"
+            className="absolute left-2 top-2 p-1"
             onClick={onClose}
           >
-            <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            <X className="h-4 w-4" />
           </Button>
-          <CardTitle className="text-2xl font-bold text-center" dir="rtl">
+          <CardTitle className="text-2xl text-center" dir="rtl">
             בקשת הצטרפות למאגר המורים
           </CardTitle>
-          <p className="text-gray-600 text-center mt-2" dir="rtl">
-            אנא מלא את הפרטים הבאים. נבדוק את בקשתך ונחזור אליך בהקדם.
-          </p>
         </CardHeader>
-
-        <CardContent className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-4 py-4" dir="rtl">
+        <CardContent className="overflow-y-auto p-4" dir="rtl">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* שם מלא */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                שם מלא
-              </label>
+              <label className="block text-sm font-medium">שם מלא</label>
               <input
                 type="text"
-                required
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                onChange={e => setName(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
               />
             </div>
 
+            {/* מספר טלפון */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                מספר טלפון
-              </label>
+              <label className="block text-sm font-medium">מספר טלפון</label>
               <input
                 type="tel"
-                required
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                onChange={e => setPhone(e.target.value)}
+                className="w-full border p-2 rounded"
+                required
               />
             </div>
 
+            {/* מסלול */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                מסלול
-              </label>
+              <label className="block text-sm font-medium">מסלול</label>
               <select
                 value={courseType}
-                onChange={(e) => {
+                onChange={e => {
                   setCourseType(e.target.value);
-                  setSelectedYears([]);
+                  setSelectedYearLabels([]);
                   setSpecialization('');
-                  setSelectedSubjects([]);
+                  setSelectedCourseNames([]);
                 }}
-                className="w-full p-2 border rounded-md"
+                className="w-full border p-2 rounded"
                 required
               >
                 <option value="">בחר מסלול</option>
                 <option value="cs">מדעי המחשב</option>
                 <option value="ee">הנדסת חשמל</option>
+                <option value="ie">הנדסת תעשייה וניהול</option>
               </select>
             </div>
 
+            {/* שנים */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                שנים
-              </label>
+              <label className="block text-sm font-medium">שנים</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {getYearsForDegree(courseType).map(year => (
+                {getYearsForDegree(courseType).map(label => (
                   <button
-                    key={year}
+                    key={label}
                     type="button"
-                    onClick={() => toggleYear(year)}
-                    className={`p-2 text-sm rounded-md transition-colors ${
-                      selectedYears.includes(year)
+                    onClick={() => toggleYear(label)}
+                    className={`p-2 text-sm rounded transition-colors ${
+                      selectedYearLabels.includes(label)
                         ? styles.buttonPrimary
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {year}
+                    {label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Specialization dropdown */}
-            {specializationsMappings[courseType]?.length > 0 && selectedYears.some(y => y === 'שנה ג' || y === 'שנה ד') && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  התמחות (אופציונלי - בחר רק אם אתה רוצה ללמד קורסי התמחות)
-                </label>
-                <select
-                  value={specialization}
-                  onChange={(e) => {
-                    setSpecialization(e.target.value);
-                    setSelectedSubjects([]);
-                  }}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="">ללא התמחות - קורסי חובה בלבד</option>
-                  {specializationsMappings[courseType].map(spec => (
-                    <option key={spec} value={spec}>{spec}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {/* התמחות */}
+            {specializationsMappings[courseType]?.length > 0 &&
+              selectedYearLabels.some(y => ["שנה ג'","שנה ד'"].includes(y)) && (
+                <div>
+                  <label className="block text-sm font-medium">התמחות (אופציונלי)</label>
+                  <select
+                    value={specialization}
+                    onChange={e => {
+                      setSpecialization(e.target.value);
+                      setSelectedCourseNames([]);
+                    }}
+                    className="w-full border p-2 rounded"
+                  >
+                    <option value="">ללא</option>
+                    {specializationsMappings[courseType].map(spec => (
+                      <option key={spec} value={spec}>{spec}</option>
+                    ))}
+                  </select>
+                </div>
+              )
+            }
 
-            {selectedYears.length > 0 && (
+            {/* קורסים */}
+            {selectedYearLabels.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  קורסים
-                </label>
+                <label className="block text-sm font-medium">קורסים</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {availableCourses.map(course => (
+                  {availableCourses.map(c => (
                     <button
-                      key={course.id}
+                      key={c.name}
                       type="button"
-                      onClick={() => toggleSubject(course.name)}
-                      className={`p-2 text-sm rounded-md transition-colors ${
-                        selectedSubjects.includes(course.name)
+                      onClick={() => toggleSubject(c.name)}
+                      className={`p-2 text-sm rounded transition-colors ${
+                        selectedCourseNames.includes(c.name)
                           ? styles.buttonPrimary
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      {course.name}
+                      {c.name}
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="sticky bottom-0 flex justify-end gap-2 pt-4 mt-6 border-t bg-white">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="w-24"
-              >
-                ביטול
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || !selectedSubjects.length}
-                className={`w-24 text-white ${styles.buttonPrimary}`}
-              >
-                {isSubmitting ? '...שולח' : 'שליחה'}
+            {/* כפתורים */}
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t">
+              <Button variant="outline" onClick={onClose}>ביטול</Button>
+              <Button type="submit" disabled={isSubmitting} className={styles.buttonPrimary}>
+                {isSubmitting ? '…שולח' : 'שליחה'}
               </Button>
             </div>
           </form>
@@ -293,6 +343,4 @@ const JoinRequestModal = ({ isOpen, onClose, courseType: initialCourseType, sess
       </Card>
     </div>
   );
-};
-
-export default JoinRequestModal;
+}
