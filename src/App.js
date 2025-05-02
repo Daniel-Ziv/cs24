@@ -13,9 +13,6 @@ import { NotificationProvider, showNotification } from './components/ui/notifica
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
 import Navbar from './components/Navbar';
-import posthog from 'posthog-js';
-
-posthog.capture('test-event', { property: 'value' });
 
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
@@ -314,7 +311,8 @@ const App = () => {
     return true;
   });
 
-      
+  return (
+    <NotificationProvider>
       <div className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}>
         { isDevMode && <Navbar courseType={courseType} /> }
         <main className={`container mx-auto px-4 py-8 ${ isDevMode && 'pt-24' }`}>
@@ -657,4 +655,5 @@ const App = () => {
     </NotificationProvider>
   );
 };
+
 export default App;
