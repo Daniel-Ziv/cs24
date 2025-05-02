@@ -9,8 +9,6 @@ const options = {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-console.log(process.env.REACT_APP_DEV==="true");
-console.log(process.env.REACT_APP_PUBLIC_POSTHOG_KEY);
 root.render(
   <React.StrictMode>
     {process.env.REACT_APP_DEV==="true" ? (
