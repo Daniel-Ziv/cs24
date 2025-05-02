@@ -4,22 +4,22 @@ import './index.css';
 import AppRoutes from './Routes';
 import { PostHogProvider } from 'posthog-js/react';
 
-const isDev = process.env.REACT_APP_DEV;
-const apiKey = process.env.REACT_APP_PUBLIC_POSTHOG_KEY;
 const options = {
   api_host: process.env.REACT_APP_PUBLIC_POSTHOG_HOST,
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-
+console.log(process.env.REACT_APP_DEV==="true");
+console.log(process.env.REACT_APP_PUBLIC_POSTHOG_KEY);
 root.render(
   <React.StrictMode>
-    {isDev === 'flase' ? (
-    <AppRoutes />
-  ) : (
-    <PostHogProvider apiKey={apiKey} options={options}>
+    {process.env.REACT_APP_DEV==="true" ? (
+      <PostHogProvider apiKey={process.env.REACT_APP_PUBLIC_POSTHOG_KEY} options={options}>
+        <AppRoutes />
+      </PostHogProvider>
+    ) : (
       <AppRoutes />
-    </PostHogProvider>
-  )}
+    )}
   </React.StrictMode>
 );
+
