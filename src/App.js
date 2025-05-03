@@ -6,13 +6,13 @@ import HelpfulLinksSection from './components/HelpfulLinks';
 import { useState, useEffect } from 'react';
 import JobPostingsCard from './components/JobPostingCard';
 import { supabase } from './lib/supabase';
-import AuthButton from './components/AuthButton';
 import TutorCard from './components/TutorCard';
 import AdminPanel from './components/AdminPanel';
 import { NotificationProvider, showNotification } from './components/ui/notification';
 import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
 import Navbar from './components/Navbar';
+import AuthButton from './components/AuthButton';
 
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
@@ -458,10 +458,10 @@ const App = () => {
                 <div className="flex-shrink-0">
                   {tutorsError ? (
                     <div className="opacity-50 cursor-not-allowed pointer-events-none">
-                      <AuthButton user={user} courseType={courseType} disabled />
+                      <AuthButton courseType={courseType} disabled />
                     </div>
                   ) : (
-                    <AuthButton user={user} courseType={courseType} />
+                    <AuthButton courseType={courseType} />
                   )}
                 </div>
               </div>

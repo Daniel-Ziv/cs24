@@ -10,6 +10,7 @@ import { showNotification } from './ui/notification';
 import { isAdmin } from '../config/admin';
 import GoogleLoginButton from './GoogleLoginButton';
 import { courseStyles } from '../config/courseStyles';
+import LoginModal from './LoginModal';
 
 const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFeedback }) => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
@@ -350,32 +351,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
         </CardContent>
       </Card>
 
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4 text-center">התחברות</h2>
-            <p className="mb-4 text-center">
-              לא אוהבים רובוטים 😉
-              <br />
-              כדי למנוע ספאם ולהבטיח קהילה נעימה באתר,
-              <br />
-              אנחנו משתמשים בהתחברות פשוטה עם גוגל.
-            </p>
-            
-            <GoogleLoginButton 
-              onSuccess={handleLoginSuccess} 
-              onError={handleLoginError} 
-            />
-            
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="w-full mt-4 px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none"
-            >
-              ביטול
-            </button>
-          </div>
-        </div>
-      )}
+      <LoginModal isOpen={showLoginModal} setIsOpen={setShowLoginModal} styles={styles} />
     </>
   );
 };

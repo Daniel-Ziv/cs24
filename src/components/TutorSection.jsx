@@ -4,8 +4,6 @@ import { Button } from './ui/button';
 import { Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import GoogleLoginButton from './GoogleLoginButton';
-import TutorCard from './TutorCard';
-import { showNotification } from './ui/notification';
 import { courseStyles } from '../config/courseStyles';
 
 const TutorSection = ({ courseType, onSubmitFeedback }) => {
