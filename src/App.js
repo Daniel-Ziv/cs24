@@ -314,8 +314,8 @@ const App = () => {
   return (
     <NotificationProvider>
       <div className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}>
-        { isDevMode && <Navbar courseType={courseType} /> }
-        <main className={`container mx-auto px-4 py-8 ${ isDevMode && 'pt-24' }`}>
+        <Navbar courseType={courseType} />
+        <main className={`container mx-auto px-4 py-8 pt-24`}>
           <AdminPanel user={user} />
           <div className="flex flex-col items-center mb-4">
             <h1 className={`text-5xl font-bold mb-4 text-center ${styles.textColor}`}>CS24</h1>
