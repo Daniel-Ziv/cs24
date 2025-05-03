@@ -186,26 +186,27 @@ export const ieYearOneCourses = [
   { id: 501, name: "אינפי 1 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1eLb2CTKwTAie-Z8XyLAY5DPB2zxXvV0B?usp=sharing" },
   { id: 502, name: "ליניארית לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1dE63dMHf_C2zS6G3l-GC1-uKK4-4UXcs?usp=sharing" },
   { id: 503, name: "מבוא לכלכלה מיקרו ומאקרו", driveLink: "https://drive.google.com/drive/folders/14aS_oxkraehD9wiHpeVCB0OKGaNENZxC?usp=sharing" },
-  { id: 504, name: "יסודות החשבונאות", driveLink: "https://drive.google.com/drive/folders/14aS_oxkraehD9wiHpeVCB0OKGaNENZxC?usp=sharing" },
+  { id: 504, name: "יסודות החשבונאות", driveLink: "https://drive.google.com/drive/folders/18W8us7BLfrTbqZb3wtECDT99z-bCMt4n?usp=share_link" },
   { id: 505, name: "יסודות בניהול והתנהגות ארגונית", driveLink: "https://drive.google.com/drive/folders/1ruqumGKTU2LATZFZG3C0KKNDSFRE2Jrh?usp=sharing" },
   { id: 506, name: "מבוא להסתברות א", driveLink: "https://drive.google.com/drive/folders/1IfKy-4rAnvb7ShqThHQ1dXOZMf_h7-QH?usp=sharing" },
-  { id: 507, name: "מבוא להסתברות ב", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
-  { id: 508, name: "חשבון אינפיניטסימלי 2 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
-  { id: 509, name: "פיסיקה 1 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
-  { id: 510, name: "סדנה באקסל", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
-  { id: 511, name: "יסודות השיווק", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
-  { id: 512, name: "מבוא להנדסת תעשייה וניהול", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=sharing" },
+  { id: 507, name: "מבוא להסתברות ב", driveLink: "https://drive.google.com/drive/folders/1R0UiDZnjvWiS1oN1uQMWuI2QCgTyybaU?usp=share_link" },
+  { id: 508, name: "חשבון אינפיניטסימלי 2 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1kR6rlp44BnWVxeKOyRfsYmG0hWvYH-AE?usp=share_link" },
+  { id: 509, name: "פיסיקה 1 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1dRjun218lg-7Rggk3305ghzvxFMM44Tc?usp=share_link" },
+  { id: 510, name: "סדנה באקסל", driveLink: "https://drive.google.com/drive/folders/1w3mAuibXWeV0GMxrOK2ChpmnWszwH_uQ?usp=share_link" },
+  { id: 511, name: "יסודות השיווק", driveLink: "https://drive.google.com/drive/folders/159GTolcuVwbBUbuM6y7cdbdDbuMNA4TJ?usp=share_link" },
+  { id: 512, name: "מבוא להנדסת תעשייה וניהול", driveLink: "https://drive.google.com/drive/folders/16hoE9E3XbLqMRMlrfekeK9VoBL1cA5ph?usp=share_link" },
   
   ];
+
 
 export const ieYearTwoCourses = [
   { id: 601, name: "פיסיקה 2 לניהול טכנולוגיה", driveLink: "https://drive.google.com/drive/folders/1AoMrNrqsbWvTb43sTsXKju3XLbaXLk1G?usp=sharing" },
   { id: 602, name: "סטטיסטיקה", driveLink: "https://drive.google.com/drive/folders/133kiHMVWUjyCi8UFeaImNy4GBxVx_Ecg?usp=sharing" },
   { id: 603, name: "מודלים דטרמיניסטיים של חקר ביצועים", driveLink: "https://drive.google.com/drive/folders/1Istz7E6X1WQMOpaaulR8Bh_3b7Mb9BYy?usp=sharing" },
-  { id: 604, name: "בסיסי נתונים ו- SQL", driveLink: "https://drive.google.com/drive/folders/1Istz7E6X1WQMOpaaulR8Bh_3b7Mb9BYy?usp=sharing" },
+  { id: 604, name: "בסיסי נתונים ו- SQL", driveLink: "https://drive.google.com/drive/folders/13PfsZtZh6snpdyQFR1142wK5RQSj1LFX?usp=share_link" },
   { id: 605, name: "מבוא לתכנות בשפת Python", driveLink: "https://drive.google.com/drive/folders/1d-nKb12wh0x_MBGO0rCqgSOl_t6sdhWq?usp=sharing" },
   { id: 606, name: "מודלים סטוכסטיים של חקר ביצועים", driveLink: "https://drive.google.com/drive/folders/1Uv07rXGQnG3-iE8G1WcCWuCH6RhQPnAv?usp=sharing" },
-  { id: 607, name: "יסודות תורת ההחלטות", driveLink: "https://drive.google.com/drive/folders/1Uv07rXGQnG3-iE8G1WcCWuCH6RhQPnAv?usp=sharing" },
+  { id: 607, name: "יסודות תורת ההחלטות", driveLink: "https://drive.google.com/drive/folders/1k6EVlyiI-NjfEyfA-I7NkP4zry36OU9M?usp=share_link" },
   { id: 608, name: "מבוא להנדסת חומרים", driveLink: "https://drive.google.com/drive/folders/1Ga5JAi-JEZj1dXsAyWqevic4iw2qw8aM?usp=sharing" },
   { id: 609, name: "תורת המימון", driveLink: "https://drive.google.com/drive/folders/1rHcLZCpzGi7K5rh8BxfYhnpnYM4m2DM8?usp=sharing" },
   { id: 610, name: "מתמטיקה בדידה לנה''ט", driveLink: "https://drive.google.com/drive/folders/1_y833braBAoJcCR5z88ZYSobkrrXLUMq?usp=sharing" },
@@ -221,9 +222,10 @@ export const ieYearThreeCourses = [
   { id: 707, name: "מעבדה בניהול פרויקטים", driveLink: "https://drive.google.com/drive/folders/1iDO8RfSX4iHHcJj3kYtQOG7rje4FFZ6Y?usp=sharing" },
   { id: 708, name: "סימולציה", driveLink: "https://drive.google.com/drive/folders/1bx43ClFqvJdUPbSIkxHh14rnGBF_EoAc?usp=sharing" },
   { id: 709, name: "שיטות מחקר ורגרסיה", driveLink: "https://drive.google.com/drive/folders/14E25wQpCgy9PlUEOzZWy42YICJ0Yiv-y?usp=sharing" },
-  { id: 709, name: "מערכות תפעול ולוגיסטיקה", driveLink: "https://drive.google.com/drive/folders/1Q7RigpcKOYjGfEisVfWYB5FyeNJmjto-?usp=sharing" },
-  { id: 709, name: "ניתוח ועיצוב מערכות מידע", driveLink: "https://drive.google.com/drive/folders/1LaaALEexRX522CNUiUZYbsFQ1m-aEv36?usp=sharing" },
+  { id: 710, name: "מערכות תפעול ולוגיסטיקה", driveLink: "https://drive.google.com/drive/folders/1Q7RigpcKOYjGfEisVfWYB5FyeNJmjto-?usp=sharing" },
+  { id: 711, name: "ניתוח ועיצוב מערכות מידע", driveLink: "https://drive.google.com/drive/folders/1LaaALEexRX522CNUiUZYbsFQ1m-aEv36?usp=sharing" },
 ];
+
 
 export const ieYearFourCourses = [
 
@@ -231,7 +233,7 @@ export const ieYearFourCourses = [
   { id: 802, name: "סטטיסטיקה תעשייתית", driveLink: "https://drive.google.com/drive/folders/1-DdOWuvIFBAt07Rov5024HK5M0xxZHNK?usp=sharing" },
   { id: 803, name: "פרויקט גמר בהנדסת תעשייה וניהול טכנלוגיה", driveLink: "https://drive.google.com/drive/folders/1Q76yyVXgynD5DCqrPsSTF_05ZOed32BQ?usp=sharing" },
   { id: 804, name: "דיני עסקים וקניין רוחני", driveLink: "https://drive.google.com/drive/folders/1zf8nfEcGMfcXbzM10WHqdCh1E7cpXapp?usp=sharing" },
-  { id: 805, name: "מערכות מידע ארגוניות", driveLink: "https://drive.google.com/drive/folders/1zf8nfEcGMfcXbzM10WHqdCh1E7cpXapp?usp=sharing" },
+  { id: 805, name: "מערכות מידע ארגוניות", driveLink: "https://drive.google.com/drive/folders/1YuX4OTJp4ywwY1sB-7oOkduUrw4PLTXk?usp=share_link" },
   { id: 807, tag: 'ניהול פרוייקטים', name: "ניהול סיכונים בפרויקטים", driveLink: "https://drive.google.com/drive/folders/1ZUpgJzcGKnKRVUMirisFuDlGfWBrcPBS?usp=sharing" },
   { id: 808, tag: 'ניהול פרוייקטים', name: "סמינר מתקדם בניהול פרוייקטים", driveLink: "https://drive.google.com/drive/folders/1-7Oyf2prTIMQR-HaZUFiCdg1CgBuYuyk?usp=sharing" },
   { id: 809, tag: 'ניהול פרוייקטים', name: "ניהול פרוייקטים ברמת הארגון", driveLink: "https://drive.google.com/drive/folders/1bq4q_NkrSss03CSPtNUCU7c0dTjW2lvw?usp=sharing"},
@@ -246,7 +248,7 @@ export const ieYearFourCourses = [
   { id: 818, tag: 'אבטחת מידע וסייבר', name: "מבוא לטכנולוגיית מרשתת הדברים וסנסורים (IOT(", driveLink: "#" },
   { id: 819, tag: 'אבטחת מידע וסייבר', name: "הגנת סייבר ברמת הפרט בעידן המודרני", driveLink: "#" },
   { id: 841, tag: ['ניהול פרויקטים','ניהול טכנולוגיות מידע'], name: "מסחר אלקטרוני", driveLink: "#" },
-  { id: 819, tag: ['ניהול טכנולוגיות מידע','אבטחת מידע וסייבר'], name: "הגנת סייבר בארגונים תעשייתיים", driveLink: "#" },
+  { id: 842, tag: ['ניהול טכנולוגיות מידע','אבטחת מידע וסייבר'], name: "הגנת סייבר בארגונים תעשייתיים", driveLink: "#" },
   { id: 820, tag: ['ניתוח נתוני עתק','אבטחת מידע וסייבר'], name: "מערכת מומחה", driveLink: "#" },
   { id: 821, tag: 'ניהול פרויקטים', name: "הנדסת אנוש", driveLink: "https://drive.google.com/drive/folders/1x4Vd2a6f2eOqT_Ick0opG1jL4Z8QhnTo?usp=sharing" },
   { id: 822, tag: 'ניהול פרויקטים', name: "ניהול מסע ומתן", driveLink: "#" },
