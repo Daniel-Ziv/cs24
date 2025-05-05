@@ -145,9 +145,10 @@ const App = () => {
 
     // Helper for handling errors
     const handleError = (message) => {
-      if (isDevMode) {
-        fallback();
-      } else {
+      //  if (isDevMode) {
+      //   fallback();
+      // } else 
+      {
         setTutorsError(message);
         setTutorsWithFeedback([]); // Clear tutors list if needed
       }
@@ -532,8 +533,14 @@ const App = () => {
             </CardHeader>
             <CardContent>
               {tutorsError ? (
-                <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
-                  {tutorsError}
+                 <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
+                 <p className="mb-4">{tutorsError}</p>
+                 <Button
+                   onClick={loadTutorsWithFeedback}
+                   className={`${styles.buttonPrimary} text-base px-6 py-2`}
+                 >
+                   נסה שוב
+                 </Button>
                 </div>
               ) : (
                 <>
@@ -632,7 +639,7 @@ const App = () => {
             </CardContent>
           </Card>
 
-          <style jsx global>{`
+          <style global="true">{`
             @keyframes bounce-gentle {
               0%, 100% { transform: translateY(0); }
               50% { transform: translateY(-5px); }
