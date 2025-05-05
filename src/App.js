@@ -1,26 +1,48 @@
-import { Mail, Laptop, FileText, GraduationCap, Linkedin, ChevronDown, Copy, Check } from 'lucide-react';
-import { Button } from './components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
-import CoursesDropdown from './components/CoursesDropdown';
-import HelpfulLinksSection from './components/HelpfulLinks';
-import { useState, useEffect } from 'react';
-import JobPostingsCard from './components/JobPostingCard';
-import { supabase } from './lib/supabase';
-import TutorCard from './components/TutorCard';
-import AdminPanel from './components/AdminPanel';
-import { NotificationProvider, showNotification } from './components/ui/notification';
-import { courseStyles, courseTypeOptions } from './config/courseStyles';
-import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
-import Navbar from './components/Navbar';
-import AuthButton from './components/AuthButton';
+import {
+  Mail,
+  Laptop,
+  FileText,
+  GraduationCap,
+  Linkedin,
+  ChevronDown,
+  Copy,
+  Check,
+} from "lucide-react";
+import { Button } from "./components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "./components/ui/card";
+import CoursesDropdown from "./components/CoursesDropdown";
+import HelpfulLinksSection from "./components/HelpfulLinks";
+import { useState, useEffect } from "react";
+import JobPostingsCard from "./components/JobPostingCard";
+import { supabase } from "./lib/supabase";
+import TutorCard from "./components/TutorCard";
+import AdminPanel from "./components/AdminPanel";
+import {
+  NotificationProvider,
+  showNotification,
+} from "./components/ui/notification";
+import { courseStyles, courseTypeOptions } from "./config/courseStyles";
+import {
+  courseMappings,
+  specializationsMappings,
+  tutorMappings,
+} from "./config/courseMappings";
+import Navbar from "./components/Navbar";
+import AuthButton from "./components/AuthButton";
 
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
-    return localStorage.getItem('courseType') || 'cs';
+    return localStorage.getItem("courseType") || "cs";
   });
   const styles = courseStyles[courseType] || courseStyles.cs;
 
-  const [selectedTag, setSelectedTag] = useState('בחר');
+  const [selectedTag, setSelectedTag] = useState("בחר");
   const [isVisible, setIsVisible] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [user, setUser] = useState(null);
@@ -28,42 +50,52 @@ const App = () => {
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showAllTutors, setShowAllTutors] = useState(false);
-  const [tutorSpecialization, setTutorSpecialization] = useState('');
+  const [tutorSpecialization, setTutorSpecialization] = useState("");
   const [showFixedButton, setShowFixedButton] = useState(false);
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [tutorsError, setTutorsError] = useState(null);
   const [degreeId, setDegreeId] = useState(null);
   const TUTORS_PER_PAGE = 6;
-  const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
+  const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === "true";
 
   // Get specializations for current course type
   const currentSpecializations = specializationsMappings[courseType] || [];
   const DEGREE_NAMES = Object.fromEntries(
-    courseTypeOptions.map(option => [option.type, option.label])
+    courseTypeOptions.map((option) => [option.type, option.label])
   );
-  
+
   const handleCourseSwitch = (type) => {
     setCourseType(type);
     // Save courseType as a cookie
-    localStorage.setItem('courseType', type);
+    localStorage.setItem("courseType", type);
     // Reset selected tag based on whether the course type has specializations
-    setSelectedTag(specializationsMappings[type]?.length > 0 ? 'בחר' : null);
+    setSelectedTag(specializationsMappings[type]?.length > 0 ? "בחר" : null);
     // Reset other relevant states
     setSelectedYear(null);
     setSelectedCourse(null);
-    setTutorSpecialization('');
+    setTutorSpecialization("");
   };
 
   // Supabase authentication
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ? { id: session.user.id, email: session.user.email } : null);
+      setUser(
+        session?.user
+          ? { id: session.user.id, email: session.user.email }
+          : null
+      );
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? { id: session.user.id, email: session.user.email } : null);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(
+        session?.user
+          ? { id: session.user.id, email: session.user.email }
+          : null
+      );
     });
 
     // Load tutors with feedback
@@ -83,7 +115,7 @@ const App = () => {
       { threshold: 0.1 }
     );
 
-    const missingSection = document.getElementById('missing-tests-section');
+    const missingSection = document.getElementById("missing-tests-section");
     if (missingSection) {
       observer.observe(missingSection);
     }
@@ -103,9 +135,9 @@ const App = () => {
     const safePhat = Math.min(Math.max(phat, 0.0001), 0.9999);
     const numerator =
       safePhat +
-      (z ** 2) / (2 * n) -
-      (z * Math.sqrt((safePhat * (1 - safePhat) + (z ** 2) / (4 * n)) / n));
-    const denominator = 1 + (z ** 2) / n;
+      z ** 2 / (2 * n) -
+      z * Math.sqrt((safePhat * (1 - safePhat) + z ** 2 / (4 * n)) / n);
+    const denominator = 1 + z ** 2 / n;
     return numerator / denominator;
   };
 
@@ -115,9 +147,8 @@ const App = () => {
       const count = validRatings.length;
       const sum = validRatings.reduce((acc, f) => acc + f.rating, 0);
       const average_rating = count > 0 ? sum / count : null;
-      const wilson_score = count > 0
-        ? calculateWilsonScore(average_rating / 5, count)
-        : 0;
+      const wilson_score =
+        count > 0 ? calculateWilsonScore(average_rating / 5, count) : 0;
 
       return {
         ...tutor,
@@ -128,7 +159,9 @@ const App = () => {
     });
 
     // Sort by Wilson score descending
-    const sorted = tutorsWithStats.sort((a, b) => b.wilson_score - a.wilson_score);
+    const sorted = tutorsWithStats.sort(
+      (a, b) => b.wilson_score - a.wilson_score
+    );
     return sorted;
   };
 
@@ -155,20 +188,21 @@ const App = () => {
 
     try {
       const { data: newDegreeId, error: degreeError } = await supabase.rpc(
-        'get_degree_id_by_details',
+        "get_degree_id_by_details",
         {
           p_degree_name: DEGREE_NAMES[courseType],
-          p_academy_id: 1
+          p_academy_id: 1,
         }
       );
 
-     
       setDegreeId(newDegreeId);
 
-      const { data: tutors, error } = await supabase
-        .rpc('new_get_tutors_with_feedback', {
-          p_degree_id: newDegreeId
-        });
+      const { data: tutors, error } = await supabase.rpc(
+        "new_get_tutors_with_feedback",
+        {
+          p_degree_id: newDegreeId,
+        }
+      );
 
       if (error) return handleError("אין חיבור לשרת. נסה שוב מאוחר יותר.");
       if (!tutors) {
@@ -185,22 +219,26 @@ const App = () => {
   // Handle feedback submission
   const handleSubmitFeedback = async (tutorId, rating, comment) => {
     if (!user) {
-      showNotification('אנא התחבר כדי להשאיר ביקורת', 'warning');
+      showNotification("אנא התחבר כדי להשאיר ביקורת", "warning");
       return;
     }
 
     try {
       // Validate comment on server side as well
       const MAX_COMMENT_LENGTH = 200;
-      const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([^\s]+\.(com|org|net|il|co|io))/gi;
+      const urlRegex =
+        /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([^\s]+\.(com|org|net|il|co|io))/gi;
 
       if (comment && comment.length > MAX_COMMENT_LENGTH) {
-        showNotification(`הערה ארוכה מדי. מוגבל ל-${MAX_COMMENT_LENGTH} תווים.`, 'error');
+        showNotification(
+          `הערה ארוכה מדי. מוגבל ל-${MAX_COMMENT_LENGTH} תווים.`,
+          "error"
+        );
         return;
       }
 
       if (comment && urlRegex.test(comment)) {
-        showNotification('לא ניתן להכניס קישורים בהערות.', 'error');
+        showNotification("לא ניתן להכניס קישורים בהערות.", "error");
         return;
       }
 
@@ -208,61 +246,59 @@ const App = () => {
 
       // If rating is null, it means we're deleting the feedback
       if (rating === null) {
-        ({ error } = await supabase
-          .rpc('delete_feedback', {
-            tutor_id: tutorId,
-          }));
+        ({ error } = await supabase.rpc("delete_feedback", {
+          tutor_id: tutorId,
+        }));
 
         if (error) {
-          showNotification('שגיאה במחיקת הביקורת', 'error');
+          showNotification("שגיאה במחיקת הביקורת", "error");
           return;
         }
 
         loadTutorsWithFeedback();
-        showNotification('הביקורת נמחקה בהצלחה', 'success');
+        showNotification("הביקורת נמחקה בהצלחה", "success");
         return;
       }
 
       // Insert or update feedback using the server-side function
-      ({ error } = await supabase
-        .rpc('new_upsert_feedback', {
-          tutor_id: tutorId,
-          rating: rating,
-          comment: comment,
-          degree_id: degreeId,
-          academy_id: 1
-        }));
+      ({ error } = await supabase.rpc("new_upsert_feedback", {
+        tutor_id: tutorId,
+        rating: rating,
+        comment: comment,
+        degree_id: degreeId,
+        academy_id: 1,
+      }));
 
       if (error) {
-        showNotification('שגיאה בשליחת הביקורת', 'error');
+        showNotification("שגיאה בשליחת הביקורת", "error");
         return;
       }
 
       // Reload tutors with feedback
       loadTutorsWithFeedback();
-      showNotification('הביקורת נשלחה בהצלחה', 'success');
+      showNotification("הביקורת נשלחה בהצלחה", "success");
     } catch (error) {
-      showNotification('שגיאה בשליחת הביקורת', 'error');
+      showNotification("שגיאה בשליחת הביקורת", "error");
     }
   };
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText('cs24.hit@gmail.com');
+      await navigator.clipboard.writeText("cs24.hit@gmail.com");
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = 'cs24.hit@gmail.com';
+      const textArea = document.createElement("textarea");
+      textArea.value = "cs24.hit@gmail.com";
       document.body.appendChild(textArea);
       textArea.select();
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       } catch (err) {
-        console.error('Failed to copy text:', err);
+        console.error("Failed to copy text:", err);
       }
       document.body.removeChild(textArea);
     }
@@ -276,9 +312,9 @@ const App = () => {
   const getCoursesForYear = (year) => {
     const courses = courseMappings[courseType];
     // Add quote mark to year if it's not 'בחירה'
-    const yearKey = year === 'רב-תחומי' ? year : year + "'";
-    console.log('Looking for courses for year:', yearKey);
-    console.log('Available years:', Object.keys(courses || {}));
+    const yearKey = year === "רב-תחומי" ? year : year + "'";
+    console.log("Looking for courses for year:", yearKey);
+    console.log("Available years:", Object.keys(courses || {}));
     return courses?.[yearKey] || [];
   };
 
@@ -286,13 +322,17 @@ const App = () => {
     if (selectedYear === year) {
       setSelectedYear(null);
       setSelectedCourse(null);
-      setTutorSpecialization('');
+      setTutorSpecialization("");
     } else {
       setSelectedYear(year);
       setSelectedCourse(null);
       // Reset specialization if not year ג or ד and department has specializations
-      if (specializationsMappings[courseType]?.length > 0 && year !== 'שנה ג' && year !== 'שנה ד') {
-        setTutorSpecialization('');
+      if (
+        specializationsMappings[courseType]?.length > 0 &&
+        year !== "שנה ג" &&
+        year !== "שנה ד"
+      ) {
+        setTutorSpecialization("");
       }
     }
   };
@@ -304,8 +344,8 @@ const App = () => {
   const filteredTutors = tutorsWithFeedback.filter((tutor) => {
     if (!selectedYear && !selectedCourse) return true;
     if (selectedCourse) {
-      return tutor.subjects?.some(subject => 
-        subject.course_name === selectedCourse
+      return tutor.subjects?.some(
+        (subject) => subject.course_name === selectedCourse
       );
     }
     return true;
@@ -314,11 +354,15 @@ const App = () => {
   return (
     <NotificationProvider>
       <div className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}>
-        { isDevMode && <Navbar courseType={courseType} /> }
-        <main className={`container mx-auto px-4 py-8 ${ isDevMode && 'pt-24' }`}>
+        {isDevMode && <Navbar courseType={courseType} />}
+        <main className={`container mx-auto px-4 py-8 ${isDevMode && "pt-24"}`}>
           <AdminPanel user={user} />
           <div className="flex flex-col items-center mb-4">
-            <h1 className={`text-5xl font-bold mb-4 text-center ${styles.textColor}`}>CS24</h1>
+            <h1
+              className={`text-5xl font-bold mb-4 text-center ${styles.textColor}`}
+            >
+              CS24
+            </h1>
             <p className={`text-xl ${styles.textColor} text-center`}>
               ברוכים הבאים למאגר המידע המקיף ביותר שהיה במכון הטכנולוגי חולון
             </p>
@@ -330,8 +374,10 @@ const App = () => {
                 className="flex items-center transition-transform duration-300 hover:scale-110"
                 title="בואו נתחבר"
               >
-                <h2 className={`text-xl ${styles.textColor}`}>פותח ע״י דניאל זיו&nbsp;</h2>
-                
+                <h2 className={`text-xl ${styles.textColor}`}>
+                  פותח ע״י דניאל זיו&nbsp;
+                </h2>
+
                 <Linkedin strokeWidth={1} className="h-6 w-6" color="#0077B5" />
               </a>
             </div>
@@ -341,15 +387,39 @@ const App = () => {
             {courseTypeOptions
               .filter((option) => option.type)
               .map((option) => (
-                <Button
-                  key={option.type}
-                  className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
-                    courseType === option.type ? styles.buttonPrimary : styles.buttonSecondary
-                  }`}
-                  onClick={() => handleCourseSwitch(option.type)}
-                >
-                  {option.label}
-                </Button>
+                <div key={option.type} className="flex items-center gap-2">
+                  {option.type === "cs" && (
+                    <Button
+                      className="px-4 py-2 text-sm font-medium rounded-md shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 flex items-center gap-2 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-1000 before:ease-in-out"
+                      onClick={() => (window.location.href = "/courses")}
+                    >
+                      <span>צפייה בקורסים</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </Button>
+                  )}
+                  <Button
+                    className={`px-6 py-2 text-lg font-medium rounded-md shadow-md transition-colors ${
+                      courseType === option.type
+                        ? styles.buttonPrimary
+                        : styles.buttonSecondary
+                    }`}
+                    onClick={() => handleCourseSwitch(option.type)}
+                  >
+                    {option.label}
+                  </Button>
+                </div>
               ))}
           </div>
 
@@ -361,7 +431,9 @@ const App = () => {
             </div>
 
             {/* Laptop Section */}
-            <Card className={`border-2 bg-gradient-to-r ${styles.cardBg} ${styles.cardBorder}`}>
+            <Card
+              className={`border-2 bg-gradient-to-r ${styles.cardBg} ${styles.cardBorder}`}
+            >
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full sm:block">
@@ -373,7 +445,7 @@ const App = () => {
                 </div>
                 <Button
                   className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${styles.textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
-                  onClick={() => window.open('https://toplaptop.net', '_blank')}
+                  onClick={() => window.open("https://toplaptop.net", "_blank")}
                 >
                   לחצו כאן!
                 </Button>
@@ -391,7 +463,9 @@ const App = () => {
             {/* Right Column Content (2/3 width on desktop) */}
             <div className="lg:col-span-2">
               {/* Laptop Section */}
-              <Card className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all mb-4`}>
+              <Card
+                className={`bg-gradient-to-r ${styles.TLBg} shadow-xl hover:shadow-2xl transition-all mb-4`}
+              >
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:p-5">
                   <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2 rounded-full hidden sm:block">
@@ -403,7 +477,9 @@ const App = () => {
                   </div>
                   <Button
                     className={`w-full sm:w-auto bg-white hover:bg-blue-50 text-lg font-bold ${styles.textColor} px-8 py-3 shadow-lg hover:scale-105 transition-transform`}
-                    onClick={() => window.open('https://toplaptop.net', '_blank')}
+                    onClick={() =>
+                      window.open("https://toplaptop.net", "_blank")
+                    }
                   >
                     לחצו כאן!
                   </Button>
@@ -418,7 +494,9 @@ const App = () => {
           {/* Specialization dropdown */}
           {specializationsMappings[courseType]?.length > 0 && (
             <div className="flex flex-col items-center mb-4">
-              <h2 className={`text-xl font-bold ${styles.textColor} mb-2`}>התמחות</h2>
+              <h2 className={`text-xl font-bold ${styles.textColor} mb-2`}>
+                התמחות
+              </h2>
               <div className="relative inline-block text-left">
                 <select
                   value={selectedTag}
@@ -432,7 +510,9 @@ const App = () => {
                     </option>
                   ))}
                 </select>
-                <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${styles.iconColor}`}>
+                <div
+                  className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${styles.iconColor}`}
+                >
                   <ChevronDown className="h-5 w-5" />
                 </div>
               </div>
@@ -451,8 +531,12 @@ const App = () => {
           <Card className={`mb-8 border bg-white ${styles.cardBorder}`}>
             <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle className={`text-2xl md:text-3xl flex items-center gap-2 ${styles.textColor}`}>
-                  <GraduationCap className={`h-6 w-6 md:h-8 md:w-8 ${styles.iconColor}`} />
+                <CardTitle
+                  className={`text-2xl md:text-3xl flex items-center gap-2 ${styles.textColor}`}
+                >
+                  <GraduationCap
+                    className={`h-6 w-6 md:h-8 md:w-8 ${styles.iconColor}`}
+                  />
                   מורים פרטיים
                 </CardTitle>
                 <div className="flex-shrink-0">
@@ -468,9 +552,12 @@ const App = () => {
               {/* Specialization dropdown for years ג and ד */}
               {specializationsMappings[courseType]?.length > 0 &&
                 selectedYear &&
-                (selectedYear === 'שנה ג' || selectedYear === 'שנה ד') && (
+                (selectedYear === "שנה ג" || selectedYear === "שנה ד") && (
                   <div className="mt-4 mb-3">
-                    <label htmlFor="specialization" className={`block text-sm font-medium ${styles.textColor} mb-2`}>
+                    <label
+                      htmlFor="specialization"
+                      className={`block text-sm font-medium ${styles.textColor} mb-2`}
+                    >
                       בחירת התמחות:
                     </label>
                     <div className="relative">
@@ -482,10 +569,14 @@ const App = () => {
                       >
                         <option value="">ללא התמחות</option>
                         {specializationsMappings[courseType].map((spec) => (
-                          <option key={spec} value={spec}>{spec}</option>
+                          <option key={spec} value={spec}>
+                            {spec}
+                          </option>
                         ))}
                       </select>
-                      <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${styles.iconColor}`}>
+                      <div
+                        className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${styles.iconColor}`}
+                      >
                         <ChevronDown className="h-5 w-5" />
                       </div>
                     </div>
@@ -495,12 +586,14 @@ const App = () => {
               {!tutorsError && (
                 <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
                   {Object.keys(courseMappings[courseType] || {})
-                    .filter((year) => year !== 'רב-תחומי')
+                    .filter((year) => year !== "רב-תחומי")
                     .map((year) => (
                       <Button
                         key={year}
                         onClick={() => handleYearClick(year)}
-                        className={`text-sm sm:text-base px-3 py-2 border font-medium shadow-md ${styles.cardBorderStrong} ${
+                        className={`text-sm sm:text-base px-3 py-2 border font-medium shadow-md ${
+                          styles.cardBorderStrong
+                        } ${
                           selectedYear === year
                             ? styles.iconColorReverse
                             : styles.buttonSecondary
@@ -514,25 +607,31 @@ const App = () => {
               {/* Course list */}
               {selectedYear && (
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {getCoursesForYear(selectedYear.replace("'", "")).map((course) => (
-                    <Button
-                      key={course.id}
-                      onClick={() => handleCourseClick(course.name)}
-                      className={`text-sm px-3 border py-1.5 shadow-md ${styles.cardBorderStrong} ${
-                        selectedCourse === course.name
-                          ? styles.iconColorReverse
-                          : styles.buttonSecondary
-                      }`}
-                    >
-                      {course.name}
-                    </Button>
-                  ))}
+                  {getCoursesForYear(selectedYear.replace("'", "")).map(
+                    (course) => (
+                      <Button
+                        key={course.id}
+                        onClick={() => handleCourseClick(course.name)}
+                        className={`text-sm px-3 border py-1.5 shadow-md ${
+                          styles.cardBorderStrong
+                        } ${
+                          selectedCourse === course.name
+                            ? styles.iconColorReverse
+                            : styles.buttonSecondary
+                        }`}
+                      >
+                        {course.name}
+                      </Button>
+                    )
+                  )}
                 </div>
               )}
             </CardHeader>
             <CardContent>
               {tutorsError ? (
-                <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
+                <div
+                  className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}
+                >
                   {tutorsError}
                 </div>
               ) : (
@@ -573,17 +672,19 @@ const App = () => {
                         ))
                     )}
                   </div>
-                  {filteredTutors.length > TUTORS_PER_PAGE && !showAllTutors && (
-                    <div className="flex justify-center mt-4">
-                      <Button
-                        onClick={() => setShowAllTutors(true)}
-                        variant="outline"
-                        className={`${styles.buttonThird}`}
-                      >
-                        הצג עוד {filteredTutors.length - TUTORS_PER_PAGE} מתרגלים
-                      </Button>
-                    </div>
-                  )}
+                  {filteredTutors.length > TUTORS_PER_PAGE &&
+                    !showAllTutors && (
+                      <div className="flex justify-center mt-4">
+                        <Button
+                          onClick={() => setShowAllTutors(true)}
+                          variant="outline"
+                          className={`${styles.buttonThird}`}
+                        >
+                          הצג עוד {filteredTutors.length - TUTORS_PER_PAGE}{" "}
+                          מתרגלים
+                        </Button>
+                      </div>
+                    )}
                 </>
               )}
             </CardContent>
@@ -593,21 +694,32 @@ const App = () => {
           <Card
             id="missing-tests-section"
             className={`mb-8 border ${styles.bgLight} ${styles.cardBorder} ${
-              isVisible ? 'animate-bounce-gentle shadow-glow' : ''
+              isVisible ? "animate-bounce-gentle shadow-glow" : ""
             }`}
           >
             <CardHeader>
-              <CardTitle className={`text-3xl flex items-center gap-2 justify-center ${styles.textColor}`}>
-                <FileText className={`h-8 w-8 ${styles.iconColor}`} aria-hidden="true" />
+              <CardTitle
+                className={`text-3xl flex items-center gap-2 justify-center ${styles.textColor}`}
+              >
+                <FileText
+                  className={`h-8 w-8 ${styles.iconColor}`}
+                  aria-hidden="true"
+                />
                 <span>חוסרים</span>
               </CardTitle>
-              <CardDescription className={`text-center text-lg ${styles.textColor}`}>
+              <CardDescription
+                className={`text-center text-lg ${styles.textColor}`}
+              >
                 יש לכם מבחנים שאינם נמצאים במאגר? נשמח שתשלחו לנו אותם
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-2 px-4 sm:px-6">
-              <div className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${styles.buttonMissing}`}>
-                <span className="text-base sm:text-lg text-white select-all">cs24.hit@gmail.com</span>
+              <div
+                className={`relative flex items-center gap-2 px-6 py-3 rounded-lg ${styles.buttonMissing}`}
+              >
+                <span className="text-base sm:text-lg text-white select-all">
+                  cs24.hit@gmail.com
+                </span>
                 <button
                   onClick={copyToClipboard}
                   className={`p-1.5 rounded-md transition-colors ${styles.buttonPrimary}`}
@@ -622,7 +734,9 @@ const App = () => {
               </div>
               <div
                 className={`flex items-center justify-center ${
-                  copySuccess ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+                  copySuccess
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-1"
                 } transition-all duration-200`}
               >
                 <span className={`text-sm ${styles.textColor}`}>
@@ -634,8 +748,13 @@ const App = () => {
 
           <style jsx global>{`
             @keyframes bounce-gentle {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-5px); }
+              0%,
+              100% {
+                transform: translateY(0);
+              }
+              50% {
+                transform: translateY(-5px);
+              }
             }
 
             .animate-bounce-gentle {
