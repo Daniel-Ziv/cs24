@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./App";
 import AuthCallback from "./components/AuthCallback";
 import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
 
 const AppRoutes = () => {
   return (
@@ -11,6 +12,7 @@ const AppRoutes = () => {
         <Route path="/" element={<App />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/courses" element={<Courses />} />
+        <Route path="/course/:courseId" element={<CourseDetails />} />
       </Routes>
     </Router>
   );

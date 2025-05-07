@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import Navbar from "../components/Navbar";
+import { courseStyles } from "../config/courseStyles";
+import { useNavigate } from "react-router-dom";
 
-const courses = {
+export const courses = {
   year1: [
     {
       id: 1,
@@ -10,6 +13,34 @@ const courses = {
       description: "מושגי יסוד במדעי המחשב ותכנות",
       creator: "עידן מרמור",
       hours: 90,
+      price: 299,
+      originalPrice: 499,
+      episodes: [
+        {
+          id: 1,
+          title: "מבוא למדעי המחשב - שיעור 1",
+          duration: "45:00",
+          description: "הכרות עם מושגי יסוד במדעי המחשב",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "מבוא למדעי המחשב - שיעור 2",
+          duration: "52:30",
+          description: "מבנה המחשב והמעבד",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "מבוא למדעי המחשב - שיעור 3",
+          duration: "48:15",
+          description: "מערכות מספרים ובינאריות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 2,
@@ -19,6 +50,34 @@ const courses = {
       description: "לימוד מבני נתונים ואלגוריתמים בסיסיים",
       creator: "עידן מרמור",
       hours: 75,
+      price: 349,
+      originalPrice: 599,
+      episodes: [
+        {
+          id: 1,
+          title: "מבני נתונים - שיעור 1",
+          duration: "50:00",
+          description: "מבוא למבני נתונים",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "מבני נתונים - שיעור 2",
+          duration: "55:30",
+          description: "מערכים ורשימות מקושרות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "מבני נתונים - שיעור 3",
+          duration: "48:15",
+          description: "עצים וגרפים",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 3,
@@ -28,6 +87,34 @@ const courses = {
       description: "הבנת חומרת המחשב וארכיטקטורה",
       creator: "עידן מרמור",
       hours: 60,
+      price: 399,
+      originalPrice: 699,
+      episodes: [
+        {
+          id: 1,
+          title: "מערכות המחשב - שיעור 1",
+          duration: "45:00",
+          description: "מבוא למערכות מחשב",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "מערכות המחשב - שיעור 2",
+          duration: "52:30",
+          description: "ארכיטקטורת מעבד",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "מערכות המחשב - שיעור 3",
+          duration: "48:15",
+          description: "זיכרון וקלט/פלט",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 4,
@@ -37,6 +124,34 @@ const courses = {
       description: "מבוא לאלגברה לינארית ויישומיה במדעי המחשב",
       creator: "עידן מרמור",
       hours: 60,
+      price: 299,
+      originalPrice: 499,
+      episodes: [
+        {
+          id: 1,
+          title: "אלגברה לינארית - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לאלגברה לינארית",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "אלגברה לינארית - שיעור 2",
+          duration: "52:30",
+          description: "מטריצות ופעולות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "אלגברה לינארית - שיעור 3",
+          duration: "48:15",
+          description: "מרחבים וקטוריים",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 5,
@@ -46,6 +161,34 @@ const courses = {
       description: "חשבון דיפרנציאלי ואינטגרלי למדעי המחשב",
       creator: "עידן מרמור",
       hours: 60,
+      price: 299,
+      originalPrice: 499,
+      episodes: [
+        {
+          id: 1,
+          title: "חשבון אינפיניטסימלי - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לחשבון דיפרנציאלי",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "חשבון אינפיניטסימלי - שיעור 2",
+          duration: "52:30",
+          description: "נגזרות וכללי גזירה",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "חשבון אינפיניטסימלי - שיעור 3",
+          duration: "48:15",
+          description: "אינטגרלים",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
   ],
   year2: [
@@ -57,6 +200,34 @@ const courses = {
       description: "לימוד מושגי יסוד במערכות הפעלה",
       creator: "עידן מרמור",
       hours: 75,
+      price: 399,
+      originalPrice: 699,
+      episodes: [
+        {
+          id: 1,
+          title: "מערכות הפעלה - שיעור 1",
+          duration: "45:00",
+          description: "מבוא למערכות הפעלה",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "מערכות הפעלה - שיעור 2",
+          duration: "52:30",
+          description: "ניהול תהליכים",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "מערכות הפעלה - שיעור 3",
+          duration: "48:15",
+          description: "ניהול זיכרון",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 7,
@@ -66,6 +237,34 @@ const courses = {
       description: "תכנון, מימוש וניהול בסיסי נתונים",
       creator: "עידן מרמור",
       hours: 60,
+      price: 349,
+      originalPrice: 599,
+      episodes: [
+        {
+          id: 1,
+          title: "מערכות בסיסי נתונים - שיעור 1",
+          duration: "50:00",
+          description: "מבוא למערכות בסיסי נתונים",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "מערכות בסיסי נתונים - שיעור 2",
+          duration: "55:30",
+          description: "מימוש וניהול מערכות בסיסי נתונים",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "מערכות בסיסי נתונים - שיעור 3",
+          duration: "48:15",
+          description: "אלגוריתמים וארכיטקטורות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 8,
@@ -75,6 +274,34 @@ const courses = {
       description: "מתודולוגיות ופרקטיקות בפיתוח תוכנה",
       creator: "עידן מרמור",
       hours: 60,
+      price: 399,
+      originalPrice: 699,
+      episodes: [
+        {
+          id: 1,
+          title: "הנדסת תוכנה - שיעור 1",
+          duration: "45:00",
+          description: "מבוא להנדסת תוכנה",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "הנדסת תוכנה - שיעור 2",
+          duration: "52:30",
+          description: "מתודולוגיות וארכיטקטורות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "הנדסת תוכנה - שיעור 3",
+          duration: "48:15",
+          description: "פרקטיקות ואלגוריתמים",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 9,
@@ -84,6 +311,34 @@ const courses = {
       description: "פיתוח תוכנה בפרדיגמת תכנות מונחה עצמים",
       creator: "עידן מרמור",
       hours: 75,
+      price: 449,
+      originalPrice: 799,
+      episodes: [
+        {
+          id: 1,
+          title: "תכנות מונחה עצמים - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לתכנות מונחה עצמים",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "תכנות מונחה עצמים - שיעור 2",
+          duration: "52:30",
+          description: "מבני מונחה עצמים וארכיטקטורות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "תכנות מונחה עצמים - שיעור 3",
+          duration: "48:15",
+          description: "פרקטיקות ואלגוריתמים",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 10,
@@ -93,6 +348,34 @@ const courses = {
       description: "תכנון וארכיטקטורה של מערכות מחשב",
       creator: "עידן מרמור",
       hours: 60,
+      price: 399,
+      originalPrice: 699,
+      episodes: [
+        {
+          id: 1,
+          title: "ארכיטקטורת מחשבים - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לארכיטקטורת מחשבים",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "ארכיטקטורת מחשבים - שיעור 2",
+          duration: "52:30",
+          description: "ארכיטקטורות מחשב",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "ארכיטקטורת מחשבים - שיעור 3",
+          duration: "48:15",
+          description: "אלגוריתמים וארכיטקטורות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 11,
@@ -102,6 +385,34 @@ const courses = {
       description: "מבוא לאלגוריתמים וניתוח סיבוכיות",
       creator: "עידן מרמור",
       hours: 75,
+      price: 399,
+      originalPrice: 699,
+      episodes: [
+        {
+          id: 1,
+          title: "אלגוריתמים 1 - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לאלגוריתמים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "אלגוריתמים 1 - שיעור 2",
+          duration: "52:30",
+          description: "אלגוריתמים סופיים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "אלגוריתמים 1 - שיעור 3",
+          duration: "48:15",
+          description: "אלגוריתמים מתקדמים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 12,
@@ -111,6 +422,34 @@ const courses = {
       description: "אלגוריתמים מתקדמים וניתוח ביצועים",
       creator: "עידן מרמור",
       hours: 75,
+      price: 449,
+      originalPrice: 799,
+      episodes: [
+        {
+          id: 1,
+          title: "אלגוריתמים 2 - שיעור 1",
+          duration: "45:00",
+          description: "אלגוריתמים מתקדמים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "אלגוריתמים 2 - שיעור 2",
+          duration: "52:30",
+          description: "אלגוריתמים מתקדמים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "אלגוריתמים 2 - שיעור 3",
+          duration: "48:15",
+          description: "אלגוריתמים מתקדמים וניתוח סיבוכיות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
   ],
   year3: [
@@ -122,6 +461,34 @@ const courses = {
       description: "לימוד מערכות אוטומציה ורובוטיקה",
       creator: "עידן מרמור",
       hours: 60,
+      price: 449,
+      originalPrice: 799,
+      episodes: [
+        {
+          id: 1,
+          title: "אוטומטים - שיעור 1",
+          duration: "45:00",
+          description: "מבוא לאוטומטים",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "אוטומטים - שיעור 2",
+          duration: "52:30",
+          description: "אוטומטים סופיים",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "אוטומטים - שיעור 3",
+          duration: "48:15",
+          description: "שפות פורמליות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
     {
       id: 14,
@@ -131,68 +498,100 @@ const courses = {
       description: "יסודות תיאורטיים של חישוביות",
       creator: "עידן מרמור",
       hours: 60,
+      price: 299,
+      originalPrice: 499,
+      episodes: [
+        {
+          id: 1,
+          title: "חישוביות וסיבוכיות - שיעור 1",
+          duration: "45:00",
+          description: "יסודות תיאורטיים של חישוביות",
+          videoUrl: "https://example.com/video1",
+          completed: false,
+        },
+        {
+          id: 2,
+          title: "חישוביות וסיבוכיות - שיעור 2",
+          duration: "52:30",
+          description: "חישוביות וסיבוכיות במדעי המחשב",
+          videoUrl: "https://example.com/video2",
+          completed: false,
+        },
+        {
+          id: 3,
+          title: "חישוביות וסיבוכיות - שיעור 3",
+          duration: "48:15",
+          description: "יסודות תיאורטיים של חישוביות",
+          videoUrl: "https://example.com/video3",
+          completed: false,
+        },
+      ],
     },
   ],
 };
 
-const CourseCard = ({ course }) => (
-  <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
-    <div className="relative h-48">
-      <img
-        src={course.image}
-        alt={course.name}
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-        <span className="text-white text-lg font-semibold">למידע נוסף</span>
-      </div>
-    </div>
-    <div className="p-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-2">{course.name}</h3>
-      <p className="text-gray-600 mb-3">{course.description}</p>
-      <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg mb-4">
-        <div className="flex items-center space-x-2">
-          <svg
-            className="h-5 w-5 text-blue-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-          </svg>
-          <span className="text-gray-700">מרצה: {course.creator}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <svg
-            className="h-5 w-5 text-blue-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className="text-gray-700">{course.hours} שעות</span>
+const CourseCard = ({ course }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
+      <div className="relative h-48">
+        <img
+          src={course.image}
+          alt={course.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <span className="text-white text-lg font-semibold">למידע נוסף</span>
         </div>
       </div>
-      <button
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300"
-        onClick={() => (window.location.href = `/course/${course.id}`)}
-      >
-        צפה עכשיו
-      </button>
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{course.name}</h3>
+        <p className="text-gray-600 mb-3">{course.description}</p>
+        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg mb-4">
+          <div className="flex items-center space-x-2">
+            <svg
+              className="h-5 w-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            <span className="text-gray-700">מרצה: {course.creator}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <svg
+              className="h-5 w-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="text-gray-700">{course.hours} שעות</span>
+          </div>
+        </div>
+        <button
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300"
+          onClick={() => navigate(`/course/${course.id}`)}
+        >
+          צפה עכשיו
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const YearSection = ({ year, courses }) => (
   <div className="mb-12">
@@ -208,6 +607,8 @@ const YearSection = ({ year, courses }) => (
 const Courses = () => {
   const [selectedYear, setSelectedYear] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const styles = courseStyles.cs;
+  const navigate = useNavigate();
 
   const filteredCourses = {
     year1: courses.year1.filter(
@@ -263,60 +664,13 @@ const Courses = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Modern Header with Animated Logo */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div
-              className="relative group cursor-pointer"
-              onClick={() => (window.location.href = "/")}
-            >
-              <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-              <div className="relative flex items-center space-x-3 bg-white rounded-lg p-2 shadow-lg">
-                <div className="animate-slide">
-                  <svg
-                    className="h-10 w-10 text-blue-600"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2L2 7L12 12L22 7L12 2Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M2 17L12 22L22 17"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M2 12L12 17L22 12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    CS24
-                  </span>
-                  <span className="text-xs text-gray-500">מדעי המחשב</span>
-                </div>
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
-              קורסי מדעי המחשב זמינים לצפייה
-            </h1>
-          </div>
-        </div>
+    <div
+      className={`min-h-screen bg-gradient-to-b ${styles.bgGradient}`}
+      dir="rtl"
+    >
+      <Navbar courseType="cs" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between"></div>
       </div>
 
       {/* Filters and Search */}
@@ -328,7 +682,7 @@ const Courses = () => {
                 onClick={() => setSelectedYear("all")}
                 className={`px-6 py-2 rounded-lg transition-all duration-300 ${
                   selectedYear === "all"
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? styles.buttonPrimary
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -338,7 +692,7 @@ const Courses = () => {
                 onClick={() => setSelectedYear("year1")}
                 className={`px-6 py-2 rounded-lg transition-all duration-300 ${
                   selectedYear === "year1"
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? styles.buttonPrimary
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -348,7 +702,7 @@ const Courses = () => {
                 onClick={() => setSelectedYear("year2")}
                 className={`px-6 py-2 rounded-lg transition-all duration-300 ${
                   selectedYear === "year2"
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? styles.buttonPrimary
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -358,7 +712,7 @@ const Courses = () => {
                 onClick={() => setSelectedYear("year3")}
                 className={`px-6 py-2 rounded-lg transition-all duration-300 ${
                   selectedYear === "year3"
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? styles.buttonPrimary
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
