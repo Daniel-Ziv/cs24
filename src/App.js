@@ -14,6 +14,19 @@ import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
 import Navbar from './components/Navbar';
 
+const NeuButton = ({ onClick, children, className, styles }) => {
+  return (
+    <div className="bg-white min-h-[200px] flex items-center justify-center">
+      <button 
+        onClick={onClick}
+        className={`px-6 py-2 font-medium text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] ${styles.buttonPrimary} ${className}`}
+      >
+        {children}
+      </button>
+    </div>
+  );
+};
+
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
     return localStorage.getItem('courseType') || 'cs';
@@ -533,14 +546,15 @@ const App = () => {
             </CardHeader>
             <CardContent>
               {tutorsError ? (
-                 <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
-                 <p className="mb-4">{tutorsError}</p>
-                 <Button
-                   onClick={loadTutorsWithFeedback}
-                   className={`${styles.buttonPrimary} text-base px-6 py-2`}
-                 >
-                   נסה שוב
-                 </Button>
+                <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
+                  <p className="mb-4">{tutorsError}</p>
+                  <NeuButton
+                    onClick={loadTutorsWithFeedback}
+                    className="text-base px-6 py-2"
+                    styles={styles}
+                  >
+                    רענן
+                  </NeuButton>
                 </div>
               ) : (
                 <>
