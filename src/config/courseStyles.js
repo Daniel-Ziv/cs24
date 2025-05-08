@@ -22,7 +22,11 @@ const courseStyles = {
     TLBg: 'from-blue-700 via-blue-800 to-blue-900',
     shadowGlow: 'rgba(37, 99, 235, 0.3)',
     shadowGlowHover: 'rgba(37, 99, 235, 0.5)',
-    fillColor: '#2563eb'
+    fillColor: '#2563eb',
+    eventBg: 'bg-blue-500', // Added for event background
+    editBg: 'bg-blue-300',
+    background: "#9cc6fc",
+    contactBg: 'bg-blue-300 text-white hover:bg-blue-400',
   },
   ee: {
     buttonPrimary: 'bg-purple-800 text-white hover:bg-purple-700',
@@ -47,7 +51,11 @@ const courseStyles = {
     TLBg: 'from-purple-700 via-purple-800 to-purple-900',
     shadowGlow: 'rgba(147, 51, 234, 0.3)',
     shadowGlowHover: 'rgba(147, 51, 234, 0.5)',
-    fillColor: '#9333ea'
+    fillColor: '#9333ea',
+    eventBg: 'bg-purple-500', // Added for event background
+    editBg: 'bg-purple-300',
+    background: "#ca99ff",
+    contactBg: 'bg-purple-300 text-white hover:bg-purple-400',
   },
   ie: {
     buttonPrimary: 'bg-rose-800 text-white hover:bg-rose-700',
@@ -72,7 +80,11 @@ const courseStyles = {
     TLBg: 'from-rose-700 via-rose-800 to-rose-900',
     shadowGlow: 'rgba(225, 29, 72, 0.3)',
     shadowGlowHover: 'rgba(225, 29, 72, 0.5)',
-    fillColor: '#e11d48'
+    fillColor: '#e11d48',
+    eventBg: 'bg-rose-500', // Added for event background
+    editBg: 'bg-rose-300',
+    background: "#ffb3b8",
+    contactBg: 'bg-rose-300 text-white hover:bg-rose-400',
   },
 };
 
