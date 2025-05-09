@@ -6,9 +6,9 @@ import useAuth from "../hooks/useAuth";
 import NavbarLink from "./navbarUtils/NavbarLink";
 import DropdownMenuLink from "./navbarUtils/DropdownMenuLink";
 import LoginButton from "./navbarUtils/LoginButton";
-import LogoutButton from "./navbarUtils/LogoutButton";
 import InstituteLogo from "./navbarUtils/InstituteLogo";
 import menuVariants from "./navbarUtils/menuVariants";
+import Avatar from "./Avatar";
 
 const Navbar = ({ courseType = 'cs'}) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +17,7 @@ const Navbar = ({ courseType = 'cs'}) => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-white p-3 shadow-md flex items-center justify-between">
       <NavRightSection setIsOpen={setIsOpen} styles={styles} />
-      <NavLeftSection styles={styles} />
+      <NavLeftSection styles={styles} courseType={courseType} />
       <NavDropdownMenu isOpen={isOpen} styles={styles} />
     </nav>
   );
@@ -42,12 +42,16 @@ const NavRightSection = ({ setIsOpen, styles }) => {
   );
 };
 
-const NavLeftSection = ({ styles }) => {
+const NavLeftSection = ({ styles, courseType }) => {
   const auth = useAuth();
 
   return (
-    <div className="flex items-center gap-4">
-      {auth.session ? <LogoutButton styles={styles} auth={auth} /> : <LoginButton styles={styles} />}
+    <div className="flex items-center gap-4 ml-6">
+      {auth.session ? (
+        <Avatar courseType={courseType} />
+      ) : (
+        <LoginButton styles={styles} />
+      )}
     </div>
   );
 };
