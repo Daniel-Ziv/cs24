@@ -31,6 +31,15 @@ const mockEpisodes = [
   },
 ];
 
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('he-IL', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }).format(date);
+};
+
 const CourseDetails = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -44,17 +53,18 @@ const CourseDetails = () => {
     const fetchCourseDetails = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase.rpc("get_video_thumbnail_data");
+        const { data, error } = await supabase.rpc("get_lesson_details", {
+          p_video_id: parseInt(courseId)
+        });
+        
         if (error) throw error;
-
-        const courseData = data.find(c => c.id === parseInt(courseId));
-        if (!courseData) {
+        if (!data) {
           throw new Error("Course not found");
         }
 
         // Add mock episodes to the course data
         setCourse({
-          ...courseData,
+          ...data,
           episodes: mockEpisodes
         });
       } catch (err) {
@@ -117,6 +127,16 @@ const CourseDetails = () => {
     });
   };
 
+  // Convert video_len (seconds) to hours and minutes
+  const hours = Math.floor(course.video_len / 3600);
+  const minutes = Math.floor((course.video_len % 3600) / 60);
+  const durationText = `${hours > 0 ? `${hours} שעות ` : ''}${minutes} דקות`;
+
+  // Calculate average rating
+  const averageRating = course?.feedback?.length > 0
+    ? (course.feedback.reduce((acc, f) => acc + f.rating, 0) / course.feedback.length).toFixed(1)
+    : 0;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -146,10 +166,11 @@ const CourseDetails = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {course.video_title}
+                  {course.title}
                 </h1>
                 <p className="text-gray-600 text-lg">{course.course_name}</p>
                 <p className="text-gray-500 mt-2">מרצה: {course.tutor_name}</p>
+                <p className="text-gray-500 mt-2">{course.description}</p>
               </div>
               <div className="flex items-center space-x-6">
                 <div className="text-center">
@@ -158,29 +179,15 @@ const CourseDetails = () => {
                   </div>
                   <div className="text-sm text-gray-500">התקדמות</div>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                </div>
-                <div className="border-r border-gray-200 h-12"></div>
                 <div className="text-right">
                   <div className="flex items-center space-x-2">
-                    <span className="text-gray-500 line-through text-lg">
-                      ₪{course.originalPrice}
-                    </span>
+                    {course.sale_price < course.price && (
+                      <span className="text-gray-500 line-through text-lg">
+                        ₪{course.price}
+                      </span>
+                    )}
                     <span className="text-2xl font-bold text-green-600">
-                      ₪{course.price}
+                      ₪{course.sale_price}
                     </span>
                   </div>
                   <div className="text-sm text-gray-500">מחיר הקורס</div>
@@ -219,7 +226,7 @@ const CourseDetails = () => {
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span className="text-gray-700">{course.hours} שעות</span>
+                <span className="text-gray-700">{durationText}</span>
               </div>
               <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
                 <svg
@@ -253,7 +260,7 @@ const CourseDetails = () => {
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                   />
                 </svg>
-                <span className="text-gray-700">מרצה: {course.creator}</span>
+                <span className="text-gray-700">מרצה: {course.tutor_name}</span>
               </div>
             </div>
           </div>
@@ -295,7 +302,7 @@ const CourseDetails = () => {
               )}
 
               {activeEpisode && (
-                <div className="bg-white rounded-lg p-6 shadow-sm">
+                <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {activeEpisode.title}
                   </h2>
@@ -330,6 +337,67 @@ const CourseDetails = () => {
                   </div>
                 </div>
               )}
+
+              {/* Feedback Section */}
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="p-4 border-b border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-900">משובים</h2>
+                    <div className="flex items-center">
+                      <span className="text-2xl font-bold text-yellow-500 ml-2">{averageRating}</span>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`w-5 h-5 ${i < Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'}`}
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-500 mr-2">({course.feedback.length} משובים)</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
+                  {course.feedback
+                    .filter(feedback => feedback.comment) // Only show feedback with comments
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // Sort by date
+                    .map((feedback) => (
+                    <div key={feedback.id} className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          {[...Array(feedback.rating)].map((_, i) => (
+                            <svg
+                              key={i}
+                              className="w-4 h-4 text-yellow-400"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {formatDate(feedback.created_at)}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 whitespace-pre-line">{feedback.comment}</p>
+                    </div>
+                  ))}
+                </div>
+                {!course.has_user_feedback && (
+                  <div className="p-4 border-t border-gray-200">
+                    <button 
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      הוסף משוב
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Episodes List */}

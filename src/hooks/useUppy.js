@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { showNotification } from '../components/ui/notification';
+import { supabase } from '../lib/supabase';
 
 const UPPY_VERSION = '3.3.1';
 const UPPY_CSS = `https://releases.transloadit.com/uppy/v${UPPY_VERSION}/uppy.min.css`;
@@ -91,7 +92,7 @@ export function useUppy(auth) {
       }
 
       console.log('Got upload URL:', location);
-      return location;
+      return { uploadUrl: location, streamMediaId };
     } catch (error) {
       console.error('Error getting upload URL:', error);
       showNotification('שגיאה בקבלת קישור העלאה', 'error');
@@ -105,7 +106,7 @@ export function useUppy(auth) {
       // Use XHR for direct upload
       const xhr = new XMLHttpRequest();
       let offset = 0;
-      const chunkSize = 256 * 1024 * 10; // 2.56 MB (multiple of 256 KiB)
+      const chunkSize = 5 * 1024 * 1024; // 5MB - Cloudflare's minimum chunk size requirement
       
       const uploadChunk = () => {
         const start = offset;
@@ -159,23 +160,41 @@ export function useUppy(auth) {
     });
   };
   
+  // Function to get video duration
+  const getVideoDuration = (file) => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        resolve(Math.round(video.duration));
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   // The main upload function
   const startUpload = async (title, description, courseType) => {
     const uppy = uppyRef.current;
     
     if (!uppy || !auth.session?.access_token) {
       showNotification('נא להתחבר כדי להעלות סרטון', 'error');
-      return;
+      return { success: false };
     }
 
     const files = uppy.getFiles();
 
     if (files.length === 0) {
       showNotification('נא לבחור קובץ להעלאה', 'error');
-      return;
+      return { success: false };
     }
 
     const file = files[0];
+    
+    // Get video duration before upload
+    const duration = await getVideoDuration(file.data);
     
     // Ensure file has valid properties
     if (!file.name) file.name = 'unnamed_file.mp4';
@@ -183,12 +202,12 @@ export function useUppy(auth) {
     
     if (!title.trim()) {
       showNotification('נא להזין כותרת לסרטון', 'error');
-      return;
+      return { success: false };
     }
 
     if (!description.trim()) {
       showNotification('נא להזין תיאור לסרטון', 'error');
-      return;
+      return { success: false };
     }
 
     // Show loading state
@@ -196,9 +215,9 @@ export function useUppy(auth) {
     setProgress(0);
 
     try {
-      // Get the upload URL now, just before starting the upload
-      const url = await getUploadUrl(file, title);
-      setUploadUrl(url);
+      // Get the upload URL and stream media ID
+      const { uploadUrl, streamMediaId } = await getUploadUrl(file, title);
+      setUploadUrl(uploadUrl);
 
       // Add metadata to file
       uppy.setFileState(file.id, {
@@ -212,11 +231,11 @@ export function useUppy(auth) {
       });
 
       // Use our custom upload function instead of Uppy's Tus
-      await directUploadToCloudflare(file.data, url);
+      await directUploadToCloudflare(file.data, uploadUrl);
       
       // Manually trigger the success event
       uppy.emit('upload-success', file, { 
-        uploadURL: url,
+        uploadURL: uploadUrl,
         status: 'success' 
       });
       
@@ -226,9 +245,9 @@ export function useUppy(auth) {
       });
       
       setUploading(false);
-      showNotification(videoLink ? 
-        `הוידאו הועלה בהצלחה! צפה בו כאן: ${videoLink}` : 
-        'הוידאו הועלה בהצלחה!', 'success');
+      showNotification('הוידאו הועלה בהצלחה!', 'success');
+      
+      return { success: true, videoId: streamMediaId, duration };
       
     } catch (error) {
       console.error('Upload error:', error);
@@ -239,6 +258,8 @@ export function useUppy(auth) {
       if (files.length > 0) {
         uppy.emit('upload-error', file, error);
       }
+      
+      return { success: false, error };
     }
   };
 
@@ -272,7 +293,7 @@ export function useUppy(auth) {
       height: 300,
       proudlyDisplayPoweredByUppy: false,
       note: 'ניתן להעלות סרטונים עד 10GB',
-      showUploadButton: false
+      hideUploadButton: true
     });
 
     // When files are added, just prepare the UI
@@ -326,7 +347,7 @@ export function useUppy(auth) {
     _uppy.use(window.Uppy.Tus, {
       endpoint: null, // Will be set during startUpload
       removeFingerprintOnSuccess: true,
-      chunkSize: 256 * 1024 * 10, // 2.56 MB (multiple of 256 KiB)
+      chunkSize: 5 * 1024 * 1024, // 5MB - Cloudflare's minimum chunk size requirement
       retryDelays: [0, 1000, 3000, 5000],
       uploadDataDuringCreation: false, // Don't upload data during creation
       headers: {
