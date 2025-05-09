@@ -10,7 +10,7 @@ import LogoutButton from "./navbarUtils/LogoutButton";
 import InstituteLogo from "./navbarUtils/InstituteLogo";
 import menuVariants from "./navbarUtils/menuVariants";
 
-const Navbar = ({ courseType }) => {
+const Navbar = ({ courseType = 'cs'}) => {
   const [isOpen, setIsOpen] = useState(false);
   const styles = courseStyles[courseType] || courseStyles.cs;
 
@@ -35,9 +35,9 @@ const NavRightSection = ({ setIsOpen, styles }) => {
         <FiMenu size={32}/>
       </motion.button>
       <InstituteLogo styles={styles} />
-      <NavbarLink text="ראשי" styles={styles} />
-      <NavbarLink text="מחשבון ציונים" styles={styles} />
-      <NavbarLink text="אודות" styles={styles} />
+      <NavbarLink text="ראשי" styles={styles} href="/" />
+      <NavbarLink text="מחשבון ציונים" styles={styles} href="/gpa" />
+      <NavbarLink text="אודות" styles={styles} href="/about" />
     </div>
   );
 };

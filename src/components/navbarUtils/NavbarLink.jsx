@@ -1,10 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const NavbarLink = ({ text, styles }) => {
+const NavbarLink = ({ text, styles, href }) => {
   return (
     <a
-      href="#"
+      href={href}
       rel="nofollow"
       className="hidden lg:block h-[30px] overflow-hidden font-bold text-lg"
     >
