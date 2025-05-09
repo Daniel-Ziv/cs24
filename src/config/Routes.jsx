@@ -6,6 +6,8 @@ import GpaCalc from '../pages/GpaCalc';
 import Courses from '../pages/Courses';
 import CourseDetails from '../pages/CourseDetails';
 import UploadPage from '../pages/UploadPage';
+import UserDashboard from '../pages/userDashboard';
+
 const AppRoutes = () => {
   return (
     <Router>
@@ -16,6 +18,7 @@ const AppRoutes = () => {
         <Route path="/courses" element={<Courses />} />
         <Route path="/course/:courseId" element={<CourseDetails />} />
         <Route path="/UploadPage" element={<UploadPage />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
       </Routes>
     </Router>
   );
