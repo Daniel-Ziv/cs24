@@ -15,6 +15,19 @@ import Navbar from './components/Navbar';
 import AuthButton from './components/AuthButton';
 import Footer from './components/Footer';
 
+const NeuButton = ({ onClick, children, className, styles }) => {
+  return (
+    <div className="bg-white min-h-[200px] flex items-center justify-center">
+      <button 
+        onClick={onClick}
+        className={`px-6 py-2 font-medium text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] ${styles.buttonPrimary} ${className}`}
+      >
+        {children}
+      </button>
+    </div>
+  );
+};
+
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
     return localStorage.getItem('courseType') || 'cs';
@@ -146,9 +159,10 @@ const App = () => {
 
     // Helper for handling errors
     const handleError = (message) => {
-      if (isDevMode) {
-        fallback();
-      } else {
+      //  if (isDevMode) {
+      //   fallback();
+      // } else 
+      {
         setTutorsError(message);
         setTutorsWithFeedback([]); // Clear tutors list if needed
       }
@@ -534,7 +548,14 @@ const App = () => {
             <CardContent>
               {tutorsError ? (
                 <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
-                  {tutorsError}
+                  <p className="mb-4">{tutorsError}</p>
+                  <NeuButton
+                    onClick={loadTutorsWithFeedback}
+                    className="text-base px-6 py-2"
+                    styles={styles}
+                  >
+                    רענן
+                  </NeuButton>
                 </div>
               ) : (
                 <>
@@ -633,7 +654,7 @@ const App = () => {
             </CardContent>
           </Card>
 
-          <style jsx global>{`
+          <style global="true">{`
             @keyframes bounce-gentle {
               0%, 100% { transform: translateY(0); }
               50% { transform: translateY(-5px); }
