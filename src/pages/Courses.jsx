@@ -16,7 +16,7 @@ const CourseCard = ({ course }) => {
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
       <div className="relative h-48">
         <img
-          src={`https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg`}
+          src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg?time=${course.thumbnail}s`}
           alt={course.video_title}
           className="w-full h-full object-cover"
         />
