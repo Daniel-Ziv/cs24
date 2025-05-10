@@ -9,12 +9,12 @@ const Footer = () => {
                       </a>
                   </div>
                   <div class="px-5 py-2">
-                      <a href="#" class="text-base leading-6 text-gray-500 hover:text-gray-900">
+                      <a href="/terms" class="text-base leading-6 text-gray-500 hover:text-gray-900">
                           תנאי שימוש
                       </a>
                   </div>
                   <div class="px-5 py-2">
-                      <a href="#" class="text-base leading-6 text-gray-500 hover:text-gray-900">
+                      <a href="/privacy" class="text-base leading-6 text-gray-500 hover:text-gray-900">
                           מדיניות פרטיות
                       </a>
                   </div>
