@@ -1,24 +1,22 @@
-import { Link } from 'react-router-dom';
-
 const Footer = () => {
     return (
       <footer>
           <div class="max-w-screen-xl px-4 pb-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8">
               <nav class="flex flex-wrap justify-center -mx-5 -my-2">
                   <div class="px-5 py-2">
-                      <Link to="/about" className="text-base leading-6 text-gray-500 hover:text-gray-900">
+                      <a href="/about" class="text-base leading-6 text-gray-500 hover:text-gray-900">
                           אודות
-                      </Link>
+                      </a>
                   </div>
                   <div class="px-5 py-2">
-                      <Link to="/terms" className="text-base leading-6 text-gray-500 hover:text-gray-900">
+                      <a href="/terms" class="text-base leading-6 text-gray-500 hover:text-gray-900">
                           תנאי שימוש
-                      </Link>
+                      </a>
                   </div>
                   <div class="px-5 py-2">
-                      <Link to="/privacy" className="text-base leading-6 text-gray-500 hover:text-gray-900">
+                      <a href="/privacy" class="text-base leading-6 text-gray-500 hover:text-gray-900">
                           מדיניות פרטיות
-                      </Link>
+                      </a>
                   </div>
               </nav>
               {/* <div class="flex justify-center mt-8 gap-6">

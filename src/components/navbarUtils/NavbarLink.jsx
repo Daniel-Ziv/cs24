@@ -1,11 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { NavLink } from "react-router-dom";
 
-const NavbarLink = ({ text, styles, to }) => {
+const NavbarLink = ({ text, styles, href }) => {
   return (
-    <NavLink
-      to={to}
+    <a
+      href={href}
       rel="nofollow"
       className="hidden lg:block h-[30px] overflow-hidden font-bold text-lg"
     >
@@ -15,7 +14,7 @@ const NavbarLink = ({ text, styles, to }) => {
           {text}
         </span>
       </motion.div>
-    </NavLink>
+    </a>
   );
 };
 

@@ -35,9 +35,9 @@ const NavRightSection = ({ setIsOpen, styles }) => {
         <FiMenu size={32}/>
       </motion.button>
       <InstituteLogo styles={styles} />
-      <NavbarLink text="ראשי" styles={styles} to="/" />
-      <NavbarLink text="מחשבון ציונים" styles={styles} to="/gpa" />
-      <NavbarLink text="אודות" styles={styles} to="/about" />
+      <NavbarLink text="ראשי" styles={styles} href="/" />
+      <NavbarLink text="מחשבון ציונים" styles={styles} href="/gpa" />
+      <NavbarLink text="אודות" styles={styles} href="/about" />
     </div>
   );
 };
@@ -60,9 +60,9 @@ const NavDropdownMenu = ({ isOpen, styles }) => {
       animate={isOpen ? "open" : "closed"}
       className="absolute p-5 bg-white shadow-lg left-0 right-0 top-full origin-top flex flex-col gap-4 lg:hidden"
     >
-    <DropdownMenuLink text="ראשי" styles={styles} to="/" />
-    <DropdownMenuLink text="מחשבון ציונים" styles={styles} to="/gpa" />
-    <DropdownMenuLink text="אודות" styles={styles} to="/about" />
+      <DropdownMenuLink text="ראשי" styles={styles} href="/" />
+      <DropdownMenuLink text="מחשבון ציונים" styles={styles} href="/gpa" />
+      <DropdownMenuLink text="אודות" styles={styles} href="/about" />
     </motion.div>
   );
 };
