@@ -303,9 +303,20 @@ const CourseDetails = () => {
               {course.has_access ? (
                 <>
                   <div className="bg-black rounded-lg overflow-hidden mb-4">
-                    <CourseVideoPlayer 
-                      courseId={parseInt(courseId)}
-                    />
+                    <div className="relative" style={{ paddingTop: '56.25%' }}> {/* 16:9 Aspect Ratio Container */}
+                      <img
+                        src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ''}`}
+                        alt={course.title}
+                        className="absolute top-0 left-0 w-full h-full object-cover"
+                        style={{ display: 'block' }}
+                        id="thumbnail-img"
+                      />
+                      <div id="video-player" className="absolute top-0 left-0 w-full h-full" style={{ display: 'none' }}>
+                        <CourseVideoPlayer 
+                          courseId={parseInt(courseId)}
+                        />
+                      </div>
+                    </div>
                   </div>
                   
                   {activeEpisode && (
@@ -346,23 +357,30 @@ const CourseDetails = () => {
                   )}
                 </>
               ) : (
-                <div className="bg-gray-100 rounded-lg aspect-video mb-4 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <svg
-                      className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      />
-                    </svg>
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">תוכן הקורס נעול</h3>
-                    <p className="text-gray-600">יש לרכוש את הקורס כדי לצפות בשיעורים</p>
+                <div className="bg-gray-100 rounded-lg overflow-hidden mb-4">
+                  <div className="relative aspect-video">
+                    <img
+                      src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ''}`}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
+                      <svg
+                        className="w-16 h-16 text-gray-400 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
+                      </svg>
+                      <h3 className="text-xl font-semibold text-white mb-2">תוכן הקורס נעול</h3>
+                      <p className="text-gray-200">יש לרכוש את הקורס כדי לצפות בשיעורים</p>
+                    </div>
                   </div>
                 </div>
               )}

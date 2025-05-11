@@ -5,6 +5,7 @@ import { Stream } from "@cloudflare/stream-react";
 function CourseVideoPlayer({ courseId }) {
   const [streamToken, setStreamToken] = useState("");
   const [videoId, setVideoId] = useState("");
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   useEffect(() => {
     const getVideoDetails = async () => {
@@ -54,27 +55,36 @@ function CourseVideoPlayer({ courseId }) {
   }
 
   return (
-    <div className="relative w-full" style={{ paddingTop: '56.25%' }}> {/* 16:9 Aspect Ratio */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        <Stream
-          controls
-          responsive
-          src={videoId}
-          signed
-          streamToken={streamToken}
-          className="w-full h-full"
-          loading={<div className="p-4 text-center">Loading stream...</div>}
-          onError={(error) => {
-            console.error('Stream error:', error);
-            return (
-              <div className="p-4 text-center text-red-600">
-                Error loading video. Please try again later.
-              </div>
-            );
-          }}
-        />
-      </div>
-    </div>
+    <Stream
+      controls
+      responsive
+      src={videoId}
+      signed
+      streamToken={streamToken}
+      className="w-full h-full"
+      loading={<div className="p-4 text-center">Loading stream...</div>}
+      onLoadedData={() => {
+        setIsVideoReady(true);
+        // Find and hide the thumbnail
+        const thumbnailImg = document.getElementById('thumbnail-img');
+        if (thumbnailImg) {
+          thumbnailImg.style.display = 'none';
+        }
+        // Show the video player
+        const videoPlayer = document.getElementById('video-player');
+        if (videoPlayer) {
+          videoPlayer.style.display = 'block';
+        }
+      }}
+      onError={(error) => {
+        console.error('Stream error:', error);
+        return (
+          <div className="p-4 text-center text-red-600">
+            Error loading video. Please try again later.
+          </div>
+        );
+      }}
+    />
   );
 }
 
