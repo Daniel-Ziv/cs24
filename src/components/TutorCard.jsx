@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { Star, MessageCircle, Edit2, ThumbsUp, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Star, ThumbsUp, ChevronDown, ChevronUp, X, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '../lib/supabase';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,6 +11,11 @@ import { isAdmin } from '../config/admin';
 import GoogleLoginButton from './GoogleLoginButton';
 import { courseStyles } from '../config/courseStyles';
 import LoginModal from './LoginModal';
+import { Link } from "react-router-dom"
+
+const formatTutorNameForRoute = (name) => {
+  return name.replace(/\s+/g, "-").toLowerCase();
+};
 
 const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFeedback }) => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
@@ -20,6 +25,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
   const [commentError, setCommentError] = useState('');
   const [showReviews, setShowReviews] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const MAX_COMMENT_LENGTH = 200; // Maximum character limit for comments
   const userIsAdmin = user && isAdmin(user.email);
@@ -29,6 +35,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
   const hasUserFeedback = tutor.has_user_feedback;
 
   const reviewsWithComments = tutor.feedback?.filter(fb => fb.comment?.trim()) || [];
+  const isDevMode = process.env.REACT_APP_DEV?.toLowerCase() === 'true';
 
   const sortedReviews = [...reviewsWithComments].sort((a, b) => {
     return new Date(b.created_at) - new Date(a.created_at);
@@ -55,17 +62,13 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
     }
   };
 
-  const handleLoginSuccess = (data) => {
-    setShowLoginModal(false);
-    setTimeout(() => {
-      setShowFeedbackForm(true);
-    }, 1000);
+  const formatPhoneNumber = (num = "") => {
+    // strip non-digits
+    const cleaned = num.replace(/\D/g, "");
+    // match Israeli mobile 0XX-XXXX-XXX (10 digits)
+    const match = cleaned.match(/^(0\d{2})(\d{3})(\d{4})$/);
+    return match ? `${match[1]}-${match[2]}-${match[3]}` : num;
   };
-
-  const handleLoginError = (error) => {
-    setShowLoginModal(false);
-  };
-
   const handleWhatsAppClick = async (e) => {
     try {
       const { error } = await supabase
@@ -130,7 +133,40 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
           <div className="flex flex-col space-y-1.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h3 className={`text-lg font-semibold ${styles.textColor}`}>{tutor.name}</h3>
+                {isDevMode && (
+              <Link
+                to={`/tutors/${courseType}/${tutor.id}/${formatTutorNameForRoute(tutor.name)}`}
+                //state={{ tutor, courseType,  }}
+                className="relative"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+              >
+                <div className={`relative transition-transform duration-300 ${isHovering ? "transform scale-110" : ""}`}>
+                  <div
+                    className={`absolute inset-0 rounded-full ${styles.bgLight} blur-md -z-10 scale-90 opacity-70 ${
+                      isHovering ? "opacity-100" : ""
+                    }`}
+                  ></div>
+
+                  {tutor.profile_image_url ? (
+                    <img
+                      src={tutor.profile_image_url}
+                      alt={tutor.name}
+                      className={`md:w-10 md:h-10 w-8 h-8 rounded-xl object-cover border-2 border-white shadow-md z-10 transition-all ${
+                        isHovering ? "shadow-lg" : ""
+                      }`}
+                    />
+                  ) : (
+                    <User
+                      className={`md:w-10 md:h-10 w-8 h-8 rounded-xl border-2 border-white shadow-md z-10 transition-all ${
+                        isHovering ? `${styles.iconColor} shadow-lg` : styles.starColor
+                      }`}
+                    />
+                  )}
+                </div>
+              </Link>
+                )}
+                <h3 className={`md:text-lg text-md font-semibold ${styles.textColor}`}>{tutor.name}</h3>
                 <div className="flex items-center gap-1">
                   <Star className={`h-4 w-4 ${styles.starColor} ${tutor.average_rating ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{tutor.average_rating?.toFixed(1) || 'אין'}</span>
@@ -150,7 +186,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-600">{tutor.phone || 'לא זמין'}</p>
+                <p className="text-sm text-gray-600">{formatPhoneNumber(tutor.phone) || 'לא זמין'}</p>
                 <Button
                   className={styles.textSecondary}
                   onClick={handleFeedbackClick}
@@ -173,22 +209,33 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                   {subject.course_name}
                 </span>
               ))}
+              
             </div>
-
             {tutor.feedback?.length > 0 && (
               <div>
-                <Button
-                  className={styles.textSecondary}
-                  onClick={() => setShowReviews(!showReviews)}
-                >
-                  {showReviews ? 'הסתר תגובות' : `ראה תגובות (${reviewsWithComments.length})`}
-                </Button>
-
+             <div className="flex justify-between items-center">
+              <Button
+                className={styles.textSecondary}
+                onClick={() => setShowReviews(!showReviews)}
+              >
+                {showReviews
+                  ? 'הסתר תגובות'
+                  : `ראה תגובות (${reviewsWithComments.length})`}
+              </Button>
+              <Link
+                to={`/tutors/${courseType}/${tutor.id}/${formatTutorNameForRoute(tutor.name)}`}
+                //state={{ tutor }}
+                className={`${styles.iconColorReverse} ${isDevMode ? "": "hidden"} px-3 py-1 rounded-full text-sm`}
+              >
+                צפייה בפרופיל
+              </Link>
+            </div>
                 {showDeleteButton && userFeedback && (
                   <div className="mt-2 space-y-2">
                     <div className="bg-blue-50 rounded-lg p-3 relative">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
+
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
@@ -227,6 +274,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                         <div key={index} className={`${isUserOwnFeedback ? 'bg-blue-50' : 'bg-gray-50'} rounded-lg p-3 relative`}>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1">
+                            
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}

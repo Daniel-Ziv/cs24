@@ -36,7 +36,7 @@ const contributors = [
     id: 6,
     name: 'אורי גבע',
     imageUrl: 'https://media.licdn.com/dms/image/v2/D4D03AQGwj6kz67ZJsw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705567773083?e=1752105600&v=beta&t=serxT6gdwRPxTm_8ZpVTw2LuVpReCIu3tm0nzyEdT7E',
-    linkedinUrl: 'https://linkedin.com/in/ori-geva-a54780196',
+    linkedinUrl: 'https://linkedin.com/in/oriGeva',
   },
   {
     id: 7,
