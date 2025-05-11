@@ -64,9 +64,9 @@ const NavDropdownMenu = ({ isOpen, styles }) => {
       animate={isOpen ? "open" : "closed"}
       className="absolute p-5 bg-white shadow-lg left-0 right-0 top-full origin-top flex flex-col gap-4 lg:hidden"
     >
-      <DropdownMenuLink text="ראשי" styles={styles} />
-      <DropdownMenuLink text="מחשבון ציונים" styles={styles} />
-      <DropdownMenuLink text="אודות" styles={styles} />
+      <DropdownMenuLink text="ראשי" styles={styles} href="/" />
+      <DropdownMenuLink text="מחשבון ציונים" styles={styles} href="/gpa" />
+      <DropdownMenuLink text="אודות" styles={styles} href="/about" />
     </motion.div>
   );
 };

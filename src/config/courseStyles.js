@@ -5,6 +5,8 @@ const courseStyles = {
     buttonThird: 'bg-white text-sky-600 hover:bg-sky-100',
     buttonMissing: 'bg-blue-800 text-white',
     buttonLoginGradient: 'from-blue-600 to-blue-800',
+    buttonAverageBg: 'bg-blue-500',
+    buttonAverageRingColor: 'ring-blue-800',
     jobRequestModalGradient: 'from-blue-600 to-blue-900',
     bgGradient: 'from-blue-50 to-white',
     textColor: 'text-blue-950',
@@ -22,7 +24,8 @@ const courseStyles = {
     TLBg: 'from-blue-700 via-blue-800 to-blue-900',
     shadowGlow: 'rgba(37, 99, 235, 0.3)',
     shadowGlowHover: 'rgba(37, 99, 235, 0.5)',
-    fillColor: '#2563eb'
+    fillColor: '#2563eb',
+    ringColor: 'ring-blue-600'
   },
   ee: {
     buttonPrimary: 'bg-purple-800 text-white hover:bg-purple-700',
@@ -30,6 +33,8 @@ const courseStyles = {
     buttonThird: 'bg-white text-purple-600 hover:bg-purple-100',
     buttonMissing: 'bg-purple-800 text-white',
     buttonLoginGradient: 'from-purple-600 to-purple-800',
+    buttonAverageBg: 'bg-purple-500',
+    buttonAverageRingColor: 'ring-purple-800',
     jobRequestModalGradient: 'from-purple-600 to-purple-900',
     bgGradient: 'from-purple-50 to-white',
     textColor: 'text-purple-950',
@@ -47,7 +52,8 @@ const courseStyles = {
     TLBg: 'from-purple-700 via-purple-800 to-purple-900',
     shadowGlow: 'rgba(147, 51, 234, 0.3)',
     shadowGlowHover: 'rgba(147, 51, 234, 0.5)',
-    fillColor: '#9333ea'
+    fillColor: '#9333ea',
+    ringColor: 'ring-purple-600'
   },
   ie: {
     buttonPrimary: 'bg-rose-800 text-white hover:bg-rose-700',
@@ -55,6 +61,8 @@ const courseStyles = {
     buttonThird: 'bg-white text-rose-600 hover:bg-rose-100',
     buttonMissing: 'bg-rose-800 text-white',
     buttonLoginGradient: 'from-rose-600 to-rose-800',
+    buttonAverageBg: 'bg-rose-500',
+    buttonAverageRingColor: 'ring-rose-800',
     jobRequestModalGradient: 'from-rose-600 to-rose-900',
     bgGradient: 'from-rose-50 to-white',
     textColor: 'text-rose-950',
@@ -72,7 +80,8 @@ const courseStyles = {
     TLBg: 'from-rose-700 via-rose-800 to-rose-900',
     shadowGlow: 'rgba(225, 29, 72, 0.3)',
     shadowGlowHover: 'rgba(225, 29, 72, 0.5)',
-    fillColor: '#e11d48'
+    fillColor: '#e11d48',
+    ringColor: 'ring-rose-600'
   },
 };
 

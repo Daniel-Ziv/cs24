@@ -13,6 +13,21 @@ import { courseStyles, courseTypeOptions } from './config/courseStyles';
 import { courseMappings, specializationsMappings, tutorMappings } from './config/courseMappings';
 import Navbar from './components/Navbar';
 import AuthButton from './components/AuthButton';
+import Footer from './components/Footer';
+
+const NeuButton = ({ onClick, children, className, styles }) => {
+  return (
+    <div className="bg-white min-h-[200px] flex items-center justify-center">
+      <button 
+        onClick={onClick}
+        className={`px-6 py-2 font-medium text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] ${styles.buttonPrimary} ${className}`}
+      >
+        {children}
+      </button>
+    </div>
+  );
+};
+
 
 const App = () => {
   const [courseType, setCourseType] = useState(() => {
@@ -533,11 +548,19 @@ const App = () => {
             <CardContent>
               {tutorsError ? (
                 <div className={`p-4 rounded-md text-center ${styles.cardBg} ${styles.cardBorder}`}>
-                  {tutorsError}
-                </div>
-              ) : (
-                <>
-                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                <p className="mb-4">{tutorsError}</p>
+                <NeuButton
+                  onClick={loadTutorsWithFeedback}
+                  className="text-base px-6 py-2"
+                  styles={styles}
+                >
+                  רענן
+                </NeuButton>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+
                     {isLoadingTutors ? (
                       // Loading skeleton
                       <>
@@ -651,6 +674,7 @@ const App = () => {
             }
           `}</style>
         </main>
+        { isDevMode && <Footer /> }
       </div>
     </NotificationProvider>
   );
