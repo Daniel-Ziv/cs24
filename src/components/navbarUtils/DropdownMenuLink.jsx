@@ -4,12 +4,12 @@ import { FiArrowLeft } from "react-icons/fi";
 import menuLinkVariants from "./menuLinkVariants";
 import menuLinkArrowVariants from "./menuLinkArrowVariants";
 
-const DropdownMenuLink = ({ text, styles }) => {
+const DropdownMenuLink = ({ text, styles, href = "#" }) => {
     return (
         <motion.a
         variants={menuLinkVariants}
         rel="nofollow"
-        href="#"
+        href={href}
         className="h-[30px] overflow-hidden font-bold text-lg flex items-start gap-2"
         >
         <motion.span variants={menuLinkArrowVariants}>
