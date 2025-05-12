@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter ,HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from '../App';
 import AuthCallback from '../components/AuthCallback';
 import GpaCalc from '../pages/GpaCalc';
@@ -13,13 +13,11 @@ import UserDashboard from '../pages/userDashboard';
 import About from '../pages/About';
 import Privacy from '../pages/Privacy';
 import Terms from '../pages/Terms';
-
-const isDev = process.env.REACT_APP_DEV === "true";
-const Router = isDev ? HashRouter : BrowserRouter;
+import ThankYou from '../pages/ThankYou';
 
 const AppRoutes = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<App />} />
@@ -34,8 +32,9 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/thank-you" element={<ThankYou />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 };
 
