@@ -29,7 +29,6 @@ const courseStyles = {
     editBg: 'bg-blue-300',
     background: "#9cc6fc",
     contactBg: 'bg-blue-300 text-white hover:bg-blue-400',
-    fillColor: '#2563eb',
     ringColor: 'ring-blue-600'
   },
   ee: {
@@ -62,7 +61,6 @@ const courseStyles = {
     editBg: 'bg-purple-300',
     background: "#ca99ff",
     contactBg: 'bg-purple-300 text-white hover:bg-purple-400',
-    fillColor: '#9333ea',
     ringColor: 'ring-purple-600'
   },
   ie: {
@@ -95,7 +93,6 @@ const courseStyles = {
     editBg: 'bg-rose-300',
     background: "#ffb3b8",
     contactBg: 'bg-rose-300 text-white hover:bg-rose-400',
-    fillColor: '#e11d48',
     ringColor: 'ring-rose-600'
   },
 };

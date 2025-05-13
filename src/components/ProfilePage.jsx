@@ -12,8 +12,10 @@ import EducationProfileSection from "./profile/EducationCard"
 import ContactCard from "./profile/ContactCard"
 import UpcomingEvents from "./profile/EventsCard"
 import Navbar from "./Navbar"
+import Footer from "./Footer";
 import { courseTypeOptions } from "../config/courseStyles";
-
+import { motion } from 'framer-motion';
+import ScrollUpButton from "./ScrollUpButton";
 
 
 const ProfilePage = () => {
@@ -115,10 +117,15 @@ const ProfilePage = () => {
       } else {
         setError("המורה המבוקש לא נמצא.");
       }
-
     };
 
     try {
+      // Get specific tutor profile
+      const { data: tutorProfile, error: tutorError } = await supabase
+        .rpc('get_tutor_profile', {
+          p_tutor_id: id
+        });
+
       const { data: newDegreeId, error: degreeError } = await supabase.rpc(
         'get_degree_id_by_details',
         {
@@ -137,10 +144,8 @@ const ProfilePage = () => {
       }
       setTutorsWithFeedback(scoreAndSortTutors(tutors));
       // Filter to find the specific tutor by id and displayName
-      const specificTutor = tutors.find(tutor => String(tutor.id) === String(id) && tutor.name === displayName);
-
-      if (specificTutor) {
-        setTutorData((specificTutor));
+      if (tutorProfile[0]) {
+        setTutorData((tutorProfile[0]));
       } else {
         setError("המורה המבוקש לא נמצא.");
       }
@@ -182,13 +187,35 @@ const ProfilePage = () => {
       </svg>
       { isDevMode && <Navbar courseType={courseType} /> }
 
-      <ProfileCard styles={styles} tutorData={tutorData} />
-
-      <div className={`relative z-10 p-4 mx-auto w-full max-w-screen-xl `}>
-        <div
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <ProfileCard styles={styles} tutorData={tutorData} />
+        
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className={`relative z-10 p-4 mx-auto w-full max-w-screen-xl `}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
           className={`bg-white rounded-xl border mb-6 w-full ${styles.cardBorder} max-w-[73rem] mx-auto space-y-8 mt-4 px-4 pb-12`}
         >
-          <section className={`bg-white -mb-12 md:max-w-[65rem] max-w-3xl mx-auto py-8 text-center`}>
+          {/* About Me Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.005 }}
+            transition={{ duration: 0.4 }}
+            className={`bg-white -mb-12 md:max-w-[65rem] max-w-3xl mx-auto py-8 text-center`}
+          >
             <div className="bg-white p-6 flex items-center justify-center gap-3 mb-6 border-b pb-6">
               <h2 className={`text-2xl font-bold ${styles.textColor}`}>קצת עליי</h2>
             </div>
@@ -196,9 +223,16 @@ const ProfilePage = () => {
               {tutorData.about_me ||
                 "עוד לא הוספתי"}
             </p>
-          </section>
+          </motion.section>
 
-          <section className={`bg-white -mb-12 md:max-w-[65rem] max-w-3xl mx-auto py-8 text-center`}>
+          {/* Subjects Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.005 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className={`bg-white -mb-12 md:max-w-[65rem] max-w-3xl mx-auto py-8 text-center`}
+          >
             <div className="flex items-center gap-3 border-b pb-4 mb-4 justify-center">
               <h2 className={`text-2xl font-bold ${styles.textColor}`}>תחומי לימוד</h2>
             </div>
@@ -213,9 +247,16 @@ const ProfilePage = () => {
                 </span>
               ))}
             </div>
-          </section>
+          </motion.section>
           
-          <div className="flex flex-col md:flex-row gap-8 md:max-w-[65rem] max-w-3xl mx-auto">
+          {/* Education & Events Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.005 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="flex flex-col md:flex-row gap-8 md:max-w-[65rem] max-w-3xl mx-auto"
+          >
             {tutorData.events?.length > 0 && (
               <div className="w-full md:w-1/2">
                 <UpcomingEvents styles={styles} events={tutorData.events} />
@@ -225,18 +266,54 @@ const ProfilePage = () => {
             <div className={`w-full ${tutorData.events?.length > 0 ? "md:w-1/2 -mt-16 md:mt-0" : ""}`}>
               <EducationProfileSection styles={styles} tutor={tutorData} />
             </div>
-          </div>
+          </motion.div>
+        </motion.div>
 
-
-          <ReviewSection reviews={tutorData.feedback || []} styles={styles} />
-
-          {similarTutors.length > 0 && (
-            <SimilarTutors tutors={similarTutors} styles={styles} courseType={courseType} />
+          <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+          className={`bg-white rounded-xl border mb-6 w-full ${styles.cardBorder} max-w-[73rem] mx-auto space-y-8 mt-4 px-4 pb-12`}
+        >
+          {/* Reviews Section */}
+          {tutorData.feedback?.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.005 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+            >
+              <ReviewSection reviews={tutorData.feedback || []} styles={styles} />
+            </motion.div>
           )}
 
-          <ContactCard tutor={tutorData} styles={styles} />
+          {/* Similar Tutors Section */}
+          {similarTutors.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.005 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <SimilarTutors tutors={similarTutors} styles={styles} courseType={courseType} />
+            </motion.div>
+          )}
+
+          {/* Contact Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.005 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+          >
+            <ContactCard tutor={tutorData} styles={styles} />
+          </motion.div>
+        </motion.div>
+        <div className="mt-12">
+        { isDevMode && <Footer /> }
         </div>
-      </div>
+      </motion.div>
+      <ScrollUpButton styles={styles} />
     </div>
   )
 }

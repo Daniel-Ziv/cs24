@@ -76,13 +76,13 @@ const ContactCard = ({ tutor, styles }) => {
           >
             <option value="">בחר מקצוע</option>
             {tutor.subjects?.map((subject, idx) => (
-              <option key={idx} value={subject}>
+              <option key={idx} value={subject.course_name}>
                 {subject.course_name}
               </option>
             ))}
           </select>
           <a
-            href={`https://wa.me/972${tutor.phone}?text=${encodeURIComponent(
+            href={`https://wa.me/${tutor.phone.replace(/^0/, '972')}?text=${encodeURIComponent(
               `שלום, אני מתעניין במקצוע ${selectedSubject}.`
             )}`}
             target="_blank"

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {  Star, MessagesSquare } from "lucide-react"
 import { format } from 'date-fns';
 
@@ -31,6 +31,18 @@ export default function ReviewsSection({ reviews, styles }) {
 
   // Pagination logic
   const [currentPage, setCurrentPage] = useState(1)
+  const [starSize, setStarSize] = useState(20)
+
+useEffect(() => {
+  const updateSize = () => {
+    setStarSize(window.innerWidth >= 768 ? 28 : 20)
+  }
+
+  updateSize()
+  window.addEventListener('resize', updateSize)
+  return () => window.removeEventListener('resize', updateSize)
+}, [])
+
   const reviewsPerPage = 4
   const totalPages = Math.ceil((reviews?.length || 0) / reviewsPerPage)
 
@@ -59,7 +71,7 @@ export default function ReviewsSection({ reviews, styles }) {
           const fillPercent = Math.min(Math.max(rating - i, 0), 1) * 100 // between 0% and 100%
   
           return (
-            <div key={i} className="relative" style={{ width: size, height: size }}>
+            <div key={i} className="relative" style={{ width: size , height: size }}>
               {/* Gray base star */}
               <Star className="absolute text-yellow-400 w-full h-full"  />
   
@@ -176,7 +188,7 @@ export default function ReviewsSection({ reviews, styles }) {
 
   return (
     <section className="md:max-w-[65rem] max-w-3xl mx-auto py-8" dir="rtl">
-      <div className="flex items-center gap-3 border-b pb-6 mb-6 -mt-16">
+      <div className="flex items-center gap-3 border-b pb-6 mb-6">
         <MessagesSquare className={`h-6 w-6 ${styles.iconColor}`} />
         <h2 className={`text-2xl font-bold ${styles.textColor}`}>ביקורות</h2>
       </div>
@@ -184,10 +196,10 @@ export default function ReviewsSection({ reviews, styles }) {
       <div className="border-b pb-6 mb-6">
         <div className="flex flex-row-reverse justify-between items-start">
           {/* Left side (in RTL): Rating breakdown */}
-          <div className="space-y-1 w-1/2">
+          <div className="space-y-1 md:w-1/2 w-full">
             {[5, 4, 3, 2, 1].map((star) => (
               <div key={star} className="flex items-center gap-2">
-                <span className="text-gray-500 w-6 text-left">★ {star}</span>
+                <span className="text-gray-500 w-6 text-center">★ {star}</span>
                 <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
                   <div
                     className="bg-yellow-400 h-full rounded-full"
@@ -202,10 +214,10 @@ export default function ReviewsSection({ reviews, styles }) {
           </div>
 
           {/* Right side (in RTL): Average rating */}
-          <div className="flex flex-col items-center mt-10 mr-4 md:mr-40 ">
-            <span className="text-7xl md:text-8xl font-bold text-yellow-400">{ratingStats.average}</span>
+          <div className="flex flex-col items-center mt-10 pl-2 md:mr-40 ">
+            <span className="text-5xl md:text-8xl font-bold text-yellow-400">{ratingStats.average}</span>
             <div className="flex text-yellow-400 my-1">
-            <StarRating rating={ 4.7 } />
+              <StarRating rating={ratingStats.average} size={starSize} />
             </div>
             <span className="text-gray-600" dir="ltr">{ratingStats.total} reviews</span>
           </div>
@@ -226,13 +238,13 @@ export default function ReviewsSection({ reviews, styles }) {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-bold text-lg text-gray-800">אנונימי</h3>
-                    <p className="text-gray-600 text-md mt-1">{review.comment}</p>
+                    <p className="text-gray-600 text-md mt-1 ml-2">{review.comment}</p>
                   </div>
-                  <div><StarRating rating={review.rating} size={20} /></div>
+                  <div><StarRating rating={review.rating} size={16} /></div>
                 </div>
 
-                {/* Date stamp in the lower left (RTL: lower right) */}
-                <div className="flex justify-start mt-2">
+                {/* Date stamp in the lower left (RTL: lower left) */}
+                <div className="flex justify-end mt-2">
                   <span className="text-gray-400 text-sm"> {format(new Date(review.created_at), 'dd/MM/yyyy')}</span>
                 </div>
               </div>

@@ -83,7 +83,7 @@ const TutorComponent = ({ tutors, styles, courseType }) => {
   const display = isMobile ? tutors : tutors.slice(currentIndex, currentIndex + visibleCount)
 
   return (
-    <section className="relative md:max-w-[65rem] max-w-3xl mx-auto py-8 overflow-hidden" dir="rtl">
+    <section className="relative mt-6 md:max-w-[65rem] max-w-3xl mx-auto py-8 overflow-hidden" dir="rtl">
       {tutors.length > 0 && (
         <div className="relative mx-auto -mt-8 ">
           <div className="flex items-center gap-3 border-b pb-6 mb-6 ">

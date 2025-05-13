@@ -11,7 +11,7 @@ export default function EducationProfileSection({ tutor, styles }) {
         ).toFixed(1)
       : "N/A";
   return (
-    <section className="py-8 -mb-12" dir="rtl">
+    <section className="py-8 -mt-12 -mb-12" dir="rtl">
       <div className="w-full py-8">
         <div className="flex items-center gap-3 border-b pb-6 mb-8">
           <GraduationCap className={`h-6 w-6 ${styles.iconColor}`} />
