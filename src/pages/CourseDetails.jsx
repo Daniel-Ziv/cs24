@@ -55,7 +55,6 @@ const CourseDetails = () => {
       setLoading(true);
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       const userId = sessionData?.session?.user?.id;
-  
       if (sessionError) {
         console.error("Failed to load session:", sessionError);
         setError("אירעה שגיאה בזיהוי המשתמש");
