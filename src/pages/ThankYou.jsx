@@ -197,7 +197,7 @@ export default function ThankYou() {
                   </p>
                   <div className="mb-2 flex flex-col items-center">
                     <p className="text-blue-800 mb-2 text-center">מועבר לקורס באופן אוטומטי בעוד:</p>
-                    <CountdownTimer seconds={10} />
+                    <CountdownTimer seconds={15} />
                   </div>
                 </div>
                 
@@ -251,7 +251,7 @@ export default function ThankYou() {
                   </p>
                   <div className="flex flex-col items-center">
                     <p className="text-yellow-800 mb-2 text-center">מועבר לדף הקורסים באופן אוטומטי בעוד:</p>
-                    <CountdownTimer seconds={10} />
+                    <CountdownTimer seconds={15} />
                   </div>
                 </div>
                 

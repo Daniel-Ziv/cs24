@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { showNotification } from "../components/ui/notification";
 import CourseVideoPlayer from "../components/CourseVideoPlayer";
 import PaymentButton from "../components/PaymentButton";
 import { supabase } from "../lib/supabase";
 import BarLoader from "../components/BarLoader";
+import { motion } from "framer-motion";
+import Footer from "../components/Footer";
 
 // Mock episodes data
 const mockEpisodes = [
@@ -68,9 +70,18 @@ const CourseDetails = () => {
           p_video_id: parseInt(courseId)
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching course:", error);
+          setError(error.message || "אירעה שגיאה בטעינת הקורס");
+          setLoading(false);
+          return;
+        }
+        
         if (!data) {
-          throw new Error("Course not found");
+          console.error("Course not found:", courseId);
+          setError("הקורס המבוקש לא נמצא");
+          setLoading(false);
+          return;
         }
 
         // Add mock episodes to the course data
@@ -80,7 +91,7 @@ const CourseDetails = () => {
         });
       } catch (err) {
         console.error("Error loading course:", err);
-        setError(err.message);
+        setError(err.message || "אירעה שגיאה לא צפויה");
       } finally {
         setLoading(false);
       }
@@ -102,19 +113,55 @@ const CourseDetails = () => {
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800">קורס לא נמצא</h1>
-            <button
-              onClick={() => navigate("/courses")}
-              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              חזרה לקורסים
-            </button>
-          </div>
+        <div className="container mx-auto px-4 py-16 flex-grow flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl text-center"
+          >
+            <div className="mb-6">
+              <svg className="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">הקורס לא נמצא</h2>
+            
+            <p className="text-gray-600 text-lg mb-8">
+              לצערנו, הקורס שביקשת ({courseId}) אינו קיים במערכת או שאין לך הרשאות גישה אליו.
+            </p>
+            
+            <div className="bg-blue-50 rounded-lg p-6 mb-8">
+              <p className="text-blue-700 mb-4">
+                אם רכשת קורס זה לאחרונה, ייתכן שדרוש מעט זמן לעדכון ההרשאות במערכת. 
+                אנא נסה שוב בעוד מספר דקות.
+              </p>
+              <p className="text-blue-700">
+                אם אתה חושב שזו טעות, צור קשר עם התמיכה בכתובת: <span className="font-semibold">cs24.hit@gmail.com</span>
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                to="/courses"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium"
+              >
+                עבור לרשימת הקורסים
+              </Link>
+              
+              <button
+                onClick={() => navigate(-1)}
+                className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                חזרה לדף הקודם
+              </button>
+            </div>
+          </motion.div>
         </div>
+        <Footer />
       </div>
     );
   }
