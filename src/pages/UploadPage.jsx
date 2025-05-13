@@ -107,6 +107,8 @@ export default function UploadPage() {
   const [chapterNumber, setChapterNumber] = useState("");
   const [chapterName, setChapterName] = useState("");
   const [videoFile, setVideoFile] = useState(null);
+  const [videoDurationMinutes, setVideoDurationMinutes] = useState("");
+  const [videoDurationSeconds, setVideoDurationSeconds] = useState("");
 
   const courseTypeRef = useRef(localStorage.getItem("courseType") || "cs");
   const auth = useAuth();
@@ -250,6 +252,11 @@ export default function UploadPage() {
         console.log("No thumbnail selected, skipping upload");
       }
 
+      // Calculate total duration in seconds
+      const totalDurationSeconds =
+        (parseInt(videoDurationMinutes) || 0) * 60 +
+        (parseInt(videoDurationSeconds) || 0);
+
       // Then handle video upload
       const result = await startUpload(
         title,
@@ -293,7 +300,9 @@ export default function UploadPage() {
           p_price: parseInt(price),
           p_sale_price: salePrice ? parseInt(salePrice) : null,
           p_description: description,
-          p_video_len: result.duration,
+          // If we have a manually entered duration, use that; otherwise use the result from upload
+          p_video_len:
+            totalDurationSeconds > 0 ? totalDurationSeconds : result.duration,
           p_thumbnail: thumbnailTime,
           p_custom_thumbnail_url: thumbnailUrl,
           // New fields
@@ -322,6 +331,8 @@ export default function UploadPage() {
         setTopicName("");
         setChapterNumber("");
         setChapterName("");
+        setVideoDurationMinutes("");
+        setVideoDurationSeconds("");
         setVideoFile(null);
 
         showNotification("הסרטון הועלה בהצלחה", "success");
@@ -348,6 +359,15 @@ export default function UploadPage() {
     // Check if either custom thumbnail or thumbnail time is set
     const hasThumbnailOption = !!thumbnail || (!thumbnail && thumbnailTime > 0);
 
+    // Check if video duration is set properly
+    const hasValidDuration =
+      (!!videoDurationMinutes &&
+        !isNaN(parseInt(videoDurationMinutes)) &&
+        parseInt(videoDurationMinutes) >= 0) ||
+      (!!videoDurationSeconds &&
+        !isNaN(parseInt(videoDurationSeconds)) &&
+        parseInt(videoDurationSeconds) >= 0);
+
     const enabled =
       !uploading &&
       !!auth.session &&
@@ -363,6 +383,7 @@ export default function UploadPage() {
       !!topicName.trim() &&
       !!chapterNumber.trim() &&
       !!chapterName.trim() &&
+      hasValidDuration &&
       (uppyFiles > 0 || !!videoFile);
 
     setIsButtonEnabled(enabled);
@@ -384,6 +405,7 @@ export default function UploadPage() {
       hasTopicName: !!topicName.trim(),
       hasChapterNumber: !!chapterNumber.trim(),
       hasChapterName: !!chapterName.trim(),
+      hasValidDuration,
       hasFiles: uppyFiles,
       hasVideoFile: !!videoFile,
     });
@@ -405,6 +427,8 @@ export default function UploadPage() {
     chapterNumber,
     chapterName,
     videoFile,
+    videoDurationMinutes,
+    videoDurationSeconds,
   ]);
 
   return (
@@ -666,6 +690,50 @@ export default function UploadPage() {
                     helperText="כותרת הסרטון, נראית לסטודנטים."
                     required={true}
                   />
+
+                  {/* Video Duration */}
+                  <div className="mb-5 group">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors duration-200 group-focus-within:text-blue-600">
+                      אורך הסרטון <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          id="videoDurationMinutes"
+                          type="number"
+                          min="0"
+                          value={videoDurationMinutes}
+                          onChange={(e) =>
+                            setVideoDurationMinutes(e.target.value)
+                          }
+                          placeholder="דקות"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm hover:border-gray-400"
+                          disabled={!auth.session}
+                        />
+                        <div className="absolute inset-0 rounded-lg pointer-events-none border border-blue-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-200"></div>
+                      </div>
+                      <span className="flex items-center text-gray-500">:</span>
+                      <div className="relative flex-1">
+                        <input
+                          id="videoDurationSeconds"
+                          type="number"
+                          min="0"
+                          max="59"
+                          value={videoDurationSeconds}
+                          onChange={(e) =>
+                            setVideoDurationSeconds(e.target.value)
+                          }
+                          placeholder="שניות"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm hover:border-gray-400"
+                          disabled={!auth.session}
+                        />
+                        <div className="absolute inset-0 rounded-lg pointer-events-none border border-blue-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-200"></div>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500 group-focus-within:text-blue-600 transition-colors duration-200">
+                      הכנס את אורך הסרטון בדקות ושניות.
+                    </p>
+                  </div>
 
                   {/* Description Textarea */}
                   <LabeledTextarea
