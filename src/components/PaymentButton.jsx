@@ -24,9 +24,7 @@ export default function PaymentButton({ videoId, courseName, className }) {
       const { data, error } = await supabase.functions.invoke(
         'create-order',
         {
-        headers: {
-            test: 'true'
-            },
+       
           body: JSON.stringify({
             orderId: `order_${Date.now()}`,
             successUrl,
