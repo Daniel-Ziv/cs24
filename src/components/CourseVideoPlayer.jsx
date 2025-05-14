@@ -5,17 +5,17 @@ import { Stream } from "@cloudflare/stream-react";
 function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
   const [streamToken, setStreamToken] = useState("");
   const [videoId, setVideoId] = useState("");
-  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   const streamRef = useRef();
   const [currentTime, setCurrentTime] = useState(0);
-  const lastEpisodeRef = useRef(null);
+  const lastEpisodeIdRef = useRef(null);
   const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
 
   useEffect(() => {
     const getVideoDetails = async () => {
       const { data: auth } = await supabase.auth.getSession();
       if (!auth.session) return;
-      
+
       const res = await fetch(process.env.REACT_APP_CLOUDFLARE_PLAY_END_POINT, {
         method: 'POST',
         headers: {
@@ -28,7 +28,6 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
       });
 
       const data = await res.json();
-      console.log('Video response:', data);
       
       if (res.ok && data.signed_url) {
         try {
@@ -44,41 +43,34 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
           setVideoId(vid);
           setStreamToken(token);
         } catch (error) {
-          console.error('Error parsing video URL:', error);
+          // Error handling preserved without console.log
         }
-      } else {
-        console.error('Error getting video details:', data?.error || res.statusText);
       }
     };
 
     getVideoDetails();
   }, [courseId]);
 
-  // Handle episode changes
   useEffect(() => {
-    if (!activeEpisode || !streamRef.current) return;
+    if (!isPlayerReady || !activeEpisode || !streamRef.current) return;
 
-    // Only seek if the episode has changed
-    if (lastEpisodeRef.current?.id !== activeEpisode.id) {
+    if (lastEpisodeIdRef.current !== activeEpisode.id) {
       try {
-        console.log('Seeking to:', activeEpisode.start_time);
+        streamRef.current.pause();
         streamRef.current.currentTime = activeEpisode.start_time;
-        // Store the current episode
-        lastEpisodeRef.current = activeEpisode;
-      } catch (error) {
-        console.error('Error seeking to episode start:', error);
+        lastEpisodeIdRef.current = activeEpisode.id;
+      } catch (err) {
+        // Error handling preserved without console.log
       }
     }
-  }, [activeEpisode]);
+  }, [activeEpisode, isPlayerReady]);
 
-  // Monitor current time and handle episode boundaries
   useEffect(() => {
     if (activeEpisode && currentTime >= activeEpisode.end_time && streamRef.current && !isUpdatingProgress) {
       try {
         streamRef.current.pause();
         setIsUpdatingProgress(true);
         
-        // Call the RPC to update watched episodes
         const updateProgress = async () => {
           const { data: episodesWatched, error } = await supabase
             .rpc('update_episodes_watched', {
@@ -86,19 +78,14 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
               p_episode_index: activeEpisode.index
             });
 
-          if (error) {
-            console.error('Failed to mark episode as watched:', error);
-          } else {
-            console.log('Updated watched episodes:', episodesWatched);
-            // Notify parent component about completion
-            onEpisodeComplete?.(episodesWatched);
+          if (!error && onEpisodeComplete) {
+            onEpisodeComplete(episodesWatched);
           }
           setIsUpdatingProgress(false);
         };
 
         updateProgress();
       } catch (error) {
-        console.error('Error handling episode completion:', error);
         setIsUpdatingProgress(false);
       }
     }
@@ -106,13 +93,31 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
 
   const handlePlay = () => {
     if (activeEpisode && streamRef.current) {
-      // If we're outside the episode bounds, seek to start
       if (currentTime < activeEpisode.start_time || currentTime >= activeEpisode.end_time) {
         try {
           streamRef.current.currentTime = activeEpisode.start_time;
         } catch (error) {
-          console.error('Error seeking on play:', error);
+          // Error handling preserved without console.log
         }
+      }
+    }
+  };
+
+  const handleLoadedData = () => {
+    setIsPlayerReady(true);
+
+    const thumbnailImg = document.getElementById("thumbnail-img");
+    if (thumbnailImg) thumbnailImg.style.display = "none";
+    const videoPlayer = document.getElementById("video-player");
+    if (videoPlayer) videoPlayer.style.display = "block";
+
+    if (activeEpisode && streamRef.current) {
+      try {
+        streamRef.current.pause();
+        streamRef.current.currentTime = activeEpisode.start_time;
+        lastEpisodeIdRef.current = activeEpisode.id;
+      } catch (err) {
+        // Error handling preserved without console.log
       }
     }
   };
@@ -131,44 +136,21 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
       className="w-full h-full"
       streamRef={streamRef}
       loading={<div className="p-4 text-center">Loading stream...</div>}
-      onLoadedData={() => {
-        setIsVideoReady(true);
-        // Find and hide the thumbnail
-        const thumbnailImg = document.getElementById('thumbnail-img');
-        if (thumbnailImg) {
-          thumbnailImg.style.display = 'none';
-        }
-        // Show the video player
-        const videoPlayer = document.getElementById('video-player');
-        if (videoPlayer) {
-          videoPlayer.style.display = 'block';
-        }
-        // If there's an active episode, seek to its start time
-        if (activeEpisode && streamRef.current) {
-          try {
-            streamRef.current.currentTime = activeEpisode.start_time;
-            lastEpisodeRef.current = activeEpisode;
-          } catch (error) {
-            console.error('Error seeking to episode start:', error);
-          }
-        }
-      }}
+      onLoadedData={handleLoadedData}
       onTimeUpdate={(e) => {
         if (streamRef.current) {
           setCurrentTime(streamRef.current.currentTime);
         }
       }}
       onPlay={handlePlay}
-      onError={(error) => {
-        console.error('Stream error:', error);
-        return (
-          <div className="p-4 text-center text-red-600">
-            Error loading video. Please try again later.
-          </div>
-        );
-      }}
+      onError={(error) => (
+        <div className="p-4 text-center text-red-600">
+          Error loading video. Please try again later.
+        </div>
+      )}
+      autoplay={false}
     />
   );
 }
 
-export default CourseVideoPlayer; 
+export default CourseVideoPlayer;

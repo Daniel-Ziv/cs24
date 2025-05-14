@@ -164,7 +164,8 @@ const CourseDetails = () => {
     }
   };
 
-  const handleEpisodeComplete = async (episodeIndex) => {
+  const handleCheckboxClick = async (e, episodeIndex) => {
+    e.stopPropagation(); // Prevent episode selection when clicking checkbox
     try {
       const { data: episodesWatched, error } = await supabase
         .rpc('update_episodes_watched', {
@@ -366,7 +367,6 @@ const CourseDetails = () => {
                         <CourseVideoPlayer 
                           courseId={parseInt(courseId)}
                           activeEpisode={activeEpisode}
-                          onEpisodeComplete={handleEpisodeComplete}
                         />
                       </div>
                     </div>
@@ -520,11 +520,9 @@ const CourseDetails = () => {
                           <div className="flex items-center space-x-2">
                             {course.has_access ? (
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Prevent episode selection
-                                  handleEpisodeComplete(index);
-                                }}
+                                onClick={(e) => handleCheckboxClick(e, index)}
                                 className="focus:outline-none"
+                                aria-label={episode.completed ? "Mark as unwatched" : "Mark as watched"}
                               >
                                 {episode.completed ? (
                                   <svg
