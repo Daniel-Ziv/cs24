@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { Stream } from "@cloudflare/stream-react";
 
-function CourseVideoPlayer({ courseId }) {
+function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
   const [streamToken, setStreamToken] = useState("");
   const [videoId, setVideoId] = useState("");
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const streamRef = useRef();
+  const [currentTime, setCurrentTime] = useState(0);
+  const lastEpisodeRef = useRef(null);
+  const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
 
   useEffect(() => {
     const getVideoDetails = async () => {
@@ -50,6 +54,69 @@ function CourseVideoPlayer({ courseId }) {
     getVideoDetails();
   }, [courseId]);
 
+  // Handle episode changes
+  useEffect(() => {
+    if (!activeEpisode || !streamRef.current) return;
+
+    // Only seek if the episode has changed
+    if (lastEpisodeRef.current?.id !== activeEpisode.id) {
+      try {
+        console.log('Seeking to:', activeEpisode.start_time);
+        streamRef.current.currentTime = activeEpisode.start_time;
+        // Store the current episode
+        lastEpisodeRef.current = activeEpisode;
+      } catch (error) {
+        console.error('Error seeking to episode start:', error);
+      }
+    }
+  }, [activeEpisode]);
+
+  // Monitor current time and handle episode boundaries
+  useEffect(() => {
+    if (activeEpisode && currentTime >= activeEpisode.end_time && streamRef.current && !isUpdatingProgress) {
+      try {
+        streamRef.current.pause();
+        setIsUpdatingProgress(true);
+        
+        // Call the RPC to update watched episodes
+        const updateProgress = async () => {
+          const { data: episodesWatched, error } = await supabase
+            .rpc('update_episodes_watched', {
+              p_video_course_id: courseId,
+              p_episode_index: activeEpisode.index
+            });
+
+          if (error) {
+            console.error('Failed to mark episode as watched:', error);
+          } else {
+            console.log('Updated watched episodes:', episodesWatched);
+            // Notify parent component about completion
+            onEpisodeComplete?.(episodesWatched);
+          }
+          setIsUpdatingProgress(false);
+        };
+
+        updateProgress();
+      } catch (error) {
+        console.error('Error handling episode completion:', error);
+        setIsUpdatingProgress(false);
+      }
+    }
+  }, [currentTime, activeEpisode, courseId, onEpisodeComplete, isUpdatingProgress]);
+
+  const handlePlay = () => {
+    if (activeEpisode && streamRef.current) {
+      // If we're outside the episode bounds, seek to start
+      if (currentTime < activeEpisode.start_time || currentTime >= activeEpisode.end_time) {
+        try {
+          streamRef.current.currentTime = activeEpisode.start_time;
+        } catch (error) {
+          console.error('Error seeking on play:', error);
+        }
+      }
+    }
+  };
+
   if (!streamToken || !videoId) {
     return <div className="p-4 text-center">Loading video...</div>;
   }
@@ -62,6 +129,7 @@ function CourseVideoPlayer({ courseId }) {
       signed
       streamToken={streamToken}
       className="w-full h-full"
+      streamRef={streamRef}
       loading={<div className="p-4 text-center">Loading stream...</div>}
       onLoadedData={() => {
         setIsVideoReady(true);
@@ -75,7 +143,22 @@ function CourseVideoPlayer({ courseId }) {
         if (videoPlayer) {
           videoPlayer.style.display = 'block';
         }
+        // If there's an active episode, seek to its start time
+        if (activeEpisode && streamRef.current) {
+          try {
+            streamRef.current.currentTime = activeEpisode.start_time;
+            lastEpisodeRef.current = activeEpisode;
+          } catch (error) {
+            console.error('Error seeking to episode start:', error);
+          }
+        }
       }}
+      onTimeUpdate={(e) => {
+        if (streamRef.current) {
+          setCurrentTime(streamRef.current.currentTime);
+        }
+      }}
+      onPlay={handlePlay}
       onError={(error) => {
         console.error('Stream error:', error);
         return (

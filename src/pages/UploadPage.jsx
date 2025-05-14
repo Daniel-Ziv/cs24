@@ -4,7 +4,7 @@ import {
   Card, CardHeader, CardTitle, CardContent, CardDescription,
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Info } from 'lucide-react';
+import { Info, Plus, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { courseStyles, courseTypeOptions } from '../config/courseStyles';
 import useAuth from '../hooks/useAuth';
@@ -69,6 +69,33 @@ const uploadCustomThumbnail = async (file, videoId, accessToken) => {
   return thumbnailUrl;
 };
 
+// Helper function to convert time format (HH:MM:SS or MM:SS) to seconds
+const timeToSeconds = (timeString) => {
+  if (!timeString) return 0;
+  
+  const parts = timeString.split(':');
+  
+  if (parts.length === 2) {
+    // MM:SS format
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  } else if (parts.length === 3) {
+    // HH:MM:SS format
+    return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+  }
+  
+  return 0;
+};
+
+// Helper function to convert seconds to time format (MM:SS)
+const secondsToTime = (seconds) => {
+  if (seconds === undefined || seconds === null) return '';
+  
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 export default function UploadPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -94,6 +121,20 @@ export default function UploadPage() {
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [uppyFiles, setUppyFiles] = useState(0);
+  
+  // New state for episodes (video parts)
+  const [episodes, setEpisodes] = useState([
+    { 
+      id: Date.now(), 
+      title: 'מבוא לקורס', 
+      duration: '15:00', 
+      description: 'סקירה כללית של הקורס ומה נלמד', 
+      start_time: 0,
+      start_time_format: '00:00',
+      end_time: 900,
+      end_time_format: '15:00'
+    }
+  ]);
 
   const courseTypeRef = useRef(localStorage.getItem('courseType') || 'cs');
   const auth = useAuth();
@@ -262,6 +303,18 @@ export default function UploadPage() {
 
         console.log("Using Tutor ID:", tutorId);
 
+        // Process episodes to match expected format
+        const processedEpisodes = episodes.map((episode) => {
+          return {
+            title: episode.title,
+            description: episode.description || '',
+            start_time: episode.start_time,
+            end_time: episode.end_time
+          };
+        });
+
+        console.log("Processed episodes:", processedEpisodes);
+
         const payload = {
           p_tutor_id: tutorId,
           p_course_id: selectedCourse, // This is the course_id from the select
@@ -272,7 +325,8 @@ export default function UploadPage() {
           p_description: description,
           p_video_len: result.duration,
           p_thumbnail: thumbnailTime,
-          p_custom_thumbnail_url: thumbnailUrl
+          p_custom_thumbnail_url: thumbnailUrl,
+          p_episodes: processedEpisodes // Store episodes as JSON
         };
 
         console.log("Inserting video with payload:", payload);
@@ -290,6 +344,16 @@ export default function UploadPage() {
         setThumbnailTime(20);
         setPrice('');
         setSalePrice('');
+        setEpisodes([{ 
+          id: Date.now(), 
+          title: 'מבוא לקורס', 
+          duration: '15:00', 
+          description: 'סקירה כללית של הקורס ומה נלמד', 
+          start_time: 0,
+          start_time_format: '00:00',
+          end_time: 900,
+          end_time_format: '15:00'
+        }]);
         
         showNotification('הסרטון הועלה בהצלחה', 'success');
       }
@@ -297,6 +361,77 @@ export default function UploadPage() {
       console.error('Error in upload process:', error);
       showNotification('שגיאה בתהליך ההעלאה', 'error');
     }
+  };
+
+  // Handle adding a new episode
+  const handleAddEpisode = () => {
+    // Calculate default start_time based on the last episode's end_time
+    const lastEpisode = episodes[episodes.length - 1];
+    const defaultStartTime = lastEpisode?.end_time || 0;
+    
+    setEpisodes([...episodes, { 
+      id: Date.now(), 
+      title: '', 
+      duration: '',
+      description: '',
+      start_time: defaultStartTime,
+      start_time_format: secondsToTime(defaultStartTime),
+      end_time: defaultStartTime,
+      end_time_format: secondsToTime(defaultStartTime)
+    }]);
+  };
+  
+  // Handle removing an episode
+  const handleRemoveEpisode = (id) => {
+    if (episodes.length > 1) {
+      setEpisodes(episodes.filter(episode => episode.id !== id));
+    } else {
+      showNotification('חייב להיות לפחות חלק אחד בסרטון', 'warning');
+    }
+  };
+  
+  // Handle episode field changes
+  const handleEpisodeChange = (id, field, value) => {
+    setEpisodes(episodes.map(episode => {
+      if (episode.id === id) {
+        const updatedEpisode = { ...episode, [field]: value };
+        
+        // If start_time or end_time time format changed, update the seconds values
+        if (field === 'start_time_format') {
+          updatedEpisode.start_time = timeToSeconds(value);
+          
+          // Recalculate duration if both start and end times are set
+          if (updatedEpisode.end_time !== undefined && updatedEpisode.end_time !== null) {
+            const durationSeconds = updatedEpisode.end_time - updatedEpisode.start_time;
+            if (durationSeconds > 0) {
+              updatedEpisode.duration = secondsToTime(durationSeconds);
+            }
+          }
+        } 
+        else if (field === 'end_time_format') {
+          updatedEpisode.end_time = timeToSeconds(value);
+          
+          // Recalculate duration if both start and end times are set
+          if (updatedEpisode.start_time !== undefined && updatedEpisode.start_time !== null) {
+            const durationSeconds = updatedEpisode.end_time - updatedEpisode.start_time;
+            if (durationSeconds > 0) {
+              updatedEpisode.duration = secondsToTime(durationSeconds);
+            }
+          }
+        }
+        // If duration changed, update the end_time
+        else if (field === 'duration') {
+          const durationSeconds = timeToSeconds(value);
+          if (durationSeconds > 0 && updatedEpisode.start_time !== undefined) {
+            updatedEpisode.end_time = updatedEpisode.start_time + durationSeconds;
+            updatedEpisode.end_time_format = secondsToTime(updatedEpisode.end_time);
+          }
+        }
+        
+        return updatedEpisode;
+      }
+      return episode;
+    }));
   };
 
   // Add effect to monitor Uppy files
@@ -310,22 +445,26 @@ export default function UploadPage() {
     return () => clearInterval(interval);
   }, [uppyFiles]);
 
-  // Modify the button enable effect to use uppyFiles state
+  // Modify the button enable effect to check episodes validity
   useEffect(() => {
     // Check if either custom thumbnail or thumbnail time is set
     const hasThumbnailOption = !!thumbnail || (!thumbnail && thumbnailTime > 0);
+    
+    // Check if episodes have titles
+    const hasValidEpisodes = episodes.every(episode => episode.title.trim() !== '');
 
     const enabled = !uploading && 
       !!auth.session && 
       !isCheckingTutor && 
       isTutor && 
       !!title.trim() && 
-      !!description.trim() &&  // Add description requirement
-      hasThumbnailOption &&    // Modified thumbnail condition
+      !!description.trim() &&  
+      hasThumbnailOption &&    
       !!price &&
       !!selectedDegree &&
       !!selectedCourse &&
-      uppyFiles > 0;
+      uppyFiles > 0 &&
+      hasValidEpisodes;       
 
     setIsButtonEnabled(enabled);
 
@@ -335,16 +474,17 @@ export default function UploadPage() {
       isCheckingTutor,
       isTutor,
       hasTitle: !!title.trim(),
-      hasDescription: !!description.trim(),  // Add to logging
-      hasThumbnailOption,                    // Add to logging
-      hasCustomThumbnail: !!thumbnail,       // Add to logging
-      thumbnailTime,                         // Add to logging
+      hasDescription: !!description.trim(),
+      hasThumbnailOption,
+      hasCustomThumbnail: !!thumbnail,
+      thumbnailTime,
       hasPrice: !!price,
       selectedDegree,
       selectedCourse,
-      hasFiles: uppyFiles
+      hasFiles: uppyFiles,
+      hasValidEpisodes
     });
-  }, [uploading, auth.session, isCheckingTutor, isTutor, title, description, thumbnail, thumbnailTime, price, selectedDegree, selectedCourse, uppyFiles]);
+  }, [uploading, auth.session, isCheckingTutor, isTutor, title, description, thumbnail, thumbnailTime, price, selectedDegree, selectedCourse, uppyFiles, episodes]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white" dir="rtl">
@@ -446,6 +586,89 @@ export default function UploadPage() {
                 placeholder="תאר במה עוסק הסרטון (לא חובה)"
                 disabled={!auth.session}
               />
+
+              {/* Episodes Section */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-800">חלקי הסרטון</h3>
+                  <Button
+                    type="button"
+                    onClick={handleAddEpisode}
+                    className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors px-3 py-1 rounded-md flex items-center gap-2"
+                    disabled={!auth.session}
+                  >
+                    <Plus className="h-4 w-4" />
+                    הוסף חלק
+                  </Button>
+                </div>
+
+                <div className="space-y-4 border border-gray-200 rounded-lg p-4">
+                  {episodes.map((episode, index) => (
+                    <div key={episode.id} className="p-4 border border-gray-200 rounded-lg">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-medium text-gray-800">חלק {index + 1}</h4>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEpisode(episode.id)}
+                          className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50"
+                          disabled={episodes.length <= 1 || !auth.session}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <LabeledInput
+                          id={`episode-title-${episode.id}`}
+                          label="כותרת החלק *"
+                          value={episode.title}
+                          onChange={(e) => handleEpisodeChange(episode.id, 'title', e.target.value)}
+                          placeholder="הזן כותרת לחלק זה"
+                          disabled={!auth.session}
+                        />
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <LabeledInput
+                            id={`episode-start-${episode.id}`}
+                            label="זמן התחלה (דקות:שניות)"
+                            value={episode.start_time_format || '00:00'}
+                            onChange={(e) => handleEpisodeChange(episode.id, 'start_time_format', e.target.value)}
+                            placeholder="לדוגמה: 05:30"
+                            disabled={!auth.session}
+                          />
+                          
+                          <LabeledInput
+                            id={`episode-end-${episode.id}`}
+                            label="זמן סיום (דקות:שניות)"
+                            value={episode.end_time_format || '00:00'}
+                            onChange={(e) => handleEpisodeChange(episode.id, 'end_time_format', e.target.value)}
+                            placeholder="לדוגמה: 10:45"
+                            disabled={!auth.session}
+                          />
+                        </div>
+                        
+                        <LabeledInput
+                          id={`episode-duration-${episode.id}`}
+                          label="משך (דקות:שניות)"
+                          value={episode.duration}
+                          onChange={(e) => handleEpisodeChange(episode.id, 'duration', e.target.value)}
+                          placeholder="לדוגמה: 15:30"
+                          disabled={!auth.session}
+                        />
+                        
+                        <LabeledTextarea
+                          id={`episode-description-${episode.id}`}
+                          label="תיאור החלק"
+                          value={episode.description}
+                          onChange={(e) => handleEpisodeChange(episode.id, 'description', e.target.value)}
+                          placeholder="תאר במה עוסק חלק זה (לא חובה)"
+                          disabled={!auth.session}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Thumbnail Upload */}
               <div>

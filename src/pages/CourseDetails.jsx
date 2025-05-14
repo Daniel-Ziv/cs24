@@ -9,31 +9,6 @@ import BarLoader from "../components/BarLoader";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer";
 
-// Mock episodes data
-const mockEpisodes = [
-  {
-    id: 1,
-    title: "מבוא לקורס",
-    duration: "15:00",
-    description: "סקירה כללית של הקורס ומה נלמד",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "פרק 1: יסודות",
-    duration: "25:30",
-    description: "למידת המושגים הבסיסיים",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "פרק 2: התקדמות",
-    duration: "30:15",
-    description: "צלילה לנושאים מתקדמים",
-    completed: false,
-  },
-];
-
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('he-IL', { 
@@ -84,10 +59,21 @@ const CourseDetails = () => {
           return;
         }
 
-        // Add mock episodes to the course data
+        // Mark episodes as completed based on episodes_watched array
+        const updatedEpisodes = data.episodes.map((episode, index) => ({
+          ...episode,
+          completed: data.episodes_watched.includes(index)
+        }));
+
+        // Calculate initial progress
+        const completedCount = data.episodes_watched.length;
+        const progress = (completedCount / data.episodes.length) * 100;
+        setCourseProgress(progress);
+
+        // Update course with completed episodes
         setCourse({
           ...data,
-          episodes: mockEpisodes
+          episodes: updatedEpisodes
         });
       } catch (err) {
         console.error("Error loading course:", err);
@@ -168,21 +154,51 @@ const CourseDetails = () => {
 
   const handleEpisodeClick = (episode) => {
     setActiveEpisode(episode);
+    
+    // Hide thumbnail and show video player
+    const thumbnailImg = document.getElementById('thumbnail-img');
+    const videoPlayer = document.getElementById('video-player');
+    if (thumbnailImg && videoPlayer) {
+      thumbnailImg.style.display = 'none';
+      videoPlayer.style.display = 'block';
+    }
   };
 
-  const handleEpisodeComplete = (episodeId) => {
-    const updatedEpisodes = course.episodes.map((ep) =>
-      ep.id === episodeId ? { ...ep, completed: true } : ep
-    );
-    const completedCount = updatedEpisodes.filter((ep) => ep.completed).length;
-    const progress = (completedCount / updatedEpisodes.length) * 100;
-    setCourseProgress(progress);
-    
-    // Update the course with new episodes data
-    setCourse({
-      ...course,
-      episodes: updatedEpisodes
-    });
+  const handleEpisodeComplete = async (episodeIndex) => {
+    try {
+      const { data: episodesWatched, error } = await supabase
+        .rpc('update_episodes_watched', {
+          p_video_course_id: parseInt(courseId),
+          p_episode_index: episodeIndex
+        });
+
+      if (error) {
+        console.error('Failed to toggle episode watched status:', error);
+        showNotification('שגיאה בעדכון התקדמות', 'error');
+        return;
+      }
+
+      // Update the episodes list with watched status from the response
+      const updatedEpisodes = course.episodes.map((ep, index) => ({
+        ...ep,
+        completed: episodesWatched.includes(index)
+      }));
+
+      // Update course state with new episodes data
+      setCourse({
+        ...course,
+        episodes: updatedEpisodes,
+        episodes_watched: episodesWatched
+      });
+
+      // Calculate new progress based on episodes_watched length
+      const progress = (episodesWatched.length / course.episodes.length) * 100;
+      setCourseProgress(progress);
+
+    } catch (err) {
+      console.error('Error updating episode progress:', err);
+      showNotification('שגיאה בעדכון התקדמות', 'error');
+    }
   };
 
   // Convert video_len (seconds) to hours and minutes
@@ -349,6 +365,8 @@ const CourseDetails = () => {
                       <div id="video-player" className="absolute top-0 left-0 w-full h-full" style={{ display: 'none' }}>
                         <CourseVideoPlayer 
                           courseId={parseInt(courseId)}
+                          activeEpisode={activeEpisode}
+                          onEpisodeComplete={handleEpisodeComplete}
                         />
                       </div>
                     </div>
@@ -378,15 +396,10 @@ const CourseDetails = () => {
                             />
                           </svg>
                           <span className="text-gray-700">
-                            {activeEpisode.duration}
+                            {Math.floor((activeEpisode.end_time - activeEpisode.start_time) / 60)}:
+                            {String((activeEpisode.end_time - activeEpisode.start_time) % 60).padStart(2, '0')}
                           </span>
                         </div>
-                        <button
-                          onClick={() => handleEpisodeComplete(activeEpisode.id)}
-                          className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
-                        >
-                          סיים שיעור
-                        </button>
                       </div>
                     </div>
                   )}
@@ -489,22 +502,51 @@ const CourseDetails = () => {
                   <h2 className="text-xl font-bold text-gray-900">שיעורים</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
-                  {course.episodes.map((episode, index) => (
-                    <button
-                      key={episode.id}
-                      onClick={() => course.has_access ? handleEpisodeClick(episode) : null}
-                      disabled={!course.has_access}
-                      className={`w-full p-4 text-right transition-colors ${
-                        activeEpisode?.id === episode.id ? "bg-blue-50" : 
-                        course.has_access ? "hover:bg-gray-50" : ""
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {course.has_access ? (
-                            episode.completed ? (
+                  {course.episodes.map((episode, index) => {
+                    const duration = episode.end_time - episode.start_time;
+                    const minutes = Math.floor(duration / 60);
+                    const seconds = duration % 60;
+                    const durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                    return (
+                      <div
+                        key={episode.id}
+                        className={`w-full p-4 text-right transition-colors ${
+                          activeEpisode?.id === episode.id ? "bg-blue-50" : 
+                          course.has_access ? "hover:bg-gray-50" : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            {course.has_access ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent episode selection
+                                  handleEpisodeComplete(index);
+                                }}
+                                className="focus:outline-none"
+                              >
+                                {episode.completed ? (
+                                  <svg
+                                    className="w-5 h-5 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 hover:border-gray-400 cursor-pointer" />
+                                )}
+                              </button>
+                            ) : (
                               <svg
-                                className="w-5 h-5 text-green-600"
+                                className="w-5 h-5 text-gray-400"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -513,42 +555,32 @@ const CourseDetails = () => {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
+                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                                 />
                               </svg>
-                            ) : (
-                              <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
-                            )
-                          ) : (
-                            <svg
-                              className="w-5 h-5 text-gray-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                              />
-                            </svg>
-                          )}
-                          <span className="text-gray-700">
-                            {episode.duration}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <h3 className={`font-medium ${course.has_access ? "text-gray-900" : "text-gray-500"}`}>
-                            {episode.title}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {episode.description}
-                          </p>
+                            )}
+                            <span className="text-gray-700">
+                              {durationStr}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => course.has_access ? handleEpisodeClick(episode) : null}
+                            disabled={!course.has_access}
+                            className="text-right flex-grow"
+                          >
+                            <div>
+                              <h3 className={`font-medium ${course.has_access ? "text-gray-900" : "text-gray-500"}`}>
+                                {episode.title}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                {episode.description}
+                              </p>
+                            </div>
+                          </button>
                         </div>
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
                 
                 {!course.has_access && (
