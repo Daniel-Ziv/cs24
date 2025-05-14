@@ -4,26 +4,86 @@ import { courseStyles } from "../config/courseStyles";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import StarRating from "../components/StarRating";
+
+// Fetch signed thumbnail URL
+async function fetchSignedThumbnail(videoUid) {
+  const endpoint = "https://dmswkhumaemazjerzvbz.supabase.co/functions/v1/get-signed-thumbnail";
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ video_uid: videoUid })
+    });
+
+    console.log('Response status:', res.status);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+
+    const { thumbnail_url } = await res.json();
+    return thumbnail_url;
+  } catch (error) {
+    console.error('Error in fetchSignedThumbnail:', error);
+    return null;
+  }
+}
+
 const CourseCard = ({ course }) => {
   const navigate = useNavigate();
+  const [signedThumbnailUrl, setSignedThumbnailUrl] = useState(null);
   
   // Calculate average rating if available
   const averageRating = course.ratings 
     ? (course.ratings.reduce((a, b) => a + b, 0) / course.ratings.length).toFixed(1)
     : null;
 
+  // Only fetch signed thumbnail if no custom thumbnail_url exists
+  useEffect(() => {
+    console.log('CourseCard useEffect - Course:', {
+      id: course.id,
+      title: course.video_title,
+      thumbnail_url: course.thumbnail_url,
+      video_uid: course.video_uid
+    });
+
+    if (!course.thumbnail_url && course.video_uid) {
+      console.log('Fetching signed thumbnail for video_uid:', course.video_uid);
+      fetchSignedThumbnail(course.video_uid)
+        .then(url => {
+          console.log('Received signed URL:', url);
+          if (url) {
+            const finalUrl = `${url}?time=${course.thumbnail || 1}s`;
+            console.log('Setting signed thumbnail URL with time:', finalUrl);
+            setSignedThumbnailUrl(finalUrl);
+          }
+        })
+        .catch(error => console.error('Error fetching signed thumbnail:', error));
+    }
+  }, [course.video_uid, course.thumbnail_url, course.thumbnail]);
+
+  const displayUrl = course.thumbnail_url || signedThumbnailUrl;
+  console.log('CourseCard render - Using thumbnail URL:', displayUrl);
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
       <div className="relative h-48">
         <img
-          src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg?time=${course.thumbnail}s`}
+          src={displayUrl}
           alt={course.video_title}
           className="w-full h-full object-cover"
+          onError={(e) => console.error('Image failed to load:', displayUrl)}
+          onLoad={() => console.log('Image loaded successfully:', displayUrl)}
         />
         {averageRating && (
           <div className="absolute top-0 right-0 bg-gray-800 bg-opacity-80 text-yellow-400 px-3 py-1 m-2 rounded-md shadow-md">
-          <StarRating rating={parseFloat(averageRating)} />
-        </div>
+            <StarRating rating={parseFloat(averageRating)} />
+          </div>
         )}
 
         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">

@@ -18,6 +18,33 @@ const formatDate = (dateString) => {
   }).format(date);
 };
 
+// Fetch signed thumbnail URL
+async function fetchSignedThumbnail(videoUid) {
+  const endpoint = "https://dmswkhumaemazjerzvbz.supabase.co/functions/v1/get-signed-thumbnail";
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ video_uid: videoUid })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+
+    const { thumbnail_url } = await res.json();
+    return thumbnail_url;
+  } catch (error) {
+    console.error('Error in fetchSignedThumbnail:', error);
+    return null;
+  }
+}
+
 const CourseDetails = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -26,6 +53,20 @@ const CourseDetails = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [signedThumbnailUrl, setSignedThumbnailUrl] = useState(null);
+
+  // Only fetch signed thumbnail if no custom thumbnail_url exists
+  useEffect(() => {
+    if (course?.video_uid && !course?.thumbnail_url) {
+      fetchSignedThumbnail(course.video_uid)
+        .then(url => {
+          if (url) {
+            setSignedThumbnailUrl(`${url}&time=${course.thumbnail || 1}s`);
+          }
+        })
+        .catch(error => console.error('Error fetching signed thumbnail:', error));
+    }
+  }, [course?.video_uid, course?.thumbnail_url, course?.thumbnail]);
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -357,7 +398,7 @@ const CourseDetails = () => {
                   <div className="bg-black rounded-lg overflow-hidden mb-4">
                     <div className="relative" style={{ paddingTop: '56.25%' }}> {/* 16:9 Aspect Ratio Container */}
                       <img
-                        src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ''}`}
+                        src={course.thumbnail_url || signedThumbnailUrl}
                         alt={course.title}
                         className="absolute top-0 left-0 w-full h-full object-cover"
                         style={{ display: 'block' }}
@@ -408,7 +449,7 @@ const CourseDetails = () => {
                 <div className="bg-gray-100 rounded-lg overflow-hidden mb-4">
                   <div className="relative aspect-video">
                     <img
-                      src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ''}`}
+                      src={course.thumbnail_url || signedThumbnailUrl}
                       alt={course.title}
                       className="w-full h-full object-cover"
                     />

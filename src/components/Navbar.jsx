@@ -36,9 +36,9 @@ const NavRightSection = ({ setIsOpen, styles }) => {
         <FiMenu size={32}/>
       </motion.button>
       <Logo styles={styles} />
-      <NavbarLink text="ראשי" styles={styles} href="/" />
-      <NavbarLink text="מחשבון ציונים" styles={styles} href="/gpa" />
-      <NavbarLink text="אודות" styles={styles} href="/about" />
+      <NavbarLink text="ראשי" styles={styles} to="/" />
+      <NavbarLink text="מחשבון ציונים" styles={styles} to="/gpa" />
+      <NavbarLink text="אודות" styles={styles} to="/about" />
     </div>
   );
 };

@@ -9,6 +9,7 @@ import ScrollToTop from '../components/ScrollToTop';
 import NotFoundPage from '../components/NotFoundPage';
 import CourseDetails from '../pages/CourseDetails';
 import UploadPage from '../pages/UploadPage';
+import UploadSuccess from '../pages/UploadSuccess';
 import UserDashboard from '../pages/userDashboard';
 import About from '../pages/About';
 import Privacy from '../pages/Privacy';
@@ -31,6 +32,7 @@ const AppRoutes = () => {
         <Route path="/tutors/:courseType/:id/:tutorName" element={<ProfilePage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/upload" element={<UploadPage />} />
+        <Route path="/upload-success" element={<UploadSuccess />} />
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/thank-you" element={<ThankYou />} />
       </Routes>

@@ -11,6 +11,7 @@ import useAuth from '../hooks/useAuth';
 import { useUppy } from '../hooks/useUppy';
 import { supabase } from '../lib/supabase';
 import { showNotification } from '../components/ui/notification';
+import { useNavigate } from 'react-router-dom';
 
 /* ------------------------------------------------------------------ */
 /* 1. constants                                                        */
@@ -141,6 +142,8 @@ export default function UploadPage() {
   const styles = courseStyles[courseTypeRef.current] || courseStyles.cs;
   
   const { uppyRef, dashRef, progress, uploading, startUpload } = useUppy(auth);
+
+  const navigate = useNavigate();
 
   /* Temporarily disabled tutor status check */
   useEffect(() => {
@@ -356,6 +359,9 @@ export default function UploadPage() {
         }]);
         
         showNotification('הסרטון הועלה בהצלחה', 'success');
+        
+        // Redirect to the success page with just the videoId
+        navigate(`/upload-success?videoId=${result.videoId}`);
       }
     } catch (error) {
       console.error('Error in upload process:', error);
