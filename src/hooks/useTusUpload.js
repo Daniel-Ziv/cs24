@@ -3,6 +3,27 @@ import * as tus from 'tus-js-client';
 import { supabase } from '../lib/supabase';
 import { showNotification } from '../components/ui/notification';
 
+// Helper function to get video duration
+const getVideoDuration = (file) => {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = () => {
+      const duration = Math.round(video.duration);
+      window.URL.revokeObjectURL(video.src);
+      resolve(duration);
+    };
+    
+    video.onerror = (e) => {
+      console.error('Error getting video duration:', e);
+      resolve(0);
+    };
+    
+    video.src = URL.createObjectURL(file);
+  });
+};
+
 export function useTusUpload(auth) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,6 +56,7 @@ export function useTusUpload(auth) {
   };
 
   const upload = async (file, metadata = {}, onComplete) => {
+    console.log('Starting upload process for file:', file.name);
     setIsUploading(true);
     setUploadProgress(0);
     setError(null);
@@ -44,6 +66,15 @@ export function useTusUpload(auth) {
       if (!auth || !auth.session || !auth.session.access_token) {
         throw new Error('No active session or access token');
       }
+
+      // Get video duration before starting upload
+      console.log('Starting duration detection');
+      const duration = await getVideoDuration(file);
+      console.log('Adding duration to metadata:', duration);
+      metadata.duration = duration;
+
+      // Log the complete metadata object
+      console.log('Complete upload metadata:', metadata);
 
       // 1. Get signed URL from quick-worker endpoint
       const supabaseUrl = supabase.supabaseUrl;
@@ -92,9 +123,9 @@ export function useTusUpload(auth) {
           },
           headers: {},
           onError: function(err) {
-            
+            console.error('Tus upload error:', err);
             const error = new Error(err.message);
-            error.videoUid = currentVideoUidRef.current; // Attach the videoUid to the error
+            error.videoUid = currentVideoUidRef.current;
             setError(error);
             setIsUploading(false);
             showNotification('שגיאה בהעלאת הקובץ', 'error');
@@ -107,13 +138,13 @@ export function useTusUpload(auth) {
             setUploadProgress(percentage);
           },
           onSuccess: function() {
-            
+            console.log('Upload success, passing metadata to callback:', metadata);
             setIsUploading(false);
             setUploadProgress(100);
             uploadRef.current = null;
             const videoUid = currentVideoUidRef.current;
             currentVideoUidRef.current = null;
-            onComplete?.(videoUid);
+            onComplete?.(videoUid, metadata);
             resolve(videoUid);
           }
         });

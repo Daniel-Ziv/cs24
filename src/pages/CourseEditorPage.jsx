@@ -109,7 +109,6 @@ export default function CourseEditorPage() {
       setLoading(true);
       
       if (!auth.session) {
-        console.log('No auth session, setting isAuthorized to false');
         setIsAuthorized(false);
         setIsCheckingAuth(false);
         setLoading(false);
@@ -131,7 +130,6 @@ export default function CourseEditorPage() {
 
         // Parse the response body
         const responseData = await response.json();
-        console.log('Response data:', responseData);
 
         if (!response.ok || responseData.error) {
           console.log('User not authorized or course not found:', responseData.error || 'Unknown error');
@@ -176,7 +174,7 @@ export default function CourseEditorPage() {
                 id: String(episode.id),
                 title: episode.title || '',
                 description: episode.description || '',
-                duration: '00:00', // Not provided in the data
+                episode_len: episode.episode_len || 0,
                 status: episode.video_uid ? 'uploaded' : 'pending',
                 videoUid: episode.video_uid,
                 episodeIndex: episode.episode_index,
@@ -318,7 +316,8 @@ export default function CourseEditorPage() {
         .map(video => video.videoUid);
       
       if (videosWithUids.length > 0) {
-        setDeletedVideos(prev => [...prev, ...videosWithUids]);
+        const newDeletedVideos = [...(Array.isArray(deletedVideos) ? deletedVideos : []), ...videosWithUids];
+        setDeletedVideos(newDeletedVideos);
       }
     }
     
@@ -350,7 +349,8 @@ export default function CourseEditorPage() {
     
     // If the video had a UID, add it to deletedVideos
     if (video?.videoUid) {
-      setDeletedVideos(prev => [...prev, video.videoUid]);
+      const newDeletedVideos = [...(Array.isArray(deletedVideos) ? deletedVideos : []), video.videoUid];
+      setDeletedVideos(newDeletedVideos);
     }
     
     setChapters(chapters.map(chapter => {
@@ -500,17 +500,16 @@ export default function CourseEditorPage() {
           videoId: videoId,
           tutorId: courseData.tutor_id
         }, 
-        async (videoUid) => {
+        async (videoUid, metadata) => {
           const updatedChapters = [...chapters];
           updatedChapters[chapterIndex].videos[videoIndex].status = 'uploaded';
           updatedChapters[chapterIndex].videos[videoIndex].videoUid = videoUid;
+          updatedChapters[chapterIndex].videos[videoIndex].episode_len = metadata?.duration || 0;
+          
           setChapters(updatedChapters);
           showNotification('הוידאו הועלה בהצלחה', 'success');
           
-          // Save the course after successful upload
           await handleSaveCourse();
-          
-          // Refresh course data to get latest state
           refreshCourseData();
         }
       );
@@ -578,7 +577,8 @@ export default function CourseEditorPage() {
             episode_index: videoIndex,
             title: video.title,
             description: video.description || '',
-            video_uid: video.videoUid || null
+            video_uid: video.videoUid || null,
+            episode_len: video.episode_len || null
           }))
         })),
         // Use the override if provided, otherwise use the state
@@ -792,7 +792,7 @@ export default function CourseEditorPage() {
                 id: String(episode.id),
                 title: episode.title || '',
                 description: episode.description || '',
-                duration: '00:00', // Not provided in the data
+                episode_len: episode.episode_len || 0,
                 status: episode.video_uid ? 'uploaded' : 'pending',
                 videoUid: episode.video_uid,
                 episodeIndex: episode.episode_index,
@@ -873,7 +873,7 @@ export default function CourseEditorPage() {
             <Button 
               variant="default" 
               className={`gap-2 ${styles.buttonPrimary}`}
-              onClick={handleSaveCourse}
+              onClick={() => handleSaveCourse()}
               disabled={isSaving || !isAuthorized}
             >
               {isSaving ? (
@@ -1030,6 +1030,11 @@ export default function CourseEditorPage() {
                                           <div className="flex items-center space-x-2">
                                             <div className="ms-2">{videoIndex + 1}.</div>
                                             <h4 className="font-medium text-lg">{video.title || 'וידאו ללא כותרת'}</h4>
+                                            {video.episode_len > 0 && (
+                                              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                                {Math.floor(video.episode_len / 60)}:{(video.episode_len % 60).toString().padStart(2, '0')}
+                                              </span>
+                                            )}
                                           </div>
                                           
                                           <div className="flex space-x-1">
