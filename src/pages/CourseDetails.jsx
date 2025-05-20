@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { showNotification } from "../components/ui/notification";
-import CourseVideoPlayer from "../components/CourseVideoPlayer";
 import PaymentButton from "../components/PaymentButton";
 import { supabase } from "../lib/supabase";
 import BarLoader from "../components/BarLoader";
@@ -46,105 +45,62 @@ const theme = {
   },
 };
 
-// Fetch signed thumbnail URL
-async function fetchSignedThumbnail(videoUid) {
-  const endpoint = "https://dmswkhumaemazjerzvbz.supabase.co/functions/v1/get-signed-thumbnail";
-
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify({ video_uid: videoUid })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: res.statusText }));
-      throw new Error(err.error || res.statusText);
-    }
-
-    const { thumbnail_url } = await res.json();
-    return thumbnail_url;
-  } catch (error) {
-    console.error('Error in fetchSignedThumbnail:', error);
-    return null;
-  }
-}
-
 const CourseDetails = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [activeEpisode, setActiveEpisode] = useState(null);
   const [courseProgress, setCourseProgress] = useState(0);
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState({
+    titles: [],
+    episodes_watched: [],
+    feedback: [],
+    has_access: false
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [signedThumbnailUrl, setSignedThumbnailUrl] = useState(null);
   const [expandedTopics, setExpandedTopics] = useState([]);
-
-  // Only fetch signed thumbnail if no custom thumbnail_url exists
-  useEffect(() => {
-    if (course?.video_uid && !course?.thumbnail_url) {
-      fetchSignedThumbnail(course.video_uid)
-        .then(url => {
-          if (url) {
-            setSignedThumbnailUrl(`${url}&time=${course.thumbnail || 1}s`);
-          }
-        })
-        .catch(error => console.error('Error fetching signed thumbnail:', error));
-    }
-  }, [course?.video_uid, course?.thumbnail_url, course?.thumbnail]);
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
       setLoading(true);
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
-      if (sessionError) {
-        console.error("Failed to load session:", sessionError);
-        setError("אירעה שגיאה בזיהוי המשתמש");
-        setLoading(false);
-        return;
-      }
-      console.log('User ID:', userId);
-
       try {
-        const { data, error } = await supabase.rpc("get_lesson_details", {
-          p_video_id: parseInt(courseId)
+        const { data, error } = await supabase.functions.invoke('get-course-details', {
+          body: { video_id: parseInt(courseId) }
         });
-        
+
         if (error) {
-          console.error("Error fetching course:", error);
-          setError(error.message || "אירעה שגיאה בטעינת הקורס");
-          setLoading(false);
-          return;
+          throw new Error(error.message || 'Failed to fetch course details');
         }
+
+        if (!data || !data.id) {
+          throw new Error('Course not found');
+        }
+
+        // Calculate total episodes and watched episodes
+        const allEpisodes = data.titles?.flatMap(title => title.episodes) || [];
+        const totalEpisodes = allEpisodes.length;
+        const watchedCount = data.episodes_watched?.length || 0;
         
-        if (!data) {
-          console.error("Course not found:", courseId);
-          setError("הקורס המבוקש לא נמצא");
-          setLoading(false);
-          return;
-        }
-
-        // Mark episodes as completed based on episodes_watched array
-        const updatedEpisodes = data.episodes.map((episode, index) => ({
-          ...episode,
-          completed: data.episodes_watched.includes(index)
-        }));
-
-        // Calculate initial progress
-        const completedCount = data.episodes_watched.length;
-        const progress = (completedCount / data.episodes.length) * 100;
+        // Calculate progress
+        const progress = totalEpisodes > 0 ? (watchedCount / totalEpisodes) * 100 : 0;
         setCourseProgress(progress);
 
-        // Update course with completed episodes
+        // Mark episodes as watched
+        const titlesWithWatchedStatus = (data.titles || []).map(title => ({
+          ...title,
+          episodes: (title.episodes || []).map(episode => ({
+            ...episode,
+            completed: (data.episodes_watched || []).includes(episode.episode_index)
+          }))
+        }));
+
         setCourse({
           ...data,
-          episodes: updatedEpisodes
+          titles: titlesWithWatchedStatus || [],
+          feedback: data.feedback || [],
+          episodes_watched: data.episodes_watched || []
         });
+
       } catch (err) {
         console.error("Error loading course:", err);
         setError(err.message || "אירעה שגיאה לא צפויה");
@@ -257,19 +213,25 @@ const CourseDetails = () => {
   }
 
   const handleEpisodeClick = (episode) => {
+    if (!episode) return;
     setActiveEpisode(episode);
     
-    // Hide thumbnail and show video player
-    const thumbnailImg = document.getElementById('thumbnail-img');
-    const videoPlayer = document.getElementById('video-player');
-    if (thumbnailImg && videoPlayer) {
-      thumbnailImg.style.display = 'none';
-      videoPlayer.style.display = 'block';
-    }
+    // Show a message that video player is not available yet
+    showNotification('נכון לעכשיו, נגן הוידאו אינו זמין', 'info');
+  };
+
+  // Get all episodes from all titles
+  const getAllEpisodes = () => {
+    return course?.titles?.flatMap(title => title.episodes || []) || [];
+  };
+
+  // Get first episode for initial video player
+  const getFirstEpisode = () => {
+    return course?.titles?.[0]?.episodes?.[0] || null;
   };
 
   const handleCheckboxClick = async (e, episodeIndex) => {
-    e.stopPropagation(); // Prevent episode selection when clicking checkbox
+    e.stopPropagation();
     try {
       const { data: episodesWatched, error } = await supabase
         .rpc('update_episodes_watched', {
@@ -284,20 +246,24 @@ const CourseDetails = () => {
       }
 
       // Update the episodes list with watched status from the response
-      const updatedEpisodes = course.episodes.map((ep, index) => ({
-        ...ep,
-        completed: episodesWatched.includes(index)
+      const updatedTitles = (course.titles || []).map(title => ({
+        ...title,
+        episodes: (title.episodes || []).map(episode => ({
+          ...episode,
+          completed: (episodesWatched || []).includes(episode.episode_index)
+        }))
       }));
 
       // Update course state with new episodes data
-      setCourse({
-        ...course,
-        episodes: updatedEpisodes,
-        episodes_watched: episodesWatched
-      });
+      setCourse(prev => ({
+        ...prev,
+        titles: updatedTitles,
+        episodes_watched: episodesWatched || []
+      }));
 
-      // Calculate new progress based on episodes_watched length
-      const progress = (episodesWatched.length / course.episodes.length) * 100;
+      // Calculate new progress
+      const totalEpisodes = updatedTitles.reduce((sum, title) => sum + (title.episodes?.length || 0), 0);
+      const progress = totalEpisodes > 0 ? ((episodesWatched?.length || 0) / totalEpisodes) * 100 : 0;
       setCourseProgress(progress);
 
     } catch (err) {
@@ -554,7 +520,7 @@ const CourseDetails = () => {
                   />
                 </svg>
                 <span className="text-gray-700 font-medium">
-                  {course.episodes.length} שיעורים
+                  {getAllEpisodes().length} שיעורים
                 </span>
               </div>
               <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-lg shadow-sm border border-blue-100">
@@ -609,7 +575,7 @@ const CourseDetails = () => {
                       {" "}
                       {/* 16:9 Aspect Ratio Container */}
                       <img
-                        src={course.thumbnail_url || signedThumbnailUrl || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ""}`}
+                        src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg`}
                         alt={course.title}
                         className="absolute top-0 left-0 w-full h-full object-cover"
                         style={{ display: "block" }}
@@ -618,7 +584,7 @@ const CourseDetails = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
                       <div
                         className="absolute inset-0 flex items-center justify-center cursor-pointer group"
-                        onClick={() => handleEpisodeClick(course.episodes[0])}
+                        onClick={() => handleEpisodeClick(getFirstEpisode())}
                         id="play-overlay"
                       >
                         <div className="w-20 h-20 rounded-full bg-blue-600 bg-opacity-80 flex items-center justify-center shadow-lg transform transition hover:scale-110 group-hover:bg-opacity-100 group-hover:bg-blue-500">
@@ -632,23 +598,36 @@ const CourseDetails = () => {
                         </div>
                         <div className="absolute bottom-6 left-6 text-white">
                           <h3 className="text-xl font-bold text-shadow-sm">
-                            {course.episodes[0]?.title || "פרק ראשון"}
+                            {getFirstEpisode()?.title || "פרק ראשון"}
                           </h3>
                           <p className="text-sm text-gray-200 line-clamp-1 text-shadow-sm">
-                            {course.episodes[0]?.description ||
+                            {getFirstEpisode()?.description ||
                               "לחץ כדי להתחיל את הקורס"}
                           </p>
                         </div>
                       </div>
                       <div
                         id="video-player"
-                        className="absolute top-0 left-0 w-full h-full"
+                        className="absolute top-0 left-0 w-full h-full bg-black flex items-center justify-center"
                         style={{ display: "none" }}
                       >
-                        <CourseVideoPlayer
-                          courseId={parseInt(courseId)}
-                          activeEpisode={activeEpisode}
-                        />
+                        <div className="text-white text-center p-8">
+                          <svg
+                            className="w-16 h-16 mx-auto mb-4 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
+                          <h3 className="text-xl font-bold mb-2">נגן הוידאו אינו זמין כרגע</h3>
+                          <p className="text-gray-400">אנחנו עובדים על זה!</p>
+                        </div>
                       </div>
                       {/* Decorative elements */}
                       <div className="absolute top-4 right-4 flex space-x-1">
@@ -728,7 +707,7 @@ const CourseDetails = () => {
                           <div className="flex flex-wrap gap-2 mt-4">
                             <span className="bg-blue-50 text-blue-700 text-sm px-3 py-1 rounded-full border border-blue-100">
                               פרק{" "}
-                              {course.episodes.findIndex(
+                              {getAllEpisodes().findIndex(
                                 (ep) => ep.id === activeEpisode.id
                               ) + 1}
                             </span>
@@ -750,7 +729,7 @@ const CourseDetails = () => {
                 >
                   <div className="relative aspect-video">
                     <img
-                      src={course.thumbnail_url || signedThumbnailUrl || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg${course.thumbnail ? `?time=${course.thumbnail}s` : ""}`}
+                      src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg`}
                       alt={course.title}
                       className="w-full h-full object-cover opacity-60"
                     />
@@ -820,40 +799,13 @@ const CourseDetails = () => {
                       </svg>
                       משובים
                     </h2>
-                    <div className="flex items-center bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-2 rounded-xl shadow-sm border border-amber-100">
-                      <span className="text-2xl font-bold text-amber-600 ml-2">
-                        {averageRating}
-                      </span>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <svg
-                            key={i}
-                            className={`w-5 h-5 ${
-                              i < Math.round(averageRating)
-                                ? "text-amber-400"
-                                : "text-gray-300"
-                            }`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
-                      </div>
-                      <span className="text-sm text-gray-500 mr-2 bg-white px-2 py-1 rounded-full">
-                        ({course.feedback.length})
-                      </span>
-                    </div>
                   </div>
                 </div>
                 <div className="divide-y divide-gray-200 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  {course.feedback.length > 0 ? (
+                  {(course?.feedback || []).length > 0 ? (
                     course.feedback
-                      .filter((feedback) => feedback.comment) // Only show feedback with comments
-                      .sort(
-                        (a, b) =>
-                          new Date(b.created_at) - new Date(a.created_at)
-                      ) // Sort by date
+                      .filter((feedback) => feedback?.comment)
+                      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                       .map((feedback, index) => (
                         <motion.div
                           key={feedback.id}
@@ -917,7 +869,7 @@ const CourseDetails = () => {
                     </div>
                   )}
                 </div>
-                {!course.has_user_feedback && course.has_access && (
+                {!course?.has_user_feedback && course?.has_access && (
                   <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                     <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center font-medium">
                       <svg
@@ -963,208 +915,185 @@ const CourseDetails = () => {
                         d="M19 9l-7 7-7-7"
                       />
                     </svg>
-                    שיעורים ({course.episodes.length})
+                    שיעורים ({course?.titles?.reduce((sum, title) => sum + (title.episodes?.length || 0), 0) || 0})
                   </h2>
                 </div>
                 <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
-                  {groupEpisodesByTopic(course.episodes).map(
-                    (topic, topicIndex) => {
-                      const isExpanded = expandedTopics.includes(topic.id);
+                  {course?.titles?.map((title) => {
+                    const isExpanded = expandedTopics.includes(title.id);
+                    const completedEpisodes = title.episodes?.filter(ep => ep.completed)?.length || 0;
+                    const totalEpisodes = title.episodes?.length || 0;
 
-                      return (
-                        <div key={topic.id} className="w-full">
-                          {/* Topic header */}
-                          <div
-                            className={`p-4 ${
-                              isExpanded
-                                ? "bg-blue-50"
-                                : "bg-gradient-to-r from-gray-50 to-white"
-                            } hover:bg-blue-50 cursor-pointer flex items-center justify-between transition-colors border-r-4 ${
-                              isExpanded
-                                ? "border-blue-500"
-                                : "border-transparent"
-                            }`}
-                            onClick={() => toggleTopic(topic.id)}
-                          >
-                            <div className="flex items-center">
-                              <svg
-                                className={`w-5 h-5 text-blue-600 mr-3 transform transition-transform duration-300 ${
-                                  isExpanded ? "rotate-90" : ""
-                                }`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                              <div>
-                                <span className="font-bold text-gray-800">
-                                  {topic.title}
-                                </span>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {topic.episodes.length} שיעורים{" "}
-                                  {topic.episodes.filter((ep) => ep.completed)
-                                    .length > 0 &&
-                                    `· ${
-                                      topic.episodes.filter(
-                                        (ep) => ep.completed
-                                      ).length
-                                    } הושלמו`}
-                                </div>
+                    return (
+                      <div key={title.id} className="w-full">
+                        {/* Title header */}
+                        <div
+                          className={`p-4 ${
+                            isExpanded ? "bg-blue-50" : "bg-gradient-to-r from-gray-50 to-white"
+                          } hover:bg-blue-50 cursor-pointer flex items-center justify-between transition-colors border-r-4 ${
+                            isExpanded ? "border-blue-500" : "border-transparent"
+                          }`}
+                          onClick={() => toggleTopic(title.id)}
+                        >
+                          <div className="flex items-center">
+                            <svg
+                              className={`w-5 h-5 text-blue-600 mr-3 transform transition-transform duration-300 ${
+                                isExpanded ? "rotate-90" : ""
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                            <div>
+                              <span className="font-bold text-gray-800">{title.title}</span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {totalEpisodes} שיעורים{" "}
+                                {completedEpisodes > 0 && `· ${completedEpisodes} הושלמו`}
                               </div>
                             </div>
-                            <span className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full font-medium">
-                              {topic.episodes.length} שיעורים
-                            </span>
                           </div>
+                          <span className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full font-medium">
+                            {totalEpisodes} שיעורים
+                          </span>
+                        </div>
 
-                          {/* Topic episodes */}
-                          <motion.div
-                            initial={false}
-                            animate={{
-                              height: isExpanded ? "auto" : 0,
-                              opacity: isExpanded ? 1 : 0,
-                            }}
-                            transition={{ duration: 0.3 }}
-                            className={`bg-white overflow-hidden ${
-                              isExpanded ? "py-2" : ""
-                            }`}
-                          >
-                            {topic.episodes.map((episode, index) => {
-                              const episodeIndex = topicIndex * 3 + index; // Calculate the actual episode index
-                              const duration =
-                                episode.end_time - episode.start_time;
-                              const minutes = Math.floor(duration / 60);
-                              const seconds = duration % 60;
-                              const durationStr = `${minutes}:${seconds
-                                .toString()
-                                .padStart(2, "0")}`;
-                              const isActive = activeEpisode?.id === episode.id;
+                        {/* Title episodes */}
+                        <motion.div
+                          initial={false}
+                          animate={{
+                            height: isExpanded ? "auto" : 0,
+                            opacity: isExpanded ? 1 : 0,
+                          }}
+                          transition={{ duration: 0.3 }}
+                          className={`bg-white overflow-hidden ${isExpanded ? "py-2" : ""}`}
+                        >
+                          {(title.episodes || []).map((episode) => {
+                            const durationStr = episode.episode_len 
+                              ? `${Math.floor(episode.episode_len / 60)}:${String(episode.episode_len % 60).padStart(2, "0")}`
+                              : "00:00";
+                            const isActive = activeEpisode?.id === episode.id;
 
-                              return (
-                                <div
-                                  key={episode.id}
-                                  className={`w-full p-4 pr-10 text-right transition-all border-r-2 border-gray-100 ${
-                                    isActive
-                                      ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-r-4 border-blue-500 shadow-sm"
-                                      : course.has_access
-                                      ? "hover:bg-blue-50 hover:border-r-4 hover:border-blue-300 cursor-pointer"
-                                      : "opacity-75"
-                                  } ${index === 0 ? "rounded-t-lg" : ""} ${
-                                    index === topic.episodes.length - 1
-                                      ? "rounded-b-lg"
-                                      : ""
-                                  }`}
-                                  onClick={() =>
-                                    course.has_access
-                                      ? handleEpisodeClick(episode)
-                                      : null
-                                  }
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                      {course.has_access ? (
-                                        <button
-                                          onClick={(e) =>
-                                            handleCheckboxClick(e, episodeIndex)
-                                          }
-                                          className="focus:outline-none"
-                                          aria-label={
-                                            episode.completed
-                                              ? "סמן כלא נצפה"
-                                              : "סמן כנצפה"
-                                          }
+                            return (
+                              <div
+                                key={episode.id}
+                                className={`w-full p-4 pr-10 text-right transition-all border-r-2 border-gray-100 ${
+                                  isActive
+                                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-r-4 border-blue-500 shadow-sm"
+                                    : course?.has_access
+                                    ? "hover:bg-blue-50 hover:border-r-4 hover:border-blue-300 cursor-pointer"
+                                    : "opacity-75"
+                                }`}
+                                onClick={() =>
+                                  course?.has_access
+                                    ? handleEpisodeClick(episode)
+                                    : null
+                                }
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-2">
+                                    {course?.has_access ? (
+                                      <button
+                                        onClick={(e) =>
+                                          handleCheckboxClick(e, episode.episode_index)
+                                        }
+                                        className="focus:outline-none"
+                                        aria-label={
+                                          episode.completed
+                                            ? "סמן כלא נצפה"
+                                            : "סמן כנצפה"
+                                        }
+                                      >
+                                        {episode.completed ? (
+                                          <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-sm transform transition-transform hover:scale-110">
+                                            <svg
+                                              className="w-4 h-4 text-white"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M5 13l4 4L19 7"
+                                              />
+                                            </svg>
+                                          </div>
+                                        ) : (
+                                          <div className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-blue-400 cursor-pointer transition-colors hover:bg-blue-50" />
+                                        )}
+                                      </button>
+                                    ) : (
+                                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <svg
+                                          className="w-3 h-3 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
                                         >
-                                          {episode.completed ? (
-                                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-sm transform transition-transform hover:scale-110">
-                                              <svg
-                                                className="w-4 h-4 text-white"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                              >
-                                                <path
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  strokeWidth="2"
-                                                  d="M5 13l4 4L19 7"
-                                                />
-                                              </svg>
-                                            </div>
-                                          ) : (
-                                            <div className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-blue-400 cursor-pointer transition-colors hover:bg-blue-50" />
-                                          )}
-                                        </button>
-                                      ) : (
-                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
-                                          <svg
-                                            className="w-3 h-3 text-gray-400"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth="2"
-                                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                            />
-                                          </svg>
-                                        </div>
-                                      )}
-                                      <span
-                                        className={`text-gray-700 bg-gradient-to-r ${
-                                          isActive
-                                            ? "from-blue-100 to-indigo-100"
-                                            : "from-gray-100 to-gray-50"
-                                        } px-3 py-1 rounded-full text-sm font-medium ${
-                                          course.has_access
-                                            ? ""
-                                            : "line-through"
-                                        }`}
-                                      >
-                                        {durationStr}
-                                      </span>
-                                    </div>
-                                    <div className="text-right flex-grow mr-3">
-                                      <h3
-                                        className={`font-medium ${
-                                          isActive
-                                            ? "text-blue-700"
-                                            : course.has_access
-                                            ? "text-gray-900"
-                                            : "text-gray-500"
-                                        }`}
-                                      >
-                                        {episodeIndex + 1}. {episode.title}
-                                      </h3>
-                                      <p
-                                        className={`text-sm ${
-                                          isActive
-                                            ? "text-blue-600"
-                                            : "text-gray-500"
-                                        } line-clamp-1`}
-                                      >
-                                        {episode.description}
-                                      </p>
-                                    </div>
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                          />
+                                        </svg>
+                                      </div>
+                                    )}
+                                    <span
+                                      className={`text-gray-700 bg-gradient-to-r ${
+                                        isActive
+                                          ? "from-blue-100 to-indigo-100"
+                                          : "from-gray-100 to-gray-50"
+                                      } px-3 py-1 rounded-full text-sm font-medium ${
+                                        course?.has_access
+                                          ? ""
+                                          : "line-through"
+                                      }`}
+                                    >
+                                      {durationStr}
+                                    </span>
+                                  </div>
+                                  <div className="text-right flex-grow mr-3">
+                                    <h3
+                                      className={`font-medium ${
+                                        isActive
+                                          ? "text-blue-700"
+                                          : course?.has_access
+                                          ? "text-gray-900"
+                                          : "text-gray-500"
+                                      }`}
+                                    >
+                                      {episode.episode_index + 1}. {episode.title}
+                                    </h3>
+                                    <p
+                                      className={`text-sm ${
+                                        isActive
+                                          ? "text-blue-600"
+                                          : "text-gray-500"
+                                      } line-clamp-1`}
+                                    >
+                                      {episode.description || "אין תיאור"}
+                                    </p>
                                   </div>
                                 </div>
-                              );
-                            })}
-                          </motion.div>
-                        </div>
-                      );
-                    }
-                  )}
+                              </div>
+                            );
+                          })}
+                        </motion.div>
+                      </div>
+                    );
+                  })}
                 </div>
 
-                {!course.has_access && (
+                {!course?.has_access && (
                   <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50">
                     <button className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white px-5 py-4 rounded-xl hover:from-green-600 hover:to-blue-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center">
                       <svg

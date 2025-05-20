@@ -86,9 +86,15 @@ const CourseCard = ({ course }) => {
           </div>
         )}
 
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-          <span className="text-white text-lg font-semibold">למידע נוסף</span>
-        </div>
+        {course.has_access ? (
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+            <span className="text-white text-lg font-semibold">צפה עכשיו</span>
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+            <span className="text-white text-lg font-semibold">למידע נוסף</span>
+          </div>
+        )}
       </div>
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-2">{course.video_title}</h3>
@@ -114,10 +120,14 @@ const CourseCard = ({ course }) => {
           </div>
         </div>
         <button
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300"
+          className={`w-full py-2 px-4 rounded-md transition-colors duration-300 ${
+            course.has_access 
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-600 text-white hover:bg-gray-700'
+          }`}
           onClick={() => navigate(`/course/${course.id}`)}
         >
-          צפה עכשיו
+          {course.has_access ? 'צפה עכשיו' : 'למידע נוסף'}
         </button>
       </div>
     </div>
@@ -146,21 +156,50 @@ const Courses = () => {
   const [error, setError] = useState(null);
   const styles = courseStyles.cs;
   const navigate = useNavigate();
+  const [userAccess, setUserAccess] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase.rpc("get_video_thumbnail_data");
-        if (error) throw error;
+        
+        // Get current user ID if logged in
+        const { data: sessionData } = await supabase.auth.getSession();
+        const userId = sessionData?.session?.user?.id;
+
+        // Call the new endpoint
+        const response = await fetch(`${supabase.supabaseUrl}/functions/v1/get-all-courses`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ user_id: userId })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+
+        const { courses, user_access } = await response.json();
+        
+        // Store user access information
+        setUserAccess(user_access || []);
         
         // Group courses by year
-        const groupedCourses = data.reduce((acc, course) => {
+        const groupedCourses = courses.reduce((acc, course) => {
           const year = course.year || 1; // Default to year 1 if not specified
           if (!acc[`year${year}`]) {
             acc[`year${year}`] = [];
           }
-          acc[`year${year}`].push(course);
+          
+          // Add has_access property to each course
+          const courseWithAccess = {
+            ...course,
+            has_access: user_access?.includes(course.id)
+          };
+          
+          acc[`year${year}`].push(courseWithAccess);
           return acc;
         }, { year1: [], year2: [], year3: [] });
 
