@@ -2,6 +2,19 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { Stream } from "@cloudflare/stream-react";
 
+async function getPlaybackToken(videoUID) {
+  const { data, error } = await supabase.functions.invoke('signed-token', {
+    body: { videoUID }
+  });
+
+  if (error) {
+    console.error("Token error:", error);
+    return null;
+  }
+
+  return data.token;
+}
+
 function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
   const [streamToken, setStreamToken] = useState("");
   const [videoId, setVideoId] = useState("");
@@ -16,35 +29,14 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
       const { data: auth } = await supabase.auth.getSession();
       if (!auth.session) return;
 
-      const res = await fetch(process.env.REACT_APP_CLOUDFLARE_PLAY_END_POINT, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${auth.session.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          video_id: courseId
-        })
-      });
-
-      const data = await res.json();
-      
-      if (res.ok && data.signed_url) {
-        try {
-          const url = new URL(data.signed_url);
-          const pathParts = url.pathname.split('/');
-          const vid = pathParts[1];
-          const token = url.searchParams.get('token');
-          
-          if (!vid || !token) {
-            throw new Error('Invalid URL structure');
-          }
-
-          setVideoId(vid);
+      try {
+        const token = await getPlaybackToken(courseId);
+        if (token) {
+          setVideoId(courseId);
           setStreamToken(token);
-        } catch (error) {
-          // Error handling preserved without console.log
         }
+      } catch (error) {
+        console.error("Error getting video details:", error);
       }
     };
 
@@ -129,11 +121,7 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
   return (
     <Stream
       controls
-      responsive
-      src={videoId}
-      signed
-      streamToken={streamToken}
-      className="w-full h-full"
+      src={streamToken}
       streamRef={streamRef}
       loading={<div className="p-4 text-center">Loading stream...</div>}
       onLoadedData={handleLoadedData}

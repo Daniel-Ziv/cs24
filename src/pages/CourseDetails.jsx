@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import BarLoader from "../components/BarLoader";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer";
+import CourseVideoPlayer from "../components/CourseVideoPlayer";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -59,6 +60,12 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedTopics, setExpandedTopics] = useState([]);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({
+    rating: 5,
+    comment: ''
+  });
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -90,7 +97,7 @@ const CourseDetails = () => {
           ...title,
           episodes: (title.episodes || []).map(episode => ({
             ...episode,
-            completed: (data.episodes_watched || []).includes(episode.episode_index)
+            completed: (data.episodes_watched || []).includes(episode.id)
           }))
         }));
 
@@ -215,9 +222,6 @@ const CourseDetails = () => {
   const handleEpisodeClick = (episode) => {
     if (!episode) return;
     setActiveEpisode(episode);
-    
-    // Show a message that video player is not available yet
-    showNotification('נכון לעכשיו, נגן הוידאו אינו זמין', 'info');
   };
 
   // Get all episodes from all titles
@@ -230,14 +234,15 @@ const CourseDetails = () => {
     return course?.titles?.[0]?.episodes?.[0] || null;
   };
 
-  const handleCheckboxClick = async (e, episodeIndex) => {
+  const handleCheckboxClick = async (e, episodeId) => {
     e.stopPropagation();
     try {
-      const { data: episodesWatched, error } = await supabase
-        .rpc('update_episodes_watched', {
+      const { data: episodesWatched, error } = await supabase.functions.invoke('save-course-progress', {
+        body: {
           p_video_course_id: parseInt(courseId),
-          p_episode_index: episodeIndex
-        });
+          p_episode_id: episodeId
+        }
+      });
 
       if (error) {
         console.error('Failed to toggle episode watched status:', error);
@@ -250,7 +255,7 @@ const CourseDetails = () => {
         ...title,
         episodes: (title.episodes || []).map(episode => ({
           ...episode,
-          completed: (episodesWatched || []).includes(episode.episode_index)
+          completed: episodesWatched?.episodes_watched?.includes(episode.id) || false
         }))
       }));
 
@@ -258,12 +263,13 @@ const CourseDetails = () => {
       setCourse(prev => ({
         ...prev,
         titles: updatedTitles,
-        episodes_watched: episodesWatched || []
+        episodes_watched: episodesWatched?.episodes_watched || []
       }));
 
       // Calculate new progress
       const totalEpisodes = updatedTitles.reduce((sum, title) => sum + (title.episodes?.length || 0), 0);
-      const progress = totalEpisodes > 0 ? ((episodesWatched?.length || 0) / totalEpisodes) * 100 : 0;
+      const watchedCount = episodesWatched?.episodes_watched?.length || 0;
+      const progress = totalEpisodes > 0 ? (watchedCount / totalEpisodes) * 100 : 0;
       setCourseProgress(progress);
 
     } catch (err) {
@@ -311,6 +317,74 @@ const CourseDetails = () => {
   const averageRating = course?.feedback?.length > 0
     ? (course.feedback.reduce((acc, f) => acc + f.rating, 0) / course.feedback.length).toFixed(1)
     : 0;
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackForm.comment.trim()) {
+      showNotification('נא להזין משוב', 'error');
+      return;
+    }
+
+    setSubmittingFeedback(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('update-feedback', {
+        body: {
+          video_id: 12,
+          rating: feedbackForm.rating,
+          comment: feedbackForm.comment.trim()
+        }
+      });
+
+      if (error) {
+        console.error("Feedback error:", error.message);
+        throw error;
+      }
+
+      // Update the course state with the new feedback
+      setCourse(prev => ({
+        ...prev,
+        feedback: [...prev.feedback, data],
+        has_user_feedback: true
+      }));
+
+      // Reset form and close it
+      setFeedbackForm({ rating: 5, comment: '' });
+      setShowFeedbackForm(false);
+      showNotification('המשוב נשלח בהצלחה', 'success');
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+      showNotification('שגיאה בשליחת המשוב', 'error');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
+  const handleDeleteFeedback = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('update-feedback', {
+        body: {
+          video_id: 12,
+          mode: "delete"
+        }
+      });
+
+      if (error) {
+        console.error("Delete error:", error.message);
+        throw error;
+      }
+
+      // Update the course state to remove the user's feedback
+      setCourse(prev => ({
+        ...prev,
+        feedback: prev.feedback.filter(f => !f.is_user_feedback),
+        has_user_feedback: false
+      }));
+
+      showNotification('המשוב נמחק בהצלחה', 'success');
+    } catch (err) {
+      console.error('Error deleting feedback:', err);
+      showNotification('שגיאה במחיקת המשוב', 'error');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -574,67 +648,59 @@ const CourseDetails = () => {
                     <div className="relative" style={{ paddingTop: "56.25%" }}>
                       {" "}
                       {/* 16:9 Aspect Ratio Container */}
-                      <img
-                        src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg`}
-                        alt={course.title}
-                        className="absolute top-0 left-0 w-full h-full object-cover"
-                        style={{ display: "block" }}
-                        id="thumbnail-img"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-                      <div
-                        className="absolute inset-0 flex items-center justify-center cursor-pointer group"
-                        onClick={() => handleEpisodeClick(getFirstEpisode())}
-                        id="play-overlay"
-                      >
-                        <div className="w-20 h-20 rounded-full bg-blue-600 bg-opacity-80 flex items-center justify-center shadow-lg transform transition hover:scale-110 group-hover:bg-opacity-100 group-hover:bg-blue-500">
-                          <svg
-                            className="w-10 h-10 text-white transform transition group-hover:scale-125"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
+                      {activeEpisode ? (
+                        <CourseVideoPlayer
+                          courseId={activeEpisode.video_uid}
+                          activeEpisode={activeEpisode}
+                          onEpisodeComplete={(episodesWatched) => {
+                            // Update course state with new episodes data
+                            setCourse(prev => ({
+                              ...prev,
+                              episodes_watched: episodesWatched || []
+                            }));
+                            
+                            // Calculate new progress
+                            const totalEpisodes = getAllEpisodes().length;
+                            const progress = totalEpisodes > 0 ? ((episodesWatched?.length || 0) / totalEpisodes) * 100 : 0;
+                            setCourseProgress(progress);
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <img
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            className="absolute top-0 left-0 w-full h-full object-cover"
+                            style={{ display: "block" }}
+                            id="thumbnail-img"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                          <div
+                            className="absolute inset-0 flex items-center justify-center cursor-pointer group"
+                            onClick={() => handleEpisodeClick(getFirstEpisode())}
+                            id="play-overlay"
                           >
-                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
-                          </svg>
-                        </div>
-                        <div className="absolute bottom-6 left-6 text-white">
-                          <h3 className="text-xl font-bold text-shadow-sm">
-                            {getFirstEpisode()?.title || "פרק ראשון"}
-                          </h3>
-                          <p className="text-sm text-gray-200 line-clamp-1 text-shadow-sm">
-                            {getFirstEpisode()?.description ||
-                              "לחץ כדי להתחיל את הקורס"}
-                          </p>
-                        </div>
-                      </div>
-                      <div
-                        id="video-player"
-                        className="absolute top-0 left-0 w-full h-full bg-black flex items-center justify-center"
-                        style={{ display: "none" }}
-                      >
-                        <div className="text-white text-center p-8">
-                          <svg
-                            className="w-16 h-16 mx-auto mb-4 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                            />
-                          </svg>
-                          <h3 className="text-xl font-bold mb-2">נגן הוידאו אינו זמין כרגע</h3>
-                          <p className="text-gray-400">אנחנו עובדים על זה!</p>
-                        </div>
-                      </div>
-                      {/* Decorative elements */}
-                      <div className="absolute top-4 right-4 flex space-x-1">
-                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      </div>
+                            <div className="w-20 h-20 rounded-full bg-blue-600 bg-opacity-80 flex items-center justify-center shadow-lg transform transition hover:scale-110 group-hover:bg-opacity-100 group-hover:bg-blue-500">
+                              <svg
+                                className="w-10 h-10 text-white transform transition group-hover:scale-125"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
+                              </svg>
+                            </div>
+                            <div className="absolute bottom-6 left-6 text-white">
+                              <h3 className="text-xl font-bold text-shadow-sm">
+                                {getFirstEpisode()?.title || "פרק ראשון"}
+                              </h3>
+                              <p className="text-sm text-gray-200 line-clamp-1 text-shadow-sm">
+                                {getFirstEpisode()?.description ||
+                                  "לחץ כדי להתחיל את הקורס"}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </motion.div>
 
@@ -729,7 +795,7 @@ const CourseDetails = () => {
                 >
                   <div className="relative aspect-video">
                     <img
-                      src={course.thumbnail_url || `https://videodelivery.net/${course.video_uid}/thumbnails/thumbnail.jpg`}
+                      src={course.thumbnail_url}
                       alt={course.title}
                       className="w-full h-full object-cover opacity-60"
                     />
@@ -802,10 +868,72 @@ const CourseDetails = () => {
                   </div>
                 </div>
                 <div className="divide-y divide-gray-200 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  {showFeedbackForm ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-5"
+                    >
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100">
+                        <div className="mb-4">
+                          <label className="block text-gray-700 font-medium mb-2">דירוג</label>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                onClick={() => setFeedbackForm(prev => ({ ...prev, rating: star }))}
+                                className={`p-2 rounded-full transition-all ${
+                                  feedbackForm.rating >= star
+                                    ? 'text-yellow-400 bg-yellow-50'
+                                    : 'text-gray-300 hover:text-yellow-400 hover:bg-yellow-50'
+                                }`}
+                              >
+                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mb-4">
+                          <label className="block text-gray-700 font-medium mb-2">משוב</label>
+                          <textarea
+                            value={feedbackForm.comment}
+                            onChange={(e) => setFeedbackForm(prev => ({ ...prev, comment: e.target.value }))}
+                            className="w-full p-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                            rows="4"
+                            placeholder="שתף את חווייתך מהקורס..."
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={handleFeedbackSubmit}
+                            disabled={submittingFeedback}
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {submittingFeedback ? 'שולח...' : 'שלח משוב'}
+                          </button>
+                          <button
+                            onClick={() => setShowFeedbackForm(false)}
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                          >
+                            ביטול
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : null}
+
                   {(course?.feedback || []).length > 0 ? (
                     course.feedback
                       .filter((feedback) => feedback?.comment)
-                      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                      .sort((a, b) => {
+                        // Sort user's feedback first
+                        if (a.id === course.user_feedback_id) return -1;
+                        if (b.id === course.user_feedback_id) return 1;
+                        // Then sort by date
+                        return new Date(b.created_at) - new Date(a.created_at);
+                      })
                       .map((feedback, index) => (
                         <motion.div
                           key={feedback.id}
@@ -836,9 +964,39 @@ const CourseDetails = () => {
                                 ))}
                               </div>
                             </div>
-                            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                              {formatDate(feedback.created_at)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                {formatDate(feedback.created_at)}
+                              </span>
+                              {feedback.id === course.user_feedback_id && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => {
+                                      setFeedbackForm({
+                                        rating: feedback.rating,
+                                        comment: feedback.comment
+                                      });
+                                      setShowFeedbackForm(true);
+                                    }}
+                                    className="text-blue-500 hover:text-blue-700 transition-colors p-1"
+                                    title="ערוך משוב"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={handleDeleteFeedback}
+                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                    title="מחק משוב"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100 shadow-sm">
                             <p className="text-gray-700 whitespace-pre-line leading-relaxed">
@@ -869,9 +1027,12 @@ const CourseDetails = () => {
                     </div>
                   )}
                 </div>
-                {!course?.has_user_feedback && course?.has_access && (
+                {!course?.has_user_feedback && course?.has_access && !showFeedbackForm && (
                   <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-                    <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center font-medium">
+                    <button
+                      onClick={() => setShowFeedbackForm(true)}
+                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center font-medium"
+                    >
                       <svg
                         className="w-5 h-5 mr-2"
                         fill="none"
@@ -1001,7 +1162,7 @@ const CourseDetails = () => {
                                     {course?.has_access ? (
                                       <button
                                         onClick={(e) =>
-                                          handleCheckboxClick(e, episode.episode_index)
+                                          handleCheckboxClick(e, episode.id)
                                         }
                                         className="focus:outline-none"
                                         aria-label={

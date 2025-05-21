@@ -142,7 +142,7 @@ const UserDashboard = () => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase.rpc('load_dashboard');
+        const { data, error } = await supabase.functions.invoke("get-dashboard");
         
         if (error) {
           console.error('Error fetching dashboard data:', error);
