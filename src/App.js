@@ -607,6 +607,17 @@ const App = () => {
                       </Button>
                     </div>
                   )}
+                  {showAllTutors && (
+                    <div className="flex justify-center mt-4">
+                      <Button
+                        onClick={() => setShowAllTutors(false)}
+                        variant="outline"
+                        className={`${styles.buttonThird}`}
+                      >
+                        הראה פחות
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </CardContent>

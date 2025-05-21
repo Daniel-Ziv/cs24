@@ -4,7 +4,7 @@ import App from '../App';
 import AuthCallback from '../components/AuthCallback';
 import GpaCalc from '../pages/GpaCalc';
 import Courses from '../pages/Courses';
-import ProfilePage from '../components/ProfilePage';
+import ProfilePage from '../pages/ProfilePage';
 import ScrollToTop from '../components/ScrollToTop'; 
 import NotFoundPage from '../components/NotFoundPage';
 import CourseDetails from '../pages/CourseDetails';
@@ -30,8 +30,8 @@ const AppRoutes = () => {
         <Route path="/terms" element={<Terms />} />
         <Route path="/about" element={<About />} />
         <Route path="/courses" element={<Courses />} />
-        <Route path="/course/:courseId" element={<CourseDetails />} />
-        <Route path="/tutors/:courseType/:id/:tutorName" element={<ProfilePage />} />
+        <Route path="/courses/:courseId" element={<CourseDetails />} />
+        <Route path="/tutors/:courseType/:id" element={<ProfilePage />} />
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/create-course" element={<CourseCreationPage />} />
         <Route path="/course-editor/:courseId" element={<CourseEditorPage />} />

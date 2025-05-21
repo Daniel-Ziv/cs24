@@ -10,7 +10,7 @@ const UpcomingEvents = ({
    
     className={`py-8 ${events.length === 0 ? "hidden" : ""}`} dir="rtl"
   >
-      <div className="flex items-center gap-3 border-b pb-6 mb-6 mt-8">
+      <div className="flex items-center gap-3 border-b pb-6 md:mb-4 mb-0">
         <Calendar className={`h-6 w-6 ${styles.iconColor}`} />
         <h2 className={`text-2xl font-bold ${styles.textColor}`}>אירועים קרובים</h2>
       </div>

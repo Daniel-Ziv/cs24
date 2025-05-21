@@ -16,9 +16,9 @@ const contributors = [
     // make image demo  make anonymous
 
     id: 3,
-    name: ' להוסיף מישו ',
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUz5Ja3FzF7XunaGGuyHoX1S4-rOiFhCV63kb7aDD_OZMcWZBpyoApD1k7EQZ63N8-e3E&usqp=CAU',
-    linkedinUrl: 'https://www.linkedin.com/in/uri-examp',
+    name: 'שלי זינו',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D4E03AQGHJiPMoau-Tg/profile-displayphoto-shrink_400_400/B4EZapRuFBHoAk-/0/1746596719478?e=1752710400&v=beta&t=ojjMVYxLtUjvWoFI_XFp3xA-roaMaWIVtD9riqNFSxk',
+    linkedinUrl: 'https://www.linkedin.com/in/shely-zino-86924335a/',
   },
   {
     id: 4,
@@ -47,7 +47,7 @@ const contributors = [
   {
     id: 8,
     name: 'דניאל שצוב',
-    imageUrl: 'https://media.licdn.com/dms/image/v2/D4D35AQG19zWK3ffFaQ/profile-framedphoto-shrink_800_800/B4DZakrXd5G8Ag-/0/1746519554232?e=1747508400&v=beta&t=gT6bazQkZz8_MqrUBaodqHJ87EtCuAjQ8ePfziUMG9o',
+    imageUrl: 'https://media.licdn.com/dms/image/v2/D4D35AQG19zWK3ffFaQ/profile-framedphoto-shrink_400_400/B4DZakrXd5G8Ac-/0/1746519554203?e=1748278800&v=beta&t=Zrsq7QYbDQGRRUfFSwdJlbP-XfTM4yKOD_p5laIpPi8',
     linkedinUrl: 'https://linkedin.com/in/daniel-shatzov',
   },
   {

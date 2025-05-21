@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import { ChevronLeft, ChevronRight, Users, Star } from "lucide-react"
@@ -10,8 +8,7 @@ const TutorComponent = ({ tutors, styles, courseType }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [visibleCount, setVisibleCount] = useState(3)
   const carouselRef = useRef(null)
-  const { id, tutorName } = useParams()
-  const displayName = decodeURIComponent(tutorName.replace(/-/g, " "))
+  const { id } = useParams()
   const sectionKey = courseType + "Tutors"
   const sectionTutors = tutors[sectionKey] || []
   const [tutorData, setTutorData] = useState(null)
@@ -55,10 +52,10 @@ const TutorComponent = ({ tutors, styles, courseType }) => {
 
   useEffect(() => {
     const foundTutor = sectionTutors.find(
-      tutor => tutor.id === Number(id) && tutor.name === displayName
+      tutor => tutor.id === Number(id)
     )
     setTutorData(foundTutor || null)
-  }, [id, tutorName, courseType, sectionTutors, displayName]);
+  }, [id, courseType, sectionTutors]);
 
   const isMobile = visibleCount === 1
 
@@ -83,7 +80,7 @@ const TutorComponent = ({ tutors, styles, courseType }) => {
   const display = isMobile ? tutors : tutors.slice(currentIndex, currentIndex + visibleCount)
 
   return (
-    <section className="relative md:max-w-[65rem] max-w-3xl mx-auto py-8 overflow-hidden" dir="rtl">
+    <section className="relative mt-6 md:max-w-[65rem] max-w-3xl mx-auto py-8 overflow-hidden" dir="rtl">
       {tutors.length > 0 && (
         <div className="relative mx-auto -mt-8 ">
           <div className="flex items-center gap-3 border-b pb-6 mb-6 ">
@@ -157,7 +154,7 @@ const TutorComponent = ({ tutors, styles, courseType }) => {
 
                   {/* view profile btn */}
                   <Link
-                    to={`/tutors/${courseType}/${tutor.id}/${tutor.name.replace(/\s+/g, "-").toLowerCase()}`}
+                    to={`/tutors/${courseType}/${tutor.id}`}
                     className={`${styles.buttonSecondary} mt-auto mx-auto px-4 py-1.5 rounded-full text-sm block `}
                   >
                     צפייה בפרופיל

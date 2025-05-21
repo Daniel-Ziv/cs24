@@ -255,7 +255,7 @@ export default function UploadSuccess() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    <Link to={`/course/${videoData.id}`} className="block">
+                    <Link to={`/courses/${videoData.id}`} className="block">
                       <div className="aspect-video relative">
                         <img 
                           src={getThumbnailUrl()}
@@ -321,7 +321,7 @@ export default function UploadSuccess() {
                       <li className="flex justify-between items-center">
                         <span className="text-gray-600">קישור לדף הקורס:</span>
                         <Link 
-                          to={`/course/${videoData.id}`}
+                          to={`/courses/${videoData.id}`}
                           className={`text-sm font-medium px-3 py-1 rounded-full ${styles.buttonPrimary}`}
                         >
                           צפה בדף הקורס
@@ -426,7 +426,7 @@ export default function UploadSuccess() {
                   </Button>
                   
                   <Link
-                    to={`/course/${videoData.id}`}
+                    to={`/courses/${videoData.id}`}
                     className={`${styles.buttonSecondary || 'bg-gray-200 text-gray-800 hover:bg-gray-300'} px-6 py-3 rounded-lg font-medium text-center`}
                   >
                     צפה בדף הקורס

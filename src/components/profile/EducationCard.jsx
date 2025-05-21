@@ -1,6 +1,6 @@
-import { GraduationCap, Calendar, Award, BookOpen } from "lucide-react"
+import { GraduationCap, Calendar, BookOpen } from "lucide-react"
 
-export default function EducationProfileSection({ tutor, styles }) {
+export default function EducationCard({ tutor, styles }) {
   if (!tutor) return null;
 
   const average =
@@ -11,8 +11,8 @@ export default function EducationProfileSection({ tutor, styles }) {
         ).toFixed(1)
       : "N/A";
   return (
-    <section className="py-8 -mb-12" dir="rtl">
-      <div className="w-full py-8">
+    <section className="py-8  -mb-12" dir="rtl">
+      <div className="w-full">
         <div className="flex items-center gap-3 border-b pb-6 mb-8">
           <GraduationCap className={`h-6 w-6 ${styles.iconColor}`} />
           <h2 className={`text-2xl font-bold ${styles.textColor}`}>השכלה</h2>

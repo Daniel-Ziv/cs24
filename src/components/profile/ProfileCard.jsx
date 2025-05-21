@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
-import { Star, Book, Phone, Linkedin, Github, Verified, MapPin, Edit, Paperclip  } from "lucide-react";
+import { Star, Phone, Linkedin, Github, Verified, MapPin, Paperclip, Share2, PhoneCallIcon } from "lucide-react";
 import image from "../../config/user-profile.png";
-import EditPanel from "../EditPanel"
+
 
 const ProfileCard = ({ tutorData, styles }) => {
   // Scroll to bottom of the page
@@ -14,17 +14,11 @@ const ProfileCard = ({ tutorData, styles }) => {
   const githu = tutorData.github || "" //"https://github.com/Daniel23sh";
   const other = tutorData.other || "" 
   const [localData, setLocalData] = useState(tutorData)
-  const [showEditModal, setShowEditModal] = useState(false)
   // keep in sync when parent prop changes
   useEffect(() => {
     setLocalData(tutorData)
   }, [tutorData])
 
-  // called by EditPanel
-  const handleProfileSave = (updatedData, updatedEvents, updatedGrades) => {
-    setLocalData({ ...updatedData, events: updatedEvents, grades: updatedGrades })
-    setShowEditModal(false)
-  }
   const calcAverageRating = (feedbackArray) => {
     if (!feedbackArray || feedbackArray.length === 0) return null
     const sum = feedbackArray.reduce((acc, cur) => acc + (cur.rating || 0), 0)
@@ -41,20 +35,21 @@ const ProfileCard = ({ tutorData, styles }) => {
   };
   return (
     <div className={`block p-4 relative z-20 ${ isDevMode && 'pt-24' }`}>
-      <div className="max-w-6xl mx-auto -mb-8">
-      <div className={`relative bg-white border ${styles.cardBorder} rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row mx-auto`}>
-
-          {/* edit button top-left */}
-          <button
-            onClick={() => setShowEditModal(true)}
-            className={`absolute top-4 left-4 p-2 rounded-full bg-white hover:bg-gray-100 shadow-sm ${isDevMode ? "": 'hidden'}`}
-            aria-label="Edit profile"
+      <div className=" mx-auto -mb-8 max-w-[73rem] md:p-0 pb-4 md:pb-4">
+        <div className={`relative bg-white border ${styles.cardBorder} rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row mx-auto`}>
+          {/* share button */}
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`הנה הפרופיל של ${tutorData.name}👨‍🏫\n\nhttps://${window.location.host}/tutors/cs/${tutorData.id}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`absolute top-2 left-2 p-2 rounded-full bg-white hover:bg-gray-100  hidden md:block ${isDevMode ? "" : 'hidden'}`}
+            aria-label="Share profile"
           >
-            <Edit className="h-5 w-5 text-gray-500" />
-          </button>
+            <Share2 className={`h-5 w-5 bg-rounded ${styles.linksIconColor}`} />
+          </a>
 
           {/* Profile Photo */}
-          <div className="relative w-80 h-72 mx-auto mt-4 md:w-64 md:h-60 md:m-4 md:mt-6">
+          <div className="relative mx-auto w-40 h-40 md:w-52 md:h-48 md:mt-4 mt-6 md:m-2 md:m-4">
             <img
               src={image || "/placeholder.svg"}
               alt={tutorData.name}
@@ -64,18 +59,28 @@ const ProfileCard = ({ tutorData, styles }) => {
                 e.target.src = "/placeholder.svg?height=300&width=300";
               }}
             />
+            {/* share button */}
+            <a
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(` הנה הפרופיל של ${tutorData.name}👨‍🏫\n\n🔗 https://${window.location.host}/tutors/cs/${tutorData.id}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`absolute top-2 left-2 p-2 rounded-full bg-white hover:bg-gray-100 md:hidden`}
+              aria-label="Share profile"
+            >
+              <Share2 className={`h-4 w-4 ${styles.linksIconColor}`} />
+            </a>
           </div>
 
           {/* Profile Info */}
-          <div className="p-5 space-y-4 text-center flex flex-col items-center md:items-start md:flex-1 md:p-6">
+          <div className="p-3 space-y-2 text-center flex flex-col items-center md:items-start md:flex-1 md:p-4">
             {/* Name and Verification */}
              <div className="flex items-center justify-center md:justify-start space-x-2">
-              <h2 className="text-2xl font-bold text-gray-900">{tutorData.name}</h2>
-              <Verified className="h-6 w-6 text-white fill-blue-500" />
+              <h2 className="text-2xl ml-1 font-bold text-gray-900">{tutorData.name}</h2>
+              <Verified className="h-6 w-6 md:mt-1 text-white fill-blue-500" />
             </div>
            
             {/* Rating & Mobile Price */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-2">
               <div className="flex items-center">
                 <Star className="h-5 w-5 text-yellow-400 fill-current ml-1" />
                 <span className="ml-1 font-semibold text-gray-900">
@@ -85,60 +90,48 @@ const ProfileCard = ({ tutorData, styles }) => {
                   ({tutorData.feedback?.length || 0} reviews)
                 </span>
               </div>
-              <div className={` px-3 py-1 rounded-full text-sm font-bold flex items-center justify-center ${styles.textColor} ${styles.bgLight} md:hidden`}>
-                {tutorData.private_price}₪ / שעה
-              </div>
+            </div>
+
+            {/* About Me */}
+            <div className="text-right mt-4 md:pr-2 pr-4 md:pl-6 pl-2">
+              <p className={`${styles.textColor} whitespace-pre-line leading-relaxed`}>
+                {tutorData.about_me || <span><strong>"</strong>עוד לא הוספתי<strong>"</strong></span>}
+              </p>
             </div>
 
             {/* Container: column-flex/right-align on mobile, two-column grid on md+ */}
-          <div className="flex flex-col items-start gap-4 md:grid md:grid-cols-2 md:items-start md:gap-4">
+            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-12">
 
-          {/* Left column: Role above avaliability */}
-          <div className="flex flex-col items-start md:items-start space-y-2">
-            {/* Role */}
-            <div className="flex items-center text-gray-700">
-              <div className={`p-1.5 rounded-full ${styles.linksIconBg} mr-2`}>
-                <Book className={`h-5 w-5 ${styles.iconColor}`} />
-              </div>
-              <span className="mr-2">{tutorData.role || "מורה פרטי"}</span>
-            </div>
-
-            {/* avaliability */}
-            <div className="flex items-center text-gray-700">
-              <div className={`p-1.5 rounded-full md:mt-2 ${styles.linksIconBg} mr-2`}>
-                <MapPin className={`h-5 w-5 ${styles.iconColor}`} />
-              </div>
-              <span className="break-words text-right mr-2">
-                מועבר ב{tutorData.status}
-              </span>
-            </div>
-          </div>
-
-          {/* Right column: Price above Phone */}
-          <div className="flex flex-col items-end md:items-start space-y-2">
-            {/* Price (desktop only) */}
-            <div className="hidden md:flex items-center md:mr-8">
-              <div className={`w-8 h-8 flex items-center justify-center rounded-full ${styles.linksIconBg} mr-2`}>
-                <span className={`text-3xl leading-none mb-2 font-light ${styles.iconColor}`}>₪</span>
-              </div>
-              <p className="text-base text-gray-700 mr-2">{tutorData.private_price} לשעה</p>
-            </div>
-
-            {/* Phone */}
-            {tutorData.phone && (
-              <div className="flex items-center text-gray-700 md:mr-8">
-                <div className={`p-1.5 rounded-full -mt-4 md:mt-2 ${styles.linksIconBg} mr-2`}>
-                  <Phone className={`h-5 w-5 ${styles.iconColor}`} />
+              {/* Availability */}
+              <div className="flex mt-4 items-center text-gray-700">
+                <div className={`p-1.5 rounded-full ${styles.linksIconBg}`}>
+                  <MapPin className={`h-5 w-5 ${styles.iconColor}`} />
                 </div>
-                <p className="text-base mr-2 md:mt-2 -mt-4">{formatPhoneNumber(tutorData.phone)}</p>
+                <span className="break-words text-right mr-2">
+                  מועבר בזום
+                </span>
               </div>
-            )}
-          </div>
 
-          </div>
+              {/* Price */}
+              <div className="hidden md:flex mt-4 items-center text-gray-700">
+                <div className={`w-8 h-8 flex items-center justify-center rounded-full ${styles.linksIconBg} mr-2`}>
+                  <span className={`text-3xl leading-none mb-2 font-light ${styles.iconColor}`}>₪</span>
+                </div>
+                <p className="text-base text-gray-700 mr-2">{tutorData.private_price} לשעה</p>
+              </div>
 
+              {/* Phone */}
+              {tutorData.phone && (
+                <div className="hidden md:flex mt-4 items-center text-gray-700">
+                  <div className={`p-1.5 rounded-full ${styles.linksIconBg} mr-2`}>
+                    <Phone className={`h-5 w-5 ${styles.iconColor}`} />
+                  </div>
+                  <p className="text-base mr-2">{formatPhoneNumber(tutorData.phone)}</p>
+                </div>
+              )}
+            </div>
 
-           {/* Social Links (Mobile) */}
+            {/* Social Links (Mobile) */}
             {(linke || githu || other) && (
               <div className="flex gap-4 mt-3 items-center justify-center md:hidden">
                 {linke && (
@@ -212,28 +205,15 @@ const ProfileCard = ({ tutorData, styles }) => {
               {/* כפתור – תמיד מוצג */}
               <button
                 onClick={scrollToBottom}
-                className={`${styles.buttonPrimary} text-white rounded-lg font-medium w-full md:w-64 py-2 px-4 md:mt-4`}
+                className={`${styles.buttonPrimary} text-white rounded-lg font-medium w-full md:mt-0 mt-4 md:w-64 py-2 px-4 flex items-center justify-center gap-2`}
               >
-                הזמן שיעור
+                <PhoneCallIcon size={17} />
+                <span>צור קשר</span>
               </button>
             </div>
-
-
           </div>
         </div>
       </div>
-       {/* EditPanel Modal */}
-       {showEditModal && (
-        <EditPanel
-          showEditModal={showEditModal}
-          setShowEditModal={setShowEditModal}
-          tutorData={localData}
-          styles={styles}
-          grades={localData.grades}
-          events={localData.events}
-          onSave={handleProfileSave}
-        />
-      )}
     </div>
   );
 };

@@ -91,7 +91,7 @@ export default function ThankYou() {
       
       // Auto redirect after 10 seconds (increased from 5 to give more time to read)
       const timer = setTimeout(() => {
-        navigate(`/course/${id}`)
+        navigate(`/courses/${id}`)
       }, 15000)
       
       setLoading(false)
@@ -117,7 +117,7 @@ export default function ThankYou() {
             
             // Auto redirect after 10 seconds
             const timer = setTimeout(() => {
-              navigate(`/course/${data}`)
+              navigate(`/courses/${data}`)
             }, 15000)
             
             return () => clearTimeout(timer)
@@ -221,7 +221,7 @@ export default function ThankYou() {
                 
                 <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
                   <Link
-                    to={`/course/${courseDetails.id}`}
+                    to={`/courses/${courseDetails.id}`}
                     className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium"
                   >
                     עבור לקורס עכשיו

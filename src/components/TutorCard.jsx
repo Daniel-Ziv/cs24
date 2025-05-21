@@ -135,9 +135,8 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
               <div className="flex items-center gap-2">
                 {isDevMode && (
               <Link
-                to={`/tutors/${courseType}/${tutor.id}/${formatTutorNameForRoute(tutor.name)}`}
-                //state={{ tutor, courseType,  }}
-                className="relative"
+              to={`/tutors/${courseType}/${tutor.id}`}
+              className="relative"
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
               >
@@ -177,7 +176,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                 href={`https://wa.me/972${phoneWithoutZero}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`w-10 h-10 flex items-center justify-center rounded-md shadow-md ${styles.iconColorReverse} transition-colors hover:bg-gray-100`}
+                className={`w-10 h-10 flex items-center justify-center rounded-md shadow-md ${styles.starColor} transition-colors hover:bg-gray-100`}
                 title="WhatsApp"
                 onClick={handleWhatsAppClick}
               >
@@ -201,7 +200,7 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
         <CardContent className="pt-0">
           <div className="space-y-2">
             <div className="flex flex-wrap gap-1.5 -mx-0.5">
-              {tutor.subjects?.map((subject, index) => (
+              {tutor.subjects?.slice(0, 4).map((subject, index) => (
                 <span
                   key={index}
                   className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles.subjectBg} ${styles.textSecondary}`}
@@ -209,11 +208,27 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                   {subject.course_name}
                 </span>
               ))}
-              
+              {tutor.subjects?.length > 4 && (
+                <span
+                  className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${styles.subjectBg} ${styles.textSecondary}`}
+                >
+                  {tutor.subjects.length - 4}+
+                </span>
+              )}
             </div>
+            {!tutor.feedback?.length && (
+              <div className="flex justify-end mt-2">
+                <Link
+                  to={`/tutors/${courseType}/${tutor.id}`}
+                  className={`${styles.textSecondary} px-3 py-1 text-sm border-b border-current`}
+                >
+                  צפייה בפרופיל
+                </Link>
+              </div>
+            )}
             {tutor.feedback?.length > 0 && (
               <div>
-             <div className="flex justify-between items-center">
+             <div className="flex md:justify-between justify-center items-center gap-4 ">
               <Button
                 className={styles.textSecondary}
                 onClick={() => setShowReviews(!showReviews)}
@@ -222,13 +237,16 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
                   ? 'הסתר תגובות'
                   : `ראה תגובות (${reviewsWithComments.length})`}
               </Button>
-              <Link
-                to={`/tutors/${courseType}/${tutor.id}/${formatTutorNameForRoute(tutor.name)}`}
-                //state={{ tutor }}
-                className={`${styles.iconColorReverse} ${isDevMode ? "": "hidden"} px-3 py-1 rounded-full text-sm`}
-              >
-                צפייה בפרופיל
-              </Link>
+              <div className="flex flex-col items-center">
+                <Link
+                  to={`/tutors/${courseType}/${tutor.id}`}
+                  //state={{ tutor }}
+                  className={`${styles.textSecondary} ${isDevMode ? "": "hidden"} text-center px-3 py-1 text-sm border-b border-current pr-0.5 pl-0.5`}
+                >
+                  צפייה בפרופיל
+                </Link>
+                <div className={`w-16 h-0.5 ${styles.textSecondary}`}></div>
+              </div>
             </div>
                 {showDeleteButton && userFeedback && (
                   <div className="mt-2 space-y-2">
@@ -268,63 +286,46 @@ const TutorCard = ({ tutor, courseType, user, onSubmitFeedback, loadTutorsWithFe
 
                 {showReviews && reviewsWithComments.length > 0 && (
                   <div className="mt-2 space-y-2">
-                    {displayedReviews.map((fb, index) => {
-                      const isUserOwnFeedback = hasUserFeedback && index === 0;
-                      return (
-                        <div key={index} className={`${isUserOwnFeedback ? 'bg-blue-50' : 'bg-gray-50'} rounded-lg p-3 relative`}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                            
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-3.5 w-3.5 ${i < fb.rating ? `${styles.starColor} fill-current` : 'text-gray-300'}`}
-                                />
-                              ))}
-                              {isUserOwnFeedback && (
-                                <span className="text-xs text-blue-600 ml-2">(הביקורת שלך)</span>
-                              )}
+                    <div className="max-h-[220px] overflow-y-auto pr-2 space-y-2">
+                      {reviewsWithComments.map((fb, index) => {
+                        const isUserOwnFeedback = hasUserFeedback && index === 0;
+                        return (
+                          <div key={index} className={`${isUserOwnFeedback ? 'bg-blue-50' : 'bg-gray-50'} rounded-lg p-3 relative`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1">
+                              
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3.5 w-3.5 ${i < fb.rating ? `${styles.starColor} fill-current` : 'text-gray-300'}`}
+                                  />
+                                ))}
+                                {isUserOwnFeedback && (
+                                  <span className="text-xs text-blue-600 ml-2">(הביקורת שלך)</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {fb.created_at && (
+                                  <span className="text-xs text-gray-500">
+                                    {format(new Date(fb.created_at), 'dd/MM/yyyy')}
+                                  </span>
+                                )}
+                                {(userIsAdmin || isUserOwnFeedback) && (
+                                  <button
+                                    onClick={handleDeleteFeedback}
+                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                    title="מחק ביקורת"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {fb.created_at && (
-                                <span className="text-xs text-gray-500">
-                                  {format(new Date(fb.created_at), 'dd/MM/yyyy')}
-                                </span>
-                              )}
-                              {(userIsAdmin || isUserOwnFeedback) && (
-                                <button
-                                  onClick={handleDeleteFeedback}
-                                  className="text-gray-400 hover:text-red-500 transition-colors"
-                                  title="מחק ביקורת"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
-                              )}
-                            </div>
+                            {fb.comment && <p className="text-sm text-gray-700 mt-1">{fb.comment}</p>}
                           </div>
-                          {fb.comment && <p className="text-sm text-gray-700 mt-1">{fb.comment}</p>}
-                        </div>
-                      );
-                    })}
-                    
-                    {reviewsWithComments.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowAllReviews(!showAllReviews)}
-                        className={`w-full text-sm ${styles.textSecondary}`}
-                      >
-                        {showAllReviews ? (
-                          <>
-                            הצג פחות <ChevronUp className="h-4 w-4" />
-                          </>
-                        ) : (
-                          <>
-                            הצג עוד {reviewsWithComments.length - 1} ביקורות <ChevronDown className="h-4 w-4" />
-                          </>
-                        )}
-                      </Button>
-                    )}
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
