@@ -1,21 +1,80 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';  // Adjust import path if needed
-import { DollarSign, Calendar, Users, Database, BarChart2 } from 'lucide-react';  // Assuming these icons are used
+import { DollarSign, Calendar, Users, Database, BarChart2, Clock, Play, Eye } from 'lucide-react';  // Added new icons
 
 const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoading }) => {
   const [analyticsData, setAnalyticsData] = useState({
     recentSales: [],
     totalSales: 0,
+    totalRevenue: 0,
     monthlySales: [],
     totalStudents: 0,
-    courseAnalytics: []
+    courseAnalytics: [],
+    // New video analytics
+    totalViewingTime: 0,
+    averageViewingTime: 0,
+    totalVideos: 0,
+    videoAnalytics: []
   });
+
+  // Process video analytics data
+  const processVideoAnalytics = (courses) => {
+    if (!courses || courses.length === 0) return { totalViewingTime: 0, averageViewingTime: 0, totalVideos: 0, videoAnalytics: [] };
+    
+    let totalViewingTime = 0;
+    let totalVideos = 0;
+    const videoAnalytics = [];
+    
+    courses.forEach(course => {
+      if (course.analytics && course.analytics.length > 0) {
+        // Calculate total viewing time for this course
+        const courseViewingTime = course.analytics.reduce((total, session) => total + (session.minutes || 0), 0);
+        const courseVideos = course.analytics.length;
+        const averageSessionTime = courseVideos > 0 ? courseViewingTime / courseVideos : 0;
+        
+        totalViewingTime += courseViewingTime;
+        totalVideos += courseVideos;
+        
+        videoAnalytics.push({
+          courseId: course.video_course_id,
+          courseTitle: course.title,
+          totalViewingTime: courseViewingTime,
+          totalVideos: courseVideos,
+          averageSessionTime: averageSessionTime,
+          // Calculate engagement score (viewing time per view)
+          engagementScore: averageSessionTime
+        });
+      } else {
+        // Course with no analytics
+        videoAnalytics.push({
+          courseId: course.video_course_id,
+          courseTitle: course.title,
+          totalViewingTime: 0,
+          totalVideos: 0,
+          averageSessionTime: 0,
+          engagementScore: 0
+        });
+      }
+    });
+    
+    const averageViewingTime = totalVideos > 0 ? totalViewingTime / totalVideos : 0;
+    
+    return {
+      totalViewingTime,
+      averageViewingTime,
+      totalVideos,
+      videoAnalytics: videoAnalytics.sort((a, b) => b.totalViewingTime - a.totalViewingTime) // Sort by total viewing time
+    };
+  };
 
   // Process course data for analytics
   const processCourseData = (courses) => {
     if (!courses || courses.length === 0) return;
     
     console.log("Processing course data:", courses);
+    
+    // Process video analytics
+    const videoAnalyticsData = processVideoAnalytics(courses);
     
     // Analyze sales data per course
     const allSales = [];
@@ -24,28 +83,28 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
     courses.forEach(course => {
       if (!course.purchasers || course.purchasers.length === 0) {
         courseStats.push({
-          courseId: course.course_id,
+          courseId: course.video_course_id,
           courseTitle: course.title,
           totalSales: 0,
           totalRevenue: 0,
           paidOrders: 0,
           pendingOrders: 0,
           conversionRate: 0,
-          uniqueCustomers: [],
+          uniqueCustomers: 0,
           recentSales: []
         });
         return;
       }
       
-      // Get all paid orders
-      const paidOrders = course.purchasers.filter(order => order.paid);
+      // Get all paid orders - only students who actually paid
+      const paidOrders = course.purchasers.filter(order => order.paid === true);
       
       // Calculate total revenue from this course
       const totalRevenue = paidOrders.reduce((total, order) => total + order.amount, 0);
       
-      // Get unique customers
+      // Get unique customers for this course
       const uniqueCustomers = [...new Set(
-        course.purchasers
+        paidOrders
           .filter(order => order.customer_email)
           .map(order => order.customer_email)
       )];
@@ -68,7 +127,7 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
       // Add all sales to global sales array
       paidOrders.forEach(order => {
         allSales.push({
-          courseId: course.course_id,
+          courseId: course.video_course_id,
           courseTitle: course.title,
           customerId: order.user_uuid,
           customerName: order.customer_full_name || 'משתמש לא מזוהה',
@@ -88,7 +147,7 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
       
       // Add to course stats
       courseStats.push({
-        courseId: course.course_id,
+        courseId: course.video_course_id,
         courseTitle: course.title,
         totalSales: paidOrders.length,
         totalRevenue,
@@ -107,14 +166,18 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
     const totalSales = courseStats.reduce((total, course) => total + course.totalSales, 0);
     const totalRevenue = courseStats.reduce((total, course) => total + course.totalRevenue, 0);
     
-    // Get unique students across all courses
+    // Get unique students across all courses (only paid students)
     const allCustomers = new Set();
-    courseStats.forEach(course => {
-      course.purchasers?.forEach(purchaser => {
-        if (purchaser.customer_email) {
-          allCustomers.add(purchaser.customer_email);
-        }
-      });
+    courses.forEach(course => {
+      if (course.purchasers) {
+        course.purchasers
+          .filter(purchaser => purchaser.paid === true)
+          .forEach(purchaser => {
+            if (purchaser.customer_email) {
+              allCustomers.add(purchaser.customer_email);
+            }
+          });
+      }
     });
     
     // Process monthly sales data
@@ -127,7 +190,12 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
       totalRevenue,
       monthlySales,
       totalStudents: allCustomers.size,
-      courseAnalytics: courseStats
+      courseAnalytics: courseStats,
+      // Add video analytics
+      totalViewingTime: videoAnalyticsData.totalViewingTime,
+      averageViewingTime: videoAnalyticsData.averageViewingTime,
+      totalVideos: videoAnalyticsData.totalVideos,
+      videoAnalytics: videoAnalyticsData.videoAnalytics
     });
   };
 
@@ -165,6 +233,7 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
   };
 
   useEffect(() => {
+    // Use the my_courses data from dashboardData (this is the tutor's courses)
     if (dashboardData.my_courses) {
       processCourseData(dashboardData.my_courses);
     }
@@ -186,8 +255,8 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
                     <DollarSign size={24} className="text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">סה\"כ מכירות</h3>
-                    <p className="text-2xl font-bold">₪{analyticsData.totalSales}</p>
+                    <h3 className="text-sm font-medium text-gray-500">סה\"כ הכנסות</h3>
+                    <p className="text-2xl font-bold">₪{analyticsData.totalRevenue.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -197,8 +266,8 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
                     <Calendar size={24} className="text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">מכירות החודש</h3>
-                    <p className="text-2xl font-bold">₪{analyticsData.monthlySales[0]?.amount || 0}</p>
+                    <h3 className="text-sm font-medium text-gray-500">הכנסות החודש</h3>
+                    <p className="text-2xl font-bold">₪{analyticsData.monthlySales[0]?.amount.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </div>
@@ -208,7 +277,7 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
                     <Users size={24} className="text-amber-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">סטודנטים</h3>
+                    <h3 className="text-sm font-medium text-gray-500">סטודנטים פעילים</h3>
                     <p className="text-2xl font-bold">{analyticsData.totalStudents}</p>
                   </div>
                 </div>
@@ -219,8 +288,53 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
                     <BarChart2 size={24} className="text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">קורסים</h3>
-                    <p className="text-2xl font-bold">{analyticsData.courseAnalytics.length}</p>
+                    <h3 className="text-sm font-medium text-gray-500">סה\"כ מכירות</h3>
+                    <p className="text-2xl font-bold">{analyticsData.totalSales}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>אנליטיקת צפייה</CardTitle>
+            <CardDescription>נתוני צפייה עבור הקורסים שלך</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center">
+                  <div className="bg-indigo-100 p-3 rounded-full mr-3">
+                    <Clock size={24} className="text-indigo-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">סה\"כ זמן צפייה</h3>
+                    <p className="text-2xl font-bold">{Math.round(analyticsData.totalViewingTime)} דקות</p>
+                    <p className="text-xs text-gray-400">{(analyticsData.totalViewingTime / 60).toFixed(1)} שעות</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center">
+                  <div className="bg-teal-100 p-3 rounded-full mr-3">
+                    <Play size={24} className="text-teal-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">סה\"כ סרטונים שצפו</h3>
+                    <p className="text-2xl font-bold">{analyticsData.totalVideos}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center">
+                  <div className="bg-rose-100 p-3 rounded-full mr-3">
+                    <Eye size={24} className="text-rose-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">ממוצע זמן לסרטון</h3>
+                    <p className="text-2xl font-bold">{analyticsData.averageViewingTime.toFixed(1)} דקות</p>
                   </div>
                 </div>
               </div>
@@ -347,31 +461,132 @@ const UserAnalytics = ({ activeTab, isTutor, dashboardData, isLoading: parentLoa
                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       אחוז המרה
                     </th>
+                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      זמן צפייה
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      סרטונים
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {analyticsData.courseAnalytics.map((course) => (
-                    <tr key={course.courseId}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {course.courseTitle}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {course.totalSales}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ₪{course.totalRevenue.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {course.uniqueCustomers}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {course.conversionRate.toFixed(1)}%
-                      </td>
-                    </tr>
-                  ))}
+                  {analyticsData.courseAnalytics.map((course) => {
+                    // Find corresponding video analytics
+                    const videoData = analyticsData.videoAnalytics.find(v => v.courseId === course.courseId) || {
+                      totalViewingTime: 0,
+                      totalVideos: 0,
+                      averageSessionTime: 0
+                    };
+                    
+                    return (
+                      <tr key={course.courseId}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {course.courseTitle}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {course.totalSales}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          ₪{course.totalRevenue.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {course.uniqueCustomers}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {course.conversionRate.toFixed(1)}%
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {Math.round(videoData.totalViewingTime)} דקות
+                          <div className="text-xs text-gray-500">
+                            ממוצע: {videoData.averageSessionTime.toFixed(1)} דקות לסרטון
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {videoData.totalVideos}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>פירוט אנליטיקת צפייה</CardTitle>
+            <CardDescription>נתוני צפייה מפורטים לכל קורס</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {analyticsData.videoAnalytics && analyticsData.videoAnalytics.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        קורס
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        סה\"כ זמן צפייה
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        מספר סרטונים
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ממוצע לסרטון
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ציון מעורבות
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {analyticsData.videoAnalytics.map((video) => (
+                      <tr key={video.courseId}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {video.courseTitle}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {Math.round(video.totalViewingTime)} דקות
+                          <div className="text-xs text-gray-500">
+                            ({(video.totalViewingTime / 60).toFixed(1)} שעות)
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {video.totalVideos}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {video.averageSessionTime.toFixed(1)} דקות
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  video.engagementScore >= 5 ? 'bg-green-500' :
+                                  video.engagementScore >= 3 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{ 
+                                  width: `${Math.min((video.engagementScore / 10) * 100, 100)}%` 
+                                }}
+                              ></div>
+                            </div>
+                            <span className="text-xs">
+                              {video.engagementScore.toFixed(1)}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">אין נתוני צפייה עדיין</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

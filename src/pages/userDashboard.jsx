@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Book, ChevronRight, BarChart2, Settings, Edit, Save, Loader, Tag, Trash2, Plus, Zap, DollarSign, Users, Calendar, Database, Eye, EyeOff } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -15,6 +15,7 @@ import  TutorProfile  from '../components/dashboard/TutorProfile';
 const UserDashboard = () => {
   const { user, session, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('main');
   const [dashboardData, setDashboardData] = useState({
     my_courses: [],
@@ -31,6 +32,20 @@ const UserDashboard = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isTutor, setIsTutor] = useState(false);
+
+  // Function to handle tab changes with URL parameters
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    setSearchParams({ tab: tabName });
+  };
+
+  // Initialize active tab from URL parameters
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (loading) return;
@@ -67,14 +82,25 @@ const UserDashboard = () => {
           });
         });
 
+        // Calculate total spent for students (from access data)
+        const totalSpent = data.access?.reduce((total, course) => {
+          // This would need actual purchase amount data - for now using 0
+          return total + 0;
+        }, 0) || 0;
+
+        // Calculate total watch time from analytics (only for tutors)
+        const totalWatchTime = data.is_tutor ? data.my_courses?.reduce((total, course) => {
+          const courseWatchTime = course.analytics?.reduce((sum, session) => sum + (session.minutes || 0), 0) || 0;
+          return total + courseWatchTime;
+        }, 0) || 0 : 0;
+
         // Set dashboard data with calculated fields
         setDashboardData({
           ...data,
           total_revenue: totalRevenue,
           total_students: uniqueStudents.size,
-          total_spent: 0, // This would need to be calculated from purchases if available
-          total_watch_time: 0, // This would need to be calculated from analytics if available
-          recent_activity: [] // This would need to be populated from activity logs if available
+          total_spent: totalSpent,
+          total_watch_time: totalWatchTime
         });
         
         // Set tutor state
@@ -95,7 +121,14 @@ const UserDashboard = () => {
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="flex items-center justify-center min-h-screen">
-          <Loader className="w-12 h-12 animate-spin text-primary" />
+          <div className="text-center p-8 rounded-lg bg-white shadow-lg border border-blue-100 max-w-md w-full">
+            <div className="mb-4">
+              <Loader className="w-12 h-12 animate-spin text-primary mx-auto" />
+            </div>
+            <p className="text-gray-600 text-lg font-medium">
+              טוען נתוני לוח בקרה...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -114,7 +147,7 @@ const UserDashboard = () => {
                   <h2 className="font-bold text-xl mb-4 text-center">{user?.email}</h2>
                   <Button 
                     className={`w-full flex items-center justify-start gap-2 ${activeTab === 'main' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                    onClick={() => setActiveTab('main')}
+                    onClick={() => handleTabChange('main')}
                   >
                     <BarChart2 size={18} />
                     <span>סקירה כללית</span>
@@ -122,7 +155,7 @@ const UserDashboard = () => {
 
                   <Button 
                     className={`w-full flex items-center justify-start gap-2 ${activeTab === 'courses' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                    onClick={() => setActiveTab('courses')}
+                    onClick={() => handleTabChange('courses')}
                   >
                     <Book size={18} />
                     <span>הקורסים שלי</span>
@@ -131,28 +164,28 @@ const UserDashboard = () => {
                     <>
                       <Button 
                         className={`w-full flex items-center justify-start gap-2 ${activeTab === 'tutorProfile' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                        onClick={() => setActiveTab('tutorProfile')}
+                        onClick={() => handleTabChange('tutorProfile')}
                       >
                         <User size={18} />
                         <span>פרופיל מרצה</span>
                       </Button>
                       <Button 
                         className={`w-full flex items-center justify-start gap-2 ${activeTab === 'analytics' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                        onClick={() => setActiveTab('analytics')}
+                        onClick={() => handleTabChange('analytics')}
                       >
                         <BarChart2 size={18} />
                         <span>אנליטיקה</span>
                       </Button>
                       <Button 
                         className={`w-full flex items-center justify-start gap-2 ${activeTab === 'tutorCourses' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                        onClick={() => setActiveTab('tutorCourses')}
+                        onClick={() => handleTabChange('tutorCourses')}
                       >
                         <Settings size={18} />
                         <span>ניהול קורסים</span>
                       </Button>
                       <Button 
                         className={`w-full flex items-center justify-start gap-2 ${activeTab === 'coupons' ? 'bg-blue-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                        onClick={() => setActiveTab('coupons')}
+                        onClick={() => handleTabChange('coupons')}
                       >
                         <Tag size={18} />
                         <span>קופונים</span>
@@ -269,7 +302,7 @@ const UserDashboard = () => {
                           <p className="text-2xl font-bold">
                             {isTutor ? 
                               (dashboardData.my_courses?.length || 0) : 
-                              (dashboardData.my_courses?.length || 0)}
+                              (dashboardData.my_course?.length || 0)}
                           </p>
                           <p className="text-sm text-gray-600">
                             {isTutor ? 'קורסים שאתה מלמד' : 'קורסים שרכשת'}
@@ -335,34 +368,81 @@ const UserDashboard = () => {
                   {/* Recent Activity */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>פעילות אחרונה</CardTitle>
+                      <CardTitle>{isTutor ? 'רכישות אחרונות' : 'פעילות אחרונה'}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {dashboardData.recent_activity && dashboardData.recent_activity.length > 0 ? (
-                        <div className="space-y-4">
-                          {dashboardData.recent_activity.map((activity, idx) => (
-                            <div key={idx} className="flex items-start border-b pb-4 last:border-0">
-                              <div className={`p-2 rounded-full mr-3 ${
-                                activity.type === 'purchase' ? 'bg-green-100' : 
-                                activity.type === 'access_granted' ? 'bg-blue-100' :
-                                activity.type === 'watch' ? 'bg-amber-100' : 'bg-gray-100'
-                              }`}>
-                                {activity.type === 'purchase' ? <DollarSign size={16} className="text-green-600" /> : 
-                                 activity.type === 'access_granted' ? <Users size={16} className="text-blue-600" /> :
-                                 activity.type === 'watch' ? <Zap size={16} className="text-amber-600" /> : 
-                                 <Database size={16} className="text-gray-600" />}
-                              </div>
-                              <div>
-                                <p className="font-medium">{activity.message}</p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(activity.created_at).toLocaleDateString('he-IL')} {new Date(activity.created_at).toLocaleTimeString('he-IL')}
-                                </p>
-                              </div>
+                      {isTutor ? (
+                        // Show recent purchases for tutors
+                        (() => {
+                          const recentPurchases = [];
+                          dashboardData.my_courses?.forEach(course => {
+                            course.purchasers?.forEach(purchase => {
+                              recentPurchases.push({
+                                ...purchase,
+                                course_title: course.title,
+                                course_id: course.video_course_id
+                              });
+                            });
+                          });
+                          
+                          const sortedPurchases = recentPurchases
+                            .sort((a, b) => new Date(b.purchase_date) - new Date(a.purchase_date))
+                            .slice(0, 5);
+
+                          return sortedPurchases.length > 0 ? (
+                            <div className="space-y-4">
+                              {sortedPurchases.map((purchase, idx) => (
+                                <div key={idx} className="flex items-start border-b pb-4 last:border-0">
+                                  <div className={`p-2 rounded-full mr-3 ${
+                                    purchase.paid ? 'bg-green-100' : 'bg-yellow-100'
+                                  }`}>
+                                    <DollarSign size={16} className={purchase.paid ? 'text-green-600' : 'text-yellow-600'} />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">
+                                      {purchase.paid ? 'רכישה מאושרת' : 'רכישה ממתינה'} - {purchase.course_title}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {purchase.customer_full_name || purchase.customer_email || 'לקוח אנונימי'} • ₪{purchase.amount}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(purchase.purchase_date).toLocaleDateString('he-IL')} {new Date(purchase.purchase_date).toLocaleTimeString('he-IL')}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          ) : (
+                            <p className="text-center py-4 text-gray-500">אין רכישות אחרונות</p>
+                          );
+                        })()
                       ) : (
-                        <p className="text-center py-4 text-gray-500">אין פעילות אחרונה</p>
+                        // Show recent course access for students
+                        dashboardData.access && dashboardData.access.length > 0 ? (
+                          <div className="space-y-4">
+                            {dashboardData.access
+                              .sort((a, b) => new Date(b.granted_at) - new Date(a.granted_at))
+                              .slice(0, 5)
+                              .map((course, idx) => (
+                                <div key={idx} className="flex items-start border-b pb-4 last:border-0">
+                                  <div className="p-2 rounded-full mr-3 bg-blue-100">
+                                    <Book size={16} className="text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">גישה לקורס - {course.title}</p>
+                                    <p className="text-sm text-gray-500">
+                                      מרצה: {course.tutor_name}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {new Date(course.granted_at).toLocaleDateString('he-IL')} {new Date(course.granted_at).toLocaleTimeString('he-IL')}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        ) : (
+                          <p className="text-center py-4 text-gray-500">אין פעילות אחרונה</p>
+                        )
                       )}
                     </CardContent>
                   </Card>
@@ -370,7 +450,7 @@ const UserDashboard = () => {
                   {/* Recent/Top Courses */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>{isTutor ? 'הקורסים המובילים' : 'קורסים אחרונים שנצפו'}</CardTitle>
+                      <CardTitle>{isTutor ? 'הקורסים המובילים' : 'קורסים שנרכשו לאחרונה'}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {isTutor ? (
@@ -378,22 +458,22 @@ const UserDashboard = () => {
                         dashboardData.my_courses && dashboardData.my_courses.length > 0 ? (
                           <div className="space-y-4">
                             {dashboardData.my_courses
-                              .sort((a, b) => (b.total_sales || 0) - (a.total_sales || 0))
+                              .sort((a, b) => (b.purchasers?.length || 0) - (a.purchasers?.length || 0))
                               .slice(0, 5)
                               .map((course) => (
-                                <div key={course.id} className="flex justify-between items-center border-b pb-3 last:border-0">
+                                <div key={course.video_course_id} className="flex justify-between items-center border-b pb-3 last:border-0">
                                   <div>
                                     <p className="font-medium">{course.title}</p>
-                                    <p className="text-sm text-gray-500">{course.total_sales || 0} מכירות</p>
+                                    <p className="text-sm text-gray-500">{course.purchasers?.length || 0} רכישות</p>
                                   </div>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                      setActiveTab('courses');
+                                      handleTabChange('tutorCourses');
                                       // Scroll to course after tab change
                                       setTimeout(() => {
-                                        const courseElem = document.getElementById(`course-${course.id}`);
+                                        const courseElem = document.getElementById(`course-${course.video_course_id}`);
                                         if (courseElem) courseElem.scrollIntoView({ behavior: 'smooth' });
                                       }, 100);
                                     }}
@@ -407,27 +487,30 @@ const UserDashboard = () => {
                           <p className="text-center py-4 text-gray-500">אין קורסים להצגה</p>
                         )
                       ) : (
-                        // Recently Watched Courses for Students
-                        dashboardData.recently_watched && dashboardData.recently_watched.length > 0 ? (
+                        // Recently Purchased Courses for Students
+                        dashboardData.access && dashboardData.access.length > 0 ? (
                           <div className="space-y-4">
-                            {dashboardData.recently_watched.map((course) => (
-                              <div key={course.id} className="flex justify-between items-center border-b pb-3 last:border-0">
+                            {dashboardData.access
+                              .sort((a, b) => new Date(b.granted_at) - new Date(a.granted_at))
+                              .slice(0, 5)
+                              .map((course) => (
+                              <div key={course.video_course_id} className="flex justify-between items-center border-b pb-3 last:border-0">
                                 <div>
                                   <p className="font-medium">{course.title}</p>
-                                  <p className="text-sm text-gray-500">נצפה לאחרונה: {new Date(course.last_watched).toLocaleDateString('he-IL')}</p>
+                                  <p className="text-sm text-gray-500">נרכש בתאריך: {new Date(course.granted_at).toLocaleDateString('he-IL')}</p>
                                 </div>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => navigate(`/course/${course.id}`)}
+                                  onClick={() => navigate(`/course/${course.video_course_id}`)}
                                 >
-                                  המשך צפייה <ChevronRight size={16} />
+                                  צפייה בקורס <ChevronRight size={16} />
                                 </Button>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <p className="text-center py-4 text-gray-500">עדיין לא צפית בקורסים</p>
+                          <p className="text-center py-4 text-gray-500">עדיין לא רכשת קורסים</p>
                         )
                       )}
                     </CardContent>
@@ -464,23 +547,25 @@ const UserDashboard = () => {
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
                             {dashboardData.coupons.slice(0, 5).map((coupon) => (
-                              <tr key={coupon.id}>
+                              <tr key={coupon.code}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                   <span className="bg-gray-100 px-2 py-1 rounded font-mono">
                                     {coupon.code}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {coupon.discount}%
+                                  {coupon.discount_percent}%
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {coupon.course_title || 'כל הקורסים'}
+                                  {coupon.video_course_ids?.length > 0 ? 
+                                    `${coupon.video_course_ids.length} קורסים` : 
+                                    'כל הקורסים'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {new Date(coupon.expiry_date).toLocaleDateString('he-IL')}
+                                  {new Date(coupon.expires_at).toLocaleDateString('he-IL')}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                  {coupon.uses || 0} פעמים
+                                  {coupon.usage_count || 0} פעמים
                                 </td>
                               </tr>
                             ))}
@@ -492,7 +577,7 @@ const UserDashboard = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setActiveTab('coupons')}
+                              onClick={() => handleTabChange('coupons')}
                               className="text-blue-600"
                             >
                               הצג את כל הקופונים ({dashboardData.coupons.length})

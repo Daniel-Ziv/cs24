@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Edit, Trash2, Loader, Plus } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -22,17 +22,36 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     events: []
   });
 
+  // Initialize tutorProfileData with current data
+  useEffect(() => {
+    if (dashboardData?.tutor_profile) {
+      setTutorProfileData({
+        name: dashboardData.tutor_profile.name || '',
+        mail: dashboardData.tutor_profile.mail || '',
+        phone: dashboardData.tutor_profile.phone || '',
+        about_me: dashboardData.tutor_profile.about_me || '',
+        github: dashboardData.tutor_profile.github || '',
+        linkedin: dashboardData.tutor_profile.linkedin || '',
+        other_link: dashboardData.tutor_profile.other_link || '',
+        education: dashboardData.tutor_profile.education || [],
+        grades: dashboardData.tutor_profile.grades || [],
+        selections: dashboardData.tutor_profile.selections || [],
+        events: dashboardData.tutor_profile.events || []
+      });
+    }
+  }, [dashboardData]);
+
   // New education entry
   const [newEducation, setNewEducation] = useState({
-    institution: '',
-    degree: '',
-    field: '',
-    year: ''
+    degree_id: '',
+    start_date: '',
+    end_date: ''
   });
 
   // New grade entry
   const [newGrade, setNewGrade] = useState({
-    course: '',
+    degree_id: '',
+    course_id: '',
     grade: ''
   });
 
@@ -43,14 +62,14 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     start_date: '',
     start_time: '',
     end_date: '',
-    end_time: ''
+    end_time: '',
+    event_link: ''
   });
 
   // New specialization entry
   const [newSpecialization, setNewSpecialization] = useState({
-    course_name: '',
-    degree_name: '',
-    academy_name: ''
+    degree_id: '',
+    course_id: ''
   });
 
   // Handle profile update
@@ -58,27 +77,36 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     try {
       setIsLoading(true);
       
-      const updateData = {
-        name: tutorProfileData.name,
-        mail: tutorProfileData.mail,
-        phone: tutorProfileData.phone,
-        about_me: tutorProfileData.about_me,
-        github: tutorProfileData.github,
-        linkedin: tutorProfileData.linkedin,
-        other_link: tutorProfileData.other_link,
-        education: tutorProfileData.education,
-        grades: tutorProfileData.grades,
-        events: tutorProfileData.events
-      };
-      
-      const { error } = await supabase
-        .from('tutors')
-        .update(updateData)
-        .eq('id', dashboardData.tutor_profile.id);
-        
+      const { data, error } = await supabase.functions.invoke("save-dashboard", {
+        method: "POST",
+        body: {
+          profile_data: {
+            name: tutorProfileData.name,
+            mail: tutorProfileData.mail,
+            phone: tutorProfileData.phone,
+            about_me: tutorProfileData.about_me,
+            github: tutorProfileData.github,
+            linkedin: tutorProfileData.linkedin,
+            other_link: tutorProfileData.other_link,
+            education: tutorProfileData.education,
+            grades: tutorProfileData.grades,
+            events: tutorProfileData.events,
+            selections: tutorProfileData.selections,
+            coupons: tutorProfileData.coupons
+          }
+        }
+      });
+
       if (error) {
         console.error('Error updating tutor profile:', error);
         showNotification('שגיאה בעדכון פרופיל המרצה', 'error');
+        return;
+      }
+
+      // Check for partial failures
+      if (data.results.some(result => result.status === "error")) {
+        console.warn("Some operations failed:", data.results);
+        showNotification('חלק מהעדכונים נכשלו', 'warning');
         return;
       }
       
@@ -115,7 +143,9 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     const { name, value } = e.target;
     setNewGrade(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Reset course_id when degree changes
+      ...(name === 'degree_id' && { course_id: '' })
     }));
   };
 
@@ -133,27 +163,42 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     const { name, value } = e.target;
     setNewSpecialization(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Reset course_id when degree changes
+      ...(name === 'degree_id' && { course_id: '' })
     }));
   };
 
   // Handle adding a new education item
   const handleAddEducation = () => {
-    if (!newEducation.institution || !newEducation.degree || !newEducation.field) {
+    if (!newEducation.degree_id || !newEducation.start_date || !newEducation.end_date) {
       showNotification('אנא מלא את כל שדות ההשכלה', 'warning');
       return;
     }
     
+    const selectedDegree = dashboardData.degrees_with_courses.find(d => d.id === parseInt(newEducation.degree_id));
+    
+    const newEducationItem = {
+      academy_id: selectedDegree?.academy_id || 1,
+      academy_name: "HIT", // Since we only have HIT in the data
+      degree_id: parseInt(newEducation.degree_id),
+      degree_name: selectedDegree?.name || '',
+      start_date: newEducation.start_date,
+      end_date: newEducation.end_date
+    };
+    
     setTutorProfileData(prev => ({
       ...prev,
-      education: [...prev.education, { ...newEducation }]
+      education: [...prev.education, newEducationItem]
     }));
     
+    // Update the displayed data immediately
+    dashboardData.tutor_profile.education = [...(dashboardData.tutor_profile.education || []), newEducationItem];
+    
     setNewEducation({
-      institution: '',
-      degree: '',
-      field: '',
-      year: ''
+      degree_id: '',
+      start_date: '',
+      end_date: ''
     });
   };
 
@@ -163,22 +208,40 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
       ...prev,
       education: prev.education.filter((_, i) => i !== index)
     }));
+    // Update the displayed data
+    const updatedEducation = [...dashboardData.tutor_profile.education];
+    updatedEducation.splice(index, 1);
+    dashboardData.tutor_profile.education = updatedEducation;
   };
 
   // Handle adding a new grade item
   const handleAddGrade = () => {
-    if (!newGrade.course || !newGrade.grade) {
+    if (!newGrade.degree_id || !newGrade.course_id || !newGrade.grade) {
       showNotification('אנא מלא את כל שדות הציון', 'warning');
       return;
     }
     
+    const selectedDegree = dashboardData.degrees_with_courses.find(d => d.id === parseInt(newGrade.degree_id));
+    const selectedCourse = selectedDegree?.courses.find(c => c.id === parseInt(newGrade.course_id));
+    
+    const newGradeItem = {
+      course_id: parseInt(newGrade.course_id),
+      course_name: selectedCourse?.name || '',
+      grade: parseInt(newGrade.grade),
+      year: selectedCourse?.year || 1
+    };
+    
     setTutorProfileData(prev => ({
       ...prev,
-      grades: [...prev.grades, { ...newGrade }]
+      grades: [...prev.grades, newGradeItem]
     }));
     
+    // Update the displayed data immediately
+    dashboardData.tutor_profile.grades = [...(dashboardData.tutor_profile.grades || []), newGradeItem];
+    
     setNewGrade({
-      course: '',
+      degree_id: '',
+      course_id: '',
       grade: ''
     });
   };
@@ -189,6 +252,10 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
       ...prev,
       grades: prev.grades.filter((_, i) => i !== index)
     }));
+    // Update the displayed data
+    const updatedGrades = [...dashboardData.tutor_profile.grades];
+    updatedGrades.splice(index, 1);
+    dashboardData.tutor_profile.grades = updatedGrades;
   };
 
   // Handle adding a new event item
@@ -200,8 +267,11 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
     
     setTutorProfileData(prev => ({
       ...prev,
-      events: [...prev.events, { ...newEvent }]
+      events: [...prev.events, newEvent]
     }));
+    
+    // Update the displayed data immediately
+    dashboardData.tutor_profile.events = [...(dashboardData.tutor_profile.events || []), newEvent];
     
     setNewEvent({
       title: '',
@@ -209,34 +279,53 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
       start_date: '',
       start_time: '',
       end_date: '',
-      end_time: ''
+      end_time: '',
+      event_link: ''
     });
   };
 
   // Handle removing an event item
-  const handleRemoveEvent = (eventId) => {
+  const handleRemoveEvent = (index) => {
     setTutorProfileData(prev => ({
       ...prev,
-      events: prev.events.filter(event => event.id !== eventId)
+      events: prev.events.filter((_, i) => i !== index)
     }));
+    // Update the displayed data
+    const updatedEvents = [...dashboardData.tutor_profile.events];
+    updatedEvents.splice(index, 1);
+    dashboardData.tutor_profile.events = updatedEvents;
   };
 
   // Handle adding a new specialization
   const handleAddSpecialization = () => {
-    if (!newSpecialization.course_name || !newSpecialization.degree_name || !newSpecialization.academy_name) {
+    if (!newSpecialization.degree_id || !newSpecialization.course_id) {
       showNotification('אנא מלא את כל שדות הקורס', 'warning');
       return;
     }
     
+    const selectedDegree = dashboardData.degrees_with_courses.find(d => d.id === parseInt(newSpecialization.degree_id));
+    const selectedCourse = selectedDegree?.courses.find(c => c.id === parseInt(newSpecialization.course_id));
+    
+    const newSpecializationItem = {
+      course_id: parseInt(newSpecialization.course_id),
+      course_name: selectedCourse?.name || '',
+      degree_id: parseInt(newSpecialization.degree_id),
+      degree_name: selectedDegree?.name || '',
+      academy_id: selectedDegree?.academy_id || 1,
+      academy_name: "HIT" // Since we only have HIT in the data
+    };
+    
     setTutorProfileData(prev => ({
       ...prev,
-      selections: [...prev.selections, { ...newSpecialization }]
+      selections: [...prev.selections, newSpecializationItem]
     }));
     
+    // Update the displayed data immediately
+    dashboardData.tutor_profile.selections = [...(dashboardData.tutor_profile.selections || []), newSpecializationItem];
+    
     setNewSpecialization({
-      course_name: '',
-      degree_name: '',
-      academy_name: ''
+      degree_id: '',
+      course_id: ''
     });
   };
 
@@ -246,6 +335,10 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
       ...prev,
       selections: prev.selections.filter((_, i) => i !== index)
     }));
+    // Update the displayed data
+    const updatedSelections = [...dashboardData.tutor_profile.selections];
+    updatedSelections.splice(index, 1);
+    dashboardData.tutor_profile.selections = updatedSelections;
   };
 
   return (
@@ -423,49 +516,39 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
               {isEditingProfile && (
                 <div className="mb-4 p-4 border rounded bg-white">
                   <h4 className="font-medium mb-2">הוספת השכלה חדשה</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">מוסד לימודים</label>
-                      <input
-                        type="text"
-                        name="institution"
-                        value={newEducation.institution}
-                        onChange={handleEducationInputChange}
-                        className="w-full p-2 border rounded"
-                        placeholder="שם המוסד האקדמי"
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">תואר</label>
-                      <input
-                        type="text"
-                        name="degree"
-                        value={newEducation.degree}
-                        onChange={handleEducationInputChange}
+                      <select
+                        name="degree_id"
+                        value={newEducation.degree_id}
+                        onChange={(e) => setNewEducation(prev => ({ ...prev, degree_id: e.target.value }))}
                         className="w-full p-2 border rounded"
-                        placeholder="סוג התואר (B.Sc, M.Sc, וכו')"
+                      >
+                        <option value="">בחר תואר</option>
+                        {dashboardData.degrees_with_courses.map(degree => (
+                          <option key={degree.id} value={degree.id}>{degree.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">תאריך התחלה</label>
+                      <input
+                        type="date"
+                        name="start_date"
+                        value={newEducation.start_date}
+                        onChange={(e) => setNewEducation(prev => ({ ...prev, start_date: e.target.value }))}
+                        className="w-full p-2 border rounded"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">תחום</label>
+                      <label className="block text-sm font-medium mb-1">תאריך סיום (או צפוי)</label>
                       <input
-                        type="text"
-                        name="field"
-                        value={newEducation.field}
-                        onChange={handleEducationInputChange}
+                        type="date"
+                        name="end_date"
+                        value={newEducation.end_date}
+                        onChange={(e) => setNewEducation(prev => ({ ...prev, end_date: e.target.value }))}
                         className="w-full p-2 border rounded"
-                        placeholder="תחום הלימודים"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">שנה</label>
-                      <input
-                        type="text"
-                        name="year"
-                        value={newEducation.year}
-                        onChange={handleEducationInputChange}
-                        className="w-full p-2 border rounded"
-                        placeholder="שנת סיום"
                       />
                     </div>
                   </div>
@@ -514,39 +597,42 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
               {isEditingProfile && (
                 <div className="mb-4 p-4 border rounded bg-white">
                   <h4 className="font-medium mb-2">הוספת קורס חדש</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">שם הקורס</label>
-                      <input
-                        type="text"
-                        name="course_name"
-                        value={newSpecialization.course_name}
-                        onChange={handleSpecializationInputChange}
-                        className="w-full p-2 border rounded"
-                        placeholder="שם הקורס"
-                      />
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">תואר</label>
-                      <input
-                        type="text"
-                        name="degree_name"
-                        value={newSpecialization.degree_name}
+                      <select
+                        name="degree_id"
+                        value={newSpecialization.degree_id || ''}
                         onChange={handleSpecializationInputChange}
                         className="w-full p-2 border rounded"
-                        placeholder="סוג התואר"
-                      />
+                      >
+                        <option value="">בחר תואר</option>
+                        {dashboardData.degrees_with_courses.map(degree => (
+                          <option key={degree.id} value={degree.id}>
+                            {degree.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">מוסד אקדמי</label>
-                      <input
-                        type="text"
-                        name="academy_name"
-                        value={newSpecialization.academy_name}
+                      <label className="block text-sm font-medium mb-1">קורס</label>
+                      <select
+                        name="course_id"
+                        value={newSpecialization.course_id || ''}
                         onChange={handleSpecializationInputChange}
                         className="w-full p-2 border rounded"
-                        placeholder="שם המוסד"
-                      />
+                        disabled={!newSpecialization.degree_id}
+                      >
+                        <option value="">בחר קורס</option>
+                        {newSpecialization.degree_id && dashboardData.degrees_with_courses
+                          .find(d => d.id === parseInt(newSpecialization.degree_id))
+                          ?.courses.map(course => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))
+                        }
+                      </select>
                     </div>
                   </div>
                   <Button
@@ -582,9 +668,7 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
               ) : (
                 <p className="text-center py-4 text-gray-500">לא נמצאו קורסים</p>
               )}
-              {!isEditingProfile && (
-                <p className="mt-4 text-sm text-gray-500">* ניתן להוסיף קורסים דרך עמוד הגדרות המרצה.</p>
-              )}
+              
             </div>
 
             {/* Events */}
@@ -598,14 +682,23 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                         <div>
                           <p className="font-medium">{event.title}</p>
                           <p className="text-sm text-gray-600">{event.description}</p>
+                          {event.event_link && (
+                            <p className="text-sm text-blue-600 mt-1">
+                              <a href={event.event_link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                קישור לאירוע
+                              </a>
+                            </p>
+                          )}
                           <div className="mt-2 text-xs text-gray-500">
                             <p>תאריך התחלה: {new Date(event.start_date).toLocaleDateString('he-IL')} {event.start_time}</p>
-                            <p>תאריך סיום: {new Date(event.end_date).toLocaleDateString('he-IL')} {event.end_time}</p>
+                            {event.end_date && event.end_time && (
+                              <p>תאריך סיום: {new Date(event.end_date).toLocaleDateString('he-IL')} {event.end_time}</p>
+                            )}
                           </div>
                         </div>
                         {isEditingProfile && (
                           <Button
-                            onClick={() => handleRemoveEvent(event.id)}
+                            onClick={() => handleRemoveEvent(index)}
                             variant="ghost"
                             size="sm"
                             className="text-red-500 hover:text-red-700"
@@ -686,6 +779,17 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                         className="w-full p-2 border rounded"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">קישור לאירוע</label>
+                      <input
+                        type="url"
+                        name="event_link"
+                        value={newEvent.event_link || ''}
+                        onChange={handleEventInputChange}
+                        className="w-full p-2 border rounded"
+                        placeholder="https://your-event-link.com"
+                      />
+                    </div>
                   </div>
                   <Button
                     onClick={handleAddEvent}
@@ -714,7 +818,7 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {dashboardData.tutor_profile.grades.map((grade, index) => (
-                        <tr key={index}>
+                        <tr key={grade.id || index}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">{grade.course_name}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <span className={`px-2 py-1 rounded-full ${
@@ -730,7 +834,7 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                           {isEditingProfile && (
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                               <Button
-                                onClick={() => handleRemoveGrade(grade.id)}
+                                onClick={() => handleRemoveGrade(index)}
                                 variant="ghost"
                                 size="sm"
                                 className="text-red-500 hover:text-red-700"
@@ -752,15 +856,40 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                   <h4 className="font-medium mb-2">הוספת ציון חדש</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">קורס</label>
-                      <input
-                        type="text"
-                        name="course_name"
-                        value={newGrade.course_name || ''}
+                      <label className="block text-sm font-medium mb-1">תואר</label>
+                      <select
+                        name="degree_id"
+                        value={newGrade.degree_id || ''}
                         onChange={handleGradeInputChange}
                         className="w-full p-2 border rounded"
-                        placeholder="שם הקורס"
-                      />
+                      >
+                        <option value="">בחר תואר</option>
+                        {dashboardData.degrees_with_courses.map(degree => (
+                          <option key={degree.id} value={degree.id}>
+                            {degree.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">קורס</label>
+                      <select
+                        name="course_id"
+                        value={newGrade.course_id || ''}
+                        onChange={handleGradeInputChange}
+                        className="w-full p-2 border rounded"
+                        disabled={!newGrade.degree_id}
+                      >
+                        <option value="">בחר קורס</option>
+                        {newGrade.degree_id && dashboardData.degrees_with_courses
+                          .find(d => d.id === parseInt(newGrade.degree_id))
+                          ?.courses.map(course => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))
+                        }
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">ציון</label>
@@ -773,19 +902,6 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                         onChange={handleGradeInputChange}
                         className="w-full p-2 border rounded"
                         placeholder="ציון (0-100)"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">שנה</label>
-                      <input
-                        type="number"
-                        name="year"
-                        min="1"
-                        max="7"
-                        value={newGrade.year || ''}
-                        onChange={handleGradeInputChange}
-                        className="w-full p-2 border rounded"
-                        placeholder="שנת לימודים (1-7)"
                       />
                     </div>
                   </div>
