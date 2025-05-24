@@ -39,6 +39,7 @@ const NavRightSection = ({ setIsOpen, styles }) => {
       <NavbarLink text="ראשי" styles={styles} to="/" />
       <NavbarLink text="מחשבון ציונים" styles={styles} to="/gpa" />
       <NavbarLink text="אודות" styles={styles} to="/about" />
+      <NavbarLink text="קורסים" styles={styles} to="/courses" />
     </div>
   );
 };

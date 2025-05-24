@@ -39,7 +39,8 @@ export default function CourseDetailsEditModal({
     price: 0,
     salePrice: '',
     thumbnailUrl: '',
-    status: 'draft'
+    status: 'draft',
+    on_sale_expiration: null
   });
 
   // Update state when courseData changes or modal opens
@@ -51,7 +52,8 @@ export default function CourseDetailsEditModal({
         price: courseData.price || 0,
         salePrice: courseData.salePrice || '',
         thumbnailUrl: courseData.thumbnailUrl || '',
-        status: courseData.status || 'draft'
+        status: courseData.status || 'draft',
+        on_sale_expiration: courseData.on_sale_expiration || null
       });
       setThumbnailPreview(courseData.thumbnailUrl);
     }
@@ -192,6 +194,41 @@ export default function CourseDetailsEditModal({
               />
             </div>
           </div>
+
+          {/* Sale Expiration Date */}
+          {editedData.salePrice && (
+            <div>
+              <label className="block text-sm font-medium mb-1">תאריך סיום המבצע (אופציונלי)</label>
+              <div className="flex gap-2">
+                <input
+                  type="datetime-local"
+                  name="on_sale_expiration"
+                  value={editedData.on_sale_expiration ? new Date(editedData.on_sale_expiration).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => {
+                    const date = e.target.value ? new Date(e.target.value).toISOString() : null;
+                    setEditedData(prev => ({
+                      ...prev,
+                      on_sale_expiration: date
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditedData(prev => ({
+                    ...prev,
+                    on_sale_expiration: null
+                  }))}
+                  className="whitespace-nowrap"
+                >
+                  <X className="h-4 w-4 ml-1" />
+                  נקה תאריך
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Thumbnail Upload */}
           <div>

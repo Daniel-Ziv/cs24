@@ -45,6 +45,7 @@ export default function CourseEditorPage() {
     thumbnailUrl: '',
     price: 0,
     salePrice: null,
+    on_sale_expiration: null,
     status: 'draft'
   });
   
@@ -153,6 +154,7 @@ export default function CourseEditorPage() {
           thumbnailUrl: videoCourse.custom_thumbnail_url || 'https://via.placeholder.com/800x450',
           price: videoCourse.price || 0,
           salePrice: videoCourse.sale_price || null,
+          on_sale_expiration: videoCourse.on_sale_expiration || null,
           status: videoCourse.shown ? 'published' : 'draft',
           courseId: videoCourse.course_id,
           videoUid: videoCourse.video_uid
@@ -565,6 +567,7 @@ export default function CourseEditorPage() {
           description: courseData.description,
           price: parseFloat(courseData.price) || 0,
           sale_price: courseData.salePrice ? parseFloat(courseData.salePrice) : null,
+          on_sale_expiration: courseData.on_sale_expiration,
           custom_thumbnail_url: courseData.thumbnailUrl,
           shown: courseData.status === 'published' ? 1 : 0
         },
@@ -771,6 +774,7 @@ export default function CourseEditorPage() {
           thumbnailUrl: videoCourse.custom_thumbnail_url || 'https://via.placeholder.com/800x450',
           price: videoCourse.price || 0,
           salePrice: videoCourse.sale_price || null,
+          on_sale_expiration: videoCourse.on_sale_expiration || null,
           status: videoCourse.shown ? 'published' : 'draft',
           courseId: videoCourse.course_id,
           videoUid: videoCourse.video_uid
@@ -842,6 +846,7 @@ export default function CourseEditorPage() {
       description: editedData.description,
       price: parseFloat(editedData.price) || 0,
       salePrice: editedData.salePrice ? parseFloat(editedData.salePrice) : null,
+      on_sale_expiration: editedData.on_sale_expiration,
       status: editedData.status,
       // Use the preview URL for immediate display
       thumbnailUrl: editedData.previewUrl || courseData.thumbnailUrl,
