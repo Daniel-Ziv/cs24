@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../..
 import { Button } from '../../components/ui/button';
 import { showNotification } from '../../components/ui/notification';
 import { supabase } from '../../lib/supabase';
+import LoaderComponent from '../Loader';
 
 const CourseManagement = ({ 
   tutorCourses: initialTutorCourses, 
@@ -523,7 +524,7 @@ const CourseManagement = ({
               >
                 {isLoading ? (
                   <>
-                    <Loader size={16} className="mr-2 animate-spin" />
+                    <LoaderComponent size={16} className="mr-2 animate-spin" />
                     חוסם גישה...
                   </>
                 ) : (

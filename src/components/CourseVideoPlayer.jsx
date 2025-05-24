@@ -119,6 +119,7 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
   }
 
   return (
+  <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9' }}>
     <Stream
       controls
       src={streamToken}
@@ -138,7 +139,26 @@ function CourseVideoPlayer({ courseId, activeEpisode, onEpisodeComplete }) {
       )}
       autoplay={false}
     />
-  );
+
+    {/* Watermark overlay */}
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '10px',
+        right: '10px',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        color: 'white',
+        padding: '5px 10px',
+        fontSize: '12px',
+        borderRadius: '4px',
+        pointerEvents: 'none',
+        userSelect: 'none',
+      }}
+    >
+      {`Daniel Ziv • ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`}
+    </div>
+  </div>
+);
 }
 
 export default CourseVideoPlayer;

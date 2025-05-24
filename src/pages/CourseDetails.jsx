@@ -8,6 +8,9 @@ import BarLoader from "../components/BarLoader";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer";
 import CourseVideoPlayer from "../components/CourseVideoPlayer";
+import StarRating from "../components/StarRating";
+import { useAuth } from "../hooks/useAuth";
+import Loader from "../components/Loader";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -129,7 +132,7 @@ const CourseDetails = () => {
           className="text-center p-10 rounded-2xl bg-white shadow-xl border border-blue-100 max-w-md w-full"
         >
           <div className="mb-6">
-            <BarLoader color={theme.primary.main} />
+            <Loader />
           </div>
           <motion.p
             initial={{ y: 10, opacity: 0 }}
@@ -139,12 +142,6 @@ const CourseDetails = () => {
           >
             טוען פרטי הקורס...
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="w-16 h-16 mx-auto mt-6 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 blur-xl"
-          />
         </motion.div>
       </div>
     );

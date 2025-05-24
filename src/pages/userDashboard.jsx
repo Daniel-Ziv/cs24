@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, Book, ChevronRight, BarChart2, Settings, Edit, Save, Loader, Tag, Trash2, Plus, Zap, DollarSign, Users, Calendar, Database, Eye, EyeOff } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card';
@@ -11,6 +11,7 @@ import UserAnalytics from '../components/dashboard/UserAnalytics';
 import UserCouponsManagement from '../components/dashboard/UserCouponsManagement';
 import  CourseManagement  from '../components/dashboard/CourseManagement';
 import  TutorProfile  from '../components/dashboard/TutorProfile';
+import LoaderComponent from '../components/Loader';
 
 const UserDashboard = () => {
   const { user, session, loading, isAuthenticated } = useAuth();
@@ -123,7 +124,7 @@ const UserDashboard = () => {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center p-8 rounded-lg bg-white shadow-lg border border-blue-100 max-w-md w-full">
             <div className="mb-4">
-              <Loader className="w-12 h-12 animate-spin text-primary mx-auto" />
+              <LoaderComponent />
             </div>
             <p className="text-gray-600 text-lg font-medium">
               טוען נתוני לוח בקרה...

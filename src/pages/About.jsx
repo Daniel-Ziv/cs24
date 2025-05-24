@@ -6,6 +6,8 @@ import { FaBullseye, FaCode, FaLightbulb, FaChartBar } from 'react-icons/fa6';
 import { fetchAllContributorProfiles } from '../utils/linkedinUtils';
 import DraggableInstitutions from '../components/DraggableInstitutions';
 import Footer from '../components/Footer';
+import { supabase } from "../lib/supabase";
+import Loader from "../components/Loader";
 
 const About = () => {
   const [contributors, setContributors] = useState([]);
@@ -347,7 +349,7 @@ const ContributorsSection = ({ isMobile, isTablet, loading, contributors }) => {
             <div className="relative h-[450px] sm:h-[500px] mt-4">
               {loading ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                  <Loader />
                 </div>
               ) : (
                 <>

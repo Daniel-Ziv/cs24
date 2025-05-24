@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../..
 import { Button } from '../../components/ui/button';
 import { supabase } from '../../lib/supabase';
 import { showNotification } from '../../components/ui/notification';
+import LoaderComponent from '../Loader';
 
 const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -931,7 +932,7 @@ const TutorProfile = ({ dashboardData, isLoading: parentLoading }) => {
                 >
                   {isLoading ? (
                     <>
-                      <Loader size={16} className="mr-2 animate-spin" />
+                      <LoaderComponent />
                       שומר שינויים...
                     </>
                   ) : (

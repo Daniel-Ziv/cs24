@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Plus, Trash2, Loader, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { showNotification } from '../ui/notification';
+import LoaderComponent from '../Loader';
 
 const UserCouponsManagement = ({
   tutorCourses,
@@ -356,7 +357,7 @@ const UserCouponsManagement = ({
                     >
                       {isLoading ? (
                         <>
-                          <Loader size={16} className="mr-2 animate-spin" />
+                          <LoaderComponent />
                           יוצר קופון...
                         </>
                       ) : (

@@ -20,6 +20,7 @@ import { useTusUpload } from '../hooks/useTusUpload';
 import CourseDetailsEditModal from '../components/CourseDetailsEditModal';
 import DeleteVideoModal from '../components/DeleteVideoModal';
 import DeleteChapterModal from '../components/DeleteChapterModal';
+import LoaderComponent from '../components/Loader';
 
 // Hardcoded endpoints
 const GET_EDIT_COURSE_ENDPOINT = '/functions/v1/get-edit-course-page';
@@ -883,7 +884,7 @@ export default function CourseEditorPage() {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <LoaderComponent />
                   שומר...
                 </>
               ) : (
@@ -1100,7 +1101,7 @@ export default function CourseEditorPage() {
                                             <div className="w-1/2">
                                               <div className="flex items-center">
                                                 <div className="mr-2">
-                                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                                  <LoaderComponent />
                                                 </div>
                                                 <div className="w-full bg-blue-100 rounded-full h-2.5">
                                                   <div 
